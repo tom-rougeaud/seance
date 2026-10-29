@@ -26,10 +26,62 @@ var Plan = (function () {
     for (var i = 0; i < rs.length; i++) if (iso >= rs[i].debut && iso <= rs[i].fin) return rs[i];
     return null;
   }
+
+  /* ── alternance semaine 1 / semaine 2 ── */
+  function altConfig(annee) { var a = (DB.settings().alternance || {})[annee]; return a && /^\d{4}-\d{2}-\d{2}$/.test(a.lundi || '') && (a.type === 1 || a.type === 2) ? a : null; }
+  function setAltConfig(annee, cfg) { var all = Object.assign({}, DB.settings().alternance || {}); all[annee] = cfg; DB.saveSettings({ alternance: all }); }
+  /* une semaine est « de pause » si du lundi au vendredi tout est en vacances (période valable pour toutes les classes) */
+  function semainePause(mondayISO, annee) {
+    var rs = DB.list('fs_calendrier').filter(function (c) { return c.annee_scolaire === annee && !c.class_id && c.type === 'vacances'; });
+    if (!rs.length) return false;
+    for (var i = 0; i < 5; i++) if (!blockedReason(addDays(mondayISO, i), rs)) return false;
+    return true;
+  }
+  /* 1 ou 2 (null si le réglage n’existe pas) */
+  function weekType(iso, annee) {
+    var cfg = altConfig(annee); if (!cfg) return null;
+    var ref = weekStart(cfg.lundi), w = weekStart(iso), n = 0, g = 0;
+    var skip = cfg.sauter_vacances !== false;
+    if (w > ref) { for (var x = ref; x < w && g++ < 120; x = addDays(x, 7)) if (!(skip && semainePause(x, annee))) n++; }
+    else if (w < ref) { for (var y = w; y < ref && g++ < 120; y = addDays(y, 7)) if (!(skip && semainePause(y, annee))) n++; }
+    return n % 2 === 0 ? cfg.type : 3 - cfg.type;
+  }
+  /* le créneau a-t-il lieu ce jour-là ? (semaine : 0 = toutes) */
+  function slotOn(c, iso, annee) {
+    if (!c.semaine) return true;
+    var t = weekType(iso, annee);
+    return t === null ? true : c.semaine === t;
+  }
+  function slotsFor(cl, groupe) {
+    var cr = (cl.creneaux || []).filter(function (c) { return c.jour >= 1 && c.jour <= 6; });
+    if (groupe === undefined) { var plein = cr.filter(function (c) { return !c.groupe; }); return plein.length ? plein : cr; }
+    return cr.filter(function (c) { return !c.groupe || c.groupe === groupe; });
+  }
+  /* minutes par semaine type : { s1, s2, g1, g2 (créneaux en demi-groupe) } */
+  function heuresHebdo(cl) {
+    var o = { s1: 0, s2: 0, g1: 0, g2: 0, gs1: 0, gs2: 0 };
+    (cl.creneaux || []).forEach(function (c) {
+      var m = +c.duree || 0, gr = !!c.groupe;
+      if (!c.semaine || c.semaine === 1) { if (gr) o.gs1 += m; else o.s1 += m; }
+      if (!c.semaine || c.semaine === 2) { if (gr) o.gs2 += m; else o.s2 += m; }
+    });
+    return o;
+  }
+  /* créneaux d’un jour donné pour toutes les classes actives (hors vacances / jours bloqués) */
+  function slotsOnDate(iso) {
+    var dow = (parseISO(iso).getDay() + 6) % 7 + 1, out = [];
+    Cls.actives().forEach(function (cl) {
+      var rs = ranges(cl.id, cl.annee_scolaire); if (blockedReason(iso, rs)) return;
+      (cl.creneaux || []).forEach(function (c) { if (c.jour === dow && slotOn(c, iso, cl.annee_scolaire)) out.push({ cl: cl, c: c }); });
+    });
+    return out.sort(function (a, b) { return a.c.debut < b.c.debut ? -1 : a.c.debut > b.c.debut ? 1 : 0; });
+  }
+  function libSemaine(n) { return n === 1 ? 'Semaine 1' : n === 2 ? 'Semaine 2' : 'Toutes les semaines'; }
+
   /* prochains créneaux de cours : [{date, debut, duree}] */
   function nextSlots(cl, afterISO, n, opts) {
     opts = opts || {};
-    var cr = (cl.creneaux || []).filter(function (c) { return c.jour >= 1 && c.jour <= 6; });
+    var cr = slotsFor(cl, opts.groupe);
     if (!cr.length) return [];
     var rs = ranges(cl.id, cl.annee_scolaire), out = [], d = afterISO, guard = 0;
     var lim = bornes(cl.annee_scolaire).fin;
@@ -38,8 +90,8 @@ var Plan = (function () {
     while (out.length < n && guard++ < 500) {
       d = addDays(d, 1); if (d > lim) break;
       var dow = (parseISO(d).getDay() + 6) % 7 + 1;
-      cr.forEach(function (c) {
-        if (c.jour === dow && !blockedReason(d, rs) && out.length < n) {
+      cr.slice().sort(function (a, b) { return a.debut < b.debut ? -1 : 1; }).forEach(function (c) {
+        if (c.jour === dow && !blockedReason(d, rs) && out.length < n && slotOn(c, d, cl.annee_scolaire)) {
           var k = d + '|' + c.debut;
           if (used[k]) { used[k]--; return; }
           out.push({ date: d, debut: c.debut, duree: c.duree });
@@ -49,11 +101,11 @@ var Plan = (function () {
     return out;
   }
   /* heures de cours disponibles entre deux dates pour une classe */
-  function heuresDispo(cl, from, to) {
-    var cr = cl.creneaux || [], rs = ranges(cl.id, cl.annee_scolaire), tot = 0, nb = 0, d = from, g = 0;
+  function heuresDispo(cl, from, to, groupe) {
+    var cr = slotsFor(cl, groupe), rs = ranges(cl.id, cl.annee_scolaire), tot = 0, nb = 0, d = from, g = 0;
     while (d <= to && g++ < 500) {
       var dow = (parseISO(d).getDay() + 6) % 7 + 1;
-      if (!blockedReason(d, rs)) cr.forEach(function (c) { if (c.jour === dow) { tot += (+c.duree || 0); nb++; } });
+      if (!blockedReason(d, rs)) cr.forEach(function (c) { if (c.jour === dow && slotOn(c, d, cl.annee_scolaire)) { tot += (+c.duree || 0); nb++; } });
       d = addDays(d, 1);
     }
     return { minutes: tot, creneaux: nb };
@@ -121,5 +173,5 @@ var Plan = (function () {
     return { total: tot, vus: vus, maitrises: maitr, planifies: plan, minutes: min };
   }
 
-  return { PRESETS: PRESETS, bornes: bornes, ranges: ranges, blockedReason: blockedReason, nextSlots: nextSlots, heuresDispo: heuresDispo, semainesTravaillees: semainesTravaillees, STATUTS: STATUTS, compute: compute, get: get, planifie: planifie, chapStats: chapStats, seanceDate: seanceDate };
+  return { altConfig: altConfig, setAltConfig: setAltConfig, weekType: weekType, semainePause: semainePause, slotOn: slotOn, slotsFor: slotsFor, heuresHebdo: heuresHebdo, slotsOnDate: slotsOnDate, libSemaine: libSemaine, PRESETS: PRESETS, bornes: bornes, ranges: ranges, blockedReason: blockedReason, nextSlots: nextSlots, heuresDispo: heuresDispo, semainesTravaillees: semainesTravaillees, STATUTS: STATUTS, compute: compute, get: get, planifie: planifie, chapStats: chapStats, seanceDate: seanceDate };
 })();

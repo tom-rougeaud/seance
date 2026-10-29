@@ -29,7 +29,7 @@ Views.seance = function (id) {
   head = pageHead(s.titre || 'Nouvelle séance', cl.nom + ' · ' + lbl(K.TYPES, s.type) + (seq ? ' · ' + seq.titre : ''),
     [h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Exp.print('seance', s); } }, '🖨 Imprimer'),
     h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Exp.word('seance', s); } }, '📝 Word'),
-    h('button', { class: 'btn', type: 'button', title: 'Copier un texte prêt à coller dans le cahier de textes numérique', onclick: function () { save.now(); Exp.cahier(s); } }, '📋 Cahier de textes'),
+    h('button', { class: 'btn', type: 'button', title: 'Rédiger et copier la synthèse pour le cahier de textes Pronote', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Pronote') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '📋 Pronote'),
     h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); var n = duplicateSeance(s); UI.toast('Séance dupliquée.'); location.hash = '#/seance/' + n.id; } }, '⧉ Dupliquer')],
     seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
   root.appendChild(head);
@@ -66,7 +66,7 @@ Views.seance = function (id) {
               save.now();
               var other = (s.groupe || 'G1') === 'G1' ? 'G2' : 'G1';
               var t = createSeance(cl, { sequence_id: s.sequence_id, titre: s.titre, type: s.type, modalite: 'demi_groupe', groupe: other, jumelle_id: s.id, duree_min: s.duree_min, data: clone(s.data) });
-              t.data.bilan = { realise: '', notes: '', a_reprendre: '' }; DB.save('fs_seances', t);
+              t.data.bilan = { realise: '', notes: '', a_reprendre: '' }; t.data.pronote = { contenu: '', travail: '', temps: '' }; DB.save('fs_seances', t);
               Res.of(s.id).forEach(function (x) { Res.attach('seance', t.id, x.res.id, x.att.usage); });
               s.jumelle_id = t.id; save.now(); UI.toast('Séance du groupe ' + other.slice(1) + ' créée (copie à adapter).'); drawModalite();
             } }, '＋ Créer la séance de l’autre demi-groupe')),
@@ -115,6 +115,7 @@ Views.seance = function (id) {
     dyn.appendChild(UI.section('sea-trace', 'Trace écrite / ce que les élèves notent', [Ed.area('Trace écrite', d, 'trace', save, 'Définitions, méthode, exemple…', 5)], { open: false }));
     dyn.appendChild(UI.section('sea-res', 'Ressources (PDF, liens, vidéos)', [Res.block('seance', s, function () { /* rien */ })], { open: true }));
     dyn.appendChild(bilan());
+    dyn.appendChild(Pronote.section(s, cl, d, save));
     dyn.appendChild(Ed.actionBar([h('button', { class: 'btn danger', type: 'button', onclick: function () {
       UI.ask('Supprimer la séance « ' + (s.titre || 'sans titre') + ' » ?', { ok: 'Supprimer', danger: true }).then(function (ok) {
         if (ok) { var back = s.sequence_id ? '#/sequence/' + s.sequence_id : '#/classe/' + cl.id; DB.list('fs_seances').forEach(function (x) { if (x.jumelle_id === s.id) { x.jumelle_id = null; DB.save('fs_seances', x); } }); DB.remove('fs_seances', s.id); location.hash = back; }
@@ -171,7 +172,7 @@ Views.seance = function (id) {
     var reprise = h('button', { class: 'btn small', type: 'button', onclick: function () {
       save.now();
       var t = createSeance(cl, { sequence_id: s.sequence_id, titre: 'Reprise — ' + (s.titre || 'séance'), type: 'revision', duree_min: s.duree_min, data: clone(s.data) });
-      t.data.items = t.data.items.map(function (it) { it.niv = 'maitrise'; return it; }); t.data.notes = b.a_reprendre || ''; t.data.bilan = { realise: '', notes: '', a_reprendre: '' }; t.data.phases = []; DB.save('fs_seances', t);
+      t.data.items = t.data.items.map(function (it) { it.niv = 'maitrise'; return it; }); t.data.notes = b.a_reprendre || ''; t.data.bilan = { realise: '', notes: '', a_reprendre: '' }; t.data.pronote = { contenu: '', travail: '', temps: '' }; t.data.phases = []; DB.save('fs_seances', t);
       UI.toast('Séance de reprise créée.'); location.hash = '#/seance/' + t.id;
     } }, '↻ Créer une séance de reprise');
     return UI.section('sea-bilan', 'Bilan après la séance', [Ed.area('Ce qui a été réalisé', b, 'realise', save, 'Écart entre le prévu et le réalisé', 2), Ed.area('Observations (réussites, difficultés)', b, 'notes', save, '', 3), Ed.area('À reprendre', b, 'a_reprendre', save, 'Ce qu’il faudra revoir à la prochaine séance', 2), reprise, Ed.area('Notes personnelles', d, 'notes', save, '', 2)], { open: s.statut === 'faite' });

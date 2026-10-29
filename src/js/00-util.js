@@ -82,3 +82,8 @@ function copyText(t) {
 function fallbackCopy(t) { try { var ta = h('textarea', { style: { position: 'fixed', opacity: 0 } }); ta.value = t; document.body.appendChild(ta); ta.select(); var r = document.execCommand('copy'); ta.remove(); return r; } catch (e) { return false; } }
 function downloadBlob(blob, name) { var a = h('a', { href: URL.createObjectURL(blob), download: name }); document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500); }
 function cmpStr(a, b) { return String(a || '').localeCompare(String(b || ''), 'fr', { numeric: true, sensitivity: 'base' }); }
+
+/* ── heures « HH:MM » ── */
+function toMin(s) { var m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '')); return m ? +m[1] * 60 + +m[2] : 0; }
+function fromMin(n) { n = Math.max(0, Math.min(1439, Math.round(n))); return pad2(Math.floor(n / 60)) + ':' + pad2(n % 60); }
+function hhmmAdd(s, dur) { return fromMin(toMin(s) + (+dur || 0)); }

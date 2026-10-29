@@ -142,7 +142,7 @@ var Exp = (function () {
   var CLEAN = {
     fs_classes: function (r) {
       if (!isStr(r.nom, 80) || !r.nom.trim() || ENUM.niveau.indexOf(r.niveau_id) < 0 || ENUM.grp.indexOf(r.groupement === undefined ? null : r.groupement) < 0 || !/^\d{4}-\d{4}$/.test(r.annee_scolaire || '')) return null;
-      var cr = Array.isArray(r.creneaux) ? r.creneaux.filter(function (c) { return c && isInt(c.jour, 1, 6) && /^\d{2}:\d{2}$/.test(c.debut || '') && isInt(+c.duree, 5, 480); }).map(function (c) { return { jour: c.jour, debut: c.debut, duree: +c.duree }; }) : [];
+      var cr = Array.isArray(r.creneaux) ? r.creneaux.filter(function (c) { return c && isInt(c.jour, 1, 6) && /^\d{2}:\d{2}$/.test(c.debut || '') && isInt(+c.duree, 5, 480); }).map(function (c) { var o = { jour: c.jour, debut: c.debut, duree: +c.duree }; if (c.semaine === 1 || c.semaine === 2) o.semaine = c.semaine; if (c.groupe === 'G1' || c.groupe === 'G2') o.groupe = c.groupe; if (typeof c.salle === 'string' && c.salle.trim()) o.salle = c.salle.trim().slice(0, 30); return o; }) : [];
       return { id: r.id, nom: r.nom.trim(), niveau_id: r.niveau_id, groupement: r.groupement || null, avec_pc: r.avec_pc !== false, poursuite: !!r.poursuite, metier: str(r.metier, 200), annee_scolaire: r.annee_scolaire, couleur: /^#[0-9a-f]{6}$/i.test(r.couleur || '') ? r.couleur : K.PALETTE[0], creneaux: cr, notes: str(r.notes), archive: !!r.archive, ordre: isInt(r.ordre, 0, 9999) ? r.ordre : 0 };
     },
     fs_sequences: function (r, ctx) {
@@ -207,6 +207,7 @@ var Exp = (function () {
         if (!ok) return;
         DB.ORDER.forEach(function (t) { if (CLEAN[t]) DB.bulkPut(t, clean[t]); });
         if (j.reglages && typeof j.reglages === 'object' && okData(j.reglages)) DB.saveSettings({ materiel_defaut: Array.isArray(j.reglages.materiel_defaut) ? j.reglages.materiel_defaut.filter(function (m) { return ENUM && K.MATERIEL.some(function (x) { return x[0] === m; }); }) : undefined });
+        if (j.reglages.alternance && typeof j.reglages.alternance === 'object') Object.keys(j.reglages.alternance).forEach(function (an) { var a = j.reglages.alternance[an]; if (/^\d{4}-\d{4}$/.test(an) && a && /^\d{4}-\d{2}-\d{2}$/.test(a.lundi || '') && (a.type === 1 || a.type === 2)) Plan.setAltConfig(an, { lundi: a.lundi, type: a.type, sauter_vacances: a.sauter_vacances !== false }); });
         Ref.invalidate(); UI.toast('Sauvegarde importée.'); Views.rerender();
       });
     };

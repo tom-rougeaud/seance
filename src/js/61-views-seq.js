@@ -24,7 +24,7 @@ function duplicateSeance(s, opt) {
   opt = opt || {};
   var cl = Cls.get(s.class_id);
   var ns = createSeance(cl, { sequence_id: s.sequence_id, titre: s.titre + ' (copie)', type: s.type, modalite: s.modalite, groupe: s.groupe, duree_min: s.duree_min, data: clone(s.data) });
-  ns.data.bilan = { realise: '', notes: '', a_reprendre: '' }; DB.save('fs_seances', ns);
+  ns.data.bilan = { realise: '', notes: '', a_reprendre: '' }; ns.data.pronote = { contenu: '', travail: '', temps: '' }; DB.save('fs_seances', ns);
   Res.of(s.id).forEach(function (x) { Res.attach('seance', ns.id, x.res.id, x.att.usage); });
   return ns;
 }

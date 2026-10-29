@@ -6,7 +6,9 @@ Application web (une seule page HTML, installable sur l’écran d’accueil) po
 - Fiches séance / séquence entièrement éditables : déroulé, matériel, différenciation, trace écrite, évaluation, **DM** (classe entière ou demi-groupe), **demi-groupes** (séance jumelle ou deux groupes en parallèle), co-intervention.
 - **Progression automatique** : les séances marquées « faites » remplissent la progression de la classe (par chapitre, calendrier annuel, reste à faire) ; statut modifiable à la main.
 - Liens, vidéos, PDF et fichiers par saisie ou glisser-déposer, bibliothèque réutilisable.
-- Impression A4, export Word, texte prêt à coller dans le cahier de textes, sauvegarde / import JSON.
+- **Emploi du temps** lundi→vendredi (8 h–18 h) : créneaux créés en glissant sur la grille, modifiables à tout moment ; **semaines 1 / 2** (semaine de rentrée à indiquer) ; heures par classe et par semaine ; dates de séances proposées selon l’alternance.
+- **Synthèse Pronote** : quelques phrases rédigées automatiquement à partir de la séance (contenu + travail à faire), modifiables et copiables en un clic.
+- Impression A4, export Word, texte détaillé pour le cahier de textes, sauvegarde / import JSON.
 - Données enregistrées dans **Supabase** (même projet et même compte que « Suivi Progression » / « Flash Maths »), lecture hors connexion.
 - Aucune donnée d’élève, aucun traceur, aucune ressource externe (pas de CDN, pas de police distante).
 

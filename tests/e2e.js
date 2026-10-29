@@ -110,7 +110,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await sleep(2800);
   ok(st.rows.fs_seances.some((x) => x.data && x.data.dm && x.data.dm.actif && x.data.dm.pour === 'G2' && x.data.dm.titre === 'DM n°1 statistiques'), 'DM demi-groupe enregistré');
   // cahier de textes
-  await page.click('text=📋 Cahier de textes'); await sleep(300);
+  await page.click('text=📋 Pronote'); await sleep(400); await page.click('text=Version détaillée (liste)'); await sleep(300);
   const clip = await page.evaluate(() => navigator.clipboard.readText());
   ok(/Travail à faire : DM n°1 statistiques \(groupe 2\)/.test(clip) && /Contenu :/.test(clip), 'texte du cahier de textes copié');
   // impression (HTML)

@@ -115,7 +115,7 @@ var Ed = (function () {
       var b = Plan.blockedReason(v, Plan.ranges(cl.id, cl.annee_scolaire));
       if (b) { hint.textContent = '⚠ ' + (b.label || b.type) + ' ce jour-là.'; hint.className = 'hint date-hint warnt'; return; }
       var dow = (parseISO(v).getDay() + 6) % 7 + 1;
-      if ((cl.creneaux || []).length && !cl.creneaux.some(function (c) { return c.jour === dow; })) { hint.textContent = 'Ce jour n’est pas un de vos créneaux habituels.'; hint.className = 'hint date-hint'; }
+      if ((cl.creneaux || []).length && !cl.creneaux.some(function (c) { return c.jour === dow && Plan.slotOn(c, v, cl.annee_scolaire); })) { hint.textContent = 'Ce jour n’est pas un de vos créneaux habituels.'; hint.className = 'hint date-hint'; }
     }
     inp.addEventListener('change', function () { rec[field] = inp.value || null; changed(); warn(); if (opts.onDate) opts.onDate(rec[field]); });
     warn();

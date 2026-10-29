@@ -23,7 +23,7 @@ function emptySeanceData(cl) {
     groupes: [{ nom: 'Groupe 1', contenu: '' }, { nom: 'Groupe 2', contenu: '' }],
     diff: { upe2a: '', difficulte: '', rapides: '', amenagements: '' }, trace: '',
     dm: { actif: false, titre: '', consigne: '', pour: 'classe', rendu: '', duree_min: 30 }, eval: { criteres: '', bareme: '' },
-    bilan: { realise: '', notes: '', a_reprendre: '' }, notes: '' };
+    bilan: { realise: '', notes: '', a_reprendre: '' }, pronote: { contenu: '', travail: '', temps: '' }, notes: '' };
 }
 function emptySequenceData(cl) {
   return { items: [], chapitres: [], competences: [], comp_caps: [], comp_manual: false, probleme: '', ancrage: (cl && cl.metier) || '', prerequis: '',

@@ -199,3 +199,31 @@ ul.plain{padding-left:1.1rem;font-size:.9rem}
   #print-root table.prog td{border:0;border-bottom:1px solid #E1E6EF}#print-root td.st{width:60pt;color:#555;font-size:8.5pt}
   #print-root ul{margin:2pt 0 4pt;padding-left:16pt}
 }
+
+/* planning hebdomadaire */
+.tt-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin:.4rem 0}
+.tt{display:grid;min-width:34rem;position:relative;grid-template-columns:3rem repeat(var(--n,5),minmax(5.2rem,1fr))}
+.tt-corner,.tt-dh{position:sticky;top:0;background:var(--surface2);border-bottom:1px solid var(--line);padding:.35rem .2rem;text-align:center;font-weight:600;font-size:.85rem;z-index:2}
+.tt-times{position:relative;border-right:1px solid var(--line);font-size:.7rem;color:var(--muted)}
+.tt-times span{position:absolute;right:.3rem;transform:translateY(-.5em);background:var(--surface);padding:0 .1rem}
+.tt-times span:first-child{transform:none}
+.tt-col{position:relative;border-left:1px solid var(--line);touch-action:pan-x pan-y;cursor:crosshair;background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px),linear-gradient(to bottom,color-mix(in srgb,var(--line) 40%,transparent) 1px,transparent 1px);background-size:100% 52px,100% 26px}
+.tt-col:first-of-type{border-left:0}
+.tt-b{position:absolute;box-sizing:border-box;border-radius:7px;padding:.15rem .3rem;overflow:hidden;font-size:.74rem;line-height:1.2;cursor:grab;touch-action:pan-x pan-y;border:1px solid color-mix(in srgb,#000 22%,transparent);box-shadow:0 1px 2px rgba(0,0,0,.18);user-select:none;-webkit-user-select:none}
+.tt-b b{display:block;font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tt-b .tt-t,.tt-b .tt-m{display:block;opacity:.92;font-size:.68rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-b.grp{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.18) 0,rgba(255,255,255,.18) 6px,transparent 6px,transparent 12px)}
+.tt-b.drag{opacity:.85;z-index:5;cursor:grabbing;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.tt-b:focus-visible{outline:3px solid var(--text);outline-offset:1px;z-index:4}
+.tt-rs{position:absolute;left:0;right:0;bottom:0;height:8px;cursor:ns-resize;background:linear-gradient(to bottom,transparent,rgba(0,0,0,.22))}
+.tt-ghost{position:absolute;left:2px;right:2px;border:2px dashed var(--primary);background:color-mix(in srgb,var(--primary) 18%,transparent);border-radius:7px;font-size:.72rem;color:var(--text);padding:.1rem .3rem;pointer-events:none;z-index:3}
+.tt-hr{font-variant-numeric:tabular-nums;font-weight:600;min-width:6.2rem}
+.wk-badge{margin:.2rem 0 .6rem;padding:.35rem .7rem;border-radius:999px;background:var(--surface2);display:inline-block;font-size:.9rem}
+.alt-card summary{cursor:pointer}.alt-card .form{margin-top:.6rem}
+.hrs-sum{margin:.3rem 0 0;color:var(--muted)}
+.tt-sum td,.tt-sum th{padding:.35rem .6rem;text-align:left;border-bottom:1px solid var(--line)}.tt-sum tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+.cren-row{flex-wrap:wrap}
+@media (max-width:760px){.nav a{font-size:.58rem}.nav .ic{font-size:1.05rem}}
+
+@media (max-width:760px){.tt{min-width:0;grid-template-columns:2.4rem repeat(var(--n,5),minmax(0,1fr))}.tt-dh{font-size:.72rem;padding:.3rem 0}.tt-times{font-size:.62rem}.tt-b{font-size:.62rem;padding:.1rem .2rem}.tt-b b{font-size:.68rem}.tt-b .tt-t,.tt-b .tt-m{font-size:.58rem}}
+.nav .t-s{display:none}@media (max-width:760px){.nav .t-l{display:none}.nav .t-s{display:inline}.nav a{font-size:.66rem}}

@@ -30,14 +30,14 @@ function nextDateFor(cl, sequenceId) {
 
 /* ═══ Coque ═══ */
 var Shell = (function () {
-  var NAV = [['#/', 'Accueil', '🏠'], ['#/classes', 'Classes', '👥'], ['#/progression', 'Progression', '📈'], ['#/biblio', 'Bibliothèque', '📚'], ['#/referentiel', 'Programmes', '📘'], ['#/reglages', 'Réglages', '⚙️']];
+  var NAV = [['#/', 'Accueil', '🏠', 'Accueil'], ['#/classes', 'Classes', '👥', 'Classes'], ['#/planning', 'Planning', '🗓️', 'Planning'], ['#/progression', 'Progression', '📈', 'Suivi'], ['#/biblio', 'Bibliothèque', '📚', 'Biblio'], ['#/referentiel', 'Programmes', '📘', 'BO'], ['#/reglages', 'Réglages', '⚙️', 'Réglages']];
   var el = {}, syncBtn;
 
   function build() {
     var app = $('#app'); clear(app);
     syncBtn = h('button', { class: 'sync', type: 'button', onclick: syncPopover, 'aria-live': 'polite' });
     el.view = h('main', { id: 'view', tabindex: -1 });
-    el.nav = h('nav', { class: 'nav', 'aria-label': 'Navigation principale' }, NAV.map(function (n) { return h('a', { href: n[0], 'data-h': n[0] }, h('span', { class: 'ic' }, n[2]), h('span', { class: 't' }, n[1])); }));
+    el.nav = h('nav', { class: 'nav', 'aria-label': 'Navigation principale' }, NAV.map(function (n) { return h('a', { href: n[0], 'data-h': n[0] }, h('span', { class: 'ic' }, n[2]), h('span', { class: 't' }, h('span', { class: 't-l' }, n[1]), h('span', { class: 't-s' }, n[3]))); }));
     el.top = h('header', { class: 'top' }, h('a', { class: 'brand', href: '#/' }, h('span', { class: 'logo' }, '📋'), h('span', null, 'Fiches')), h('div', { class: 'grow' }), syncBtn,
       h('button', { class: 'icon-btn', type: 'button', title: 'Se déconnecter', 'aria-label': 'Se déconnecter', onclick: function () { Main.logout(); } }, '⎋'));
     app.appendChild(el.top); app.appendChild(h('div', { class: 'body' }, el.nav, el.view));
@@ -136,6 +136,21 @@ Views.dashboard = function () {
     return root;
   }
   var t = today(), ws = weekStart(t), we = addDays(ws, 6);
+  var wt = Plan.weekType(t, anneeScolaire());
+  if (wt) root.appendChild(h('p', { class: 'wk-badge' }, h('strong', null, Plan.libSemaine(wt)), ' · du ' + fmtD(ws) + ' au ' + fmtD(addDays(ws, 4)), ' ', h('a', { href: '#/planning' }, 'Voir le planning')));
+  else if (classes.some(function (c) { return (c.creneaux || []).length; })) root.appendChild(h('p', { class: 'wk-badge' }, 'Semaines 1 / 2 : ', h('a', { href: '#/planning' }, 'indiquez la semaine de rentrée')));
+  var tdSlots = Plan.slotsOnDate(t);
+  if (tdSlots.length) {
+    var tb = h('section', { class: 'card' }, h('h2', null, '🕗 Aujourd’hui'));
+    tdSlots.forEach(function (x) {
+      var ex = DB.list('fs_seances').filter(function (s) { return s.class_id === x.cl.id && s.date_prevue === t && s.statut !== 'annulee'; });
+      var end = hhmmAdd(x.c.debut, x.c.duree);
+      tb.appendChild(h('div', { class: 'row-s' }, h('span', { class: 'tt-hr' }, x.c.debut + '–' + end), Cls.chip(x.cl), x.c.groupe ? h('em', { class: 'tag' }, x.c.groupe) : null, x.c.salle ? h('span', { class: 'muted small' }, x.c.salle) : null,
+        ex.length ? ex.map(function (s) { return h('a', { class: 'row-t', href: '#/seance/' + s.id }, s.titre || '(sans titre)'); }) : h('span', { class: 'muted small grow' }, 'Pas de séance prévue'),
+        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = createSeance(x.cl, { date_prevue: t, duree_min: Math.min(x.c.duree, 240), modalite: x.c.groupe ? 'demi_groupe' : 'classe', groupe: x.c.groupe || null }); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
+    });
+    root.appendChild(tb);
+  }
   var all = DB.list('fs_seances').filter(function (s) { var c = Cls.get(s.class_id); return c && !c.archive; });
   var retard = all.filter(function (s) { return s.date_prevue && s.date_prevue < t && (s.statut === 'a_faire' || s.statut === 'prete'); }).sort(Cls.cmpSeance);
   var semaine = all.filter(function (s) { var d = Plan.seanceDate(s); return d && d >= ws && d <= we && s.statut !== 'annulee'; }).sort(Cls.cmpSeance);
@@ -205,7 +220,8 @@ function classModal(cl) {
   var d = cl ? clone(cl) : { nom: '', niveau_id: 'bp2', groupement: null, avec_pc: true, poursuite: false, metier: '', annee_scolaire: anneeScolaire(), couleur: K.PALETTE[Cls.all().length % K.PALETTE.length], creneaux: [], notes: '', archive: false, ordre: Cls.all().length };
   var nom = h('input', { class: 'inp', type: 'text', value: d.nom, placeholder: 'Ex. 2MRCU, 1CAP EPC, 3PM…' });
   var niv = UI.select(Ref.niveaux().map(function (n) { return [n.id, n.label]; }), d.niveau_id, function (v) { d.niveau_id = v; d.groupement = null; redraw(); });
-  var dyn = h('div'); var cren = h('div', { class: 'cren' });
+  var dyn = h('div'); var cren = h('div', { class: 'cren' }); var sum = h('p', { class: 'small hrs-sum' });
+  function drawSum() { sum.textContent = d.creneaux.length ? 'Heures par semaine — ' + hrsLabel(Plan.heuresHebdo(d)) : ''; }
   function redraw() {
     clear(dyn);
     var gs = Ref.groupementsPour(d.niveau_id);
@@ -220,10 +236,13 @@ function classModal(cl) {
     d.creneaux.forEach(function (c, i) {
       cren.appendChild(h('div', { class: 'cren-row' }, UI.select([[1, 'Lundi'], [2, 'Mardi'], [3, 'Mercredi'], [4, 'Jeudi'], [5, 'Vendredi'], [6, 'Samedi']], c.jour, function (v) { c.jour = +v; }, 'sm'),
         h('input', { class: 'inp sm', type: 'time', value: c.debut, onchange: function (e) { c.debut = e.target.value; } }),
-        h('input', { class: 'inp sm num', type: 'number', min: 15, max: 480, step: 5, value: c.duree, onchange: function (e) { c.duree = +e.target.value || 55; } }), h('span', { class: 'muted small' }, 'min'),
+        h('input', { class: 'inp sm num', type: 'number', min: 15, max: 480, step: 5, value: c.duree, onchange: function (e) { c.duree = +e.target.value || 55; drawSum(); } }), h('span', { class: 'muted small' }, 'min'),
+        UI.select([[0, 'Toutes les semaines'], [1, 'Semaine 1'], [2, 'Semaine 2']], c.semaine || 0, function (v) { if (+v) c.semaine = +v; else delete c.semaine; drawSum(); }, 'sm'),
+        UI.select([['', 'Classe entière'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']], c.groupe || '', function (v) { if (v) c.groupe = v; else delete c.groupe; drawSum(); }, 'sm'),
         h('button', { class: 'icon-btn sm', type: 'button', onclick: function () { d.creneaux.splice(i, 1); drawCren(); } }, '✕')));
     });
     cren.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { d.creneaux.push({ jour: 1, debut: '08:00', duree: 110 }); drawCren(); } }, '＋ Ajouter un créneau hebdomadaire'));
+    cren.appendChild(sum); drawSum();
   }
   redraw(); drawCren();
   var colors = h('div', { class: 'swatches' });
@@ -233,7 +252,7 @@ function classModal(cl) {
   var annee = h('input', { class: 'inp', type: 'text', value: d.annee_scolaire, placeholder: '2026-2027', onchange: function (e) { d.annee_scolaire = e.target.value.trim(); } });
   var body = h('div', { class: 'form' }, UI.field('Nom de la classe', nom), UI.field('Niveau / diplôme', niv), dyn,
     UI.field('Ancrage métier', metier, 'Pré-rempli dans les fiches pour relier les maths au métier.'), UI.field('Année scolaire', annee),
-    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Couleur'), colors), h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Créneaux hebdomadaires'), cren, h('span', { class: 'hint' }, 'Servent à proposer les dates des séances et à calculer les heures disponibles.')),
+    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Couleur'), colors), h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Créneaux hebdomadaires'), cren, h('span', { class: 'hint' }, 'Servent à proposer les dates des séances et à calculer les heures disponibles. Plus rapide : placez-les en glissant sur le planning (menu « Planning »).')),
     cl ? h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: d.archive, onchange: function (e) { d.archive = e.target.checked; } }), ' Archiver cette classe (masquée de l’accueil)') : null);
   var actions = [{ label: 'Annuler', kind: 'ghost' }];
   if (cl) actions.unshift({ label: 'Supprimer', kind: 'danger', onClick: function (m) { UI.ask('Supprimer la classe « ' + cl.nom + ' » avec toutes ses séquences et séances ? Cette action est définitive.', { ok: 'Supprimer définitivement', danger: true }).then(function (ok) { if (ok) { DB.remove('fs_classes', cl.id); m.close(); location.hash = '#/classes'; Views.rerender(); } }); return false; } });
@@ -246,6 +265,11 @@ function classModal(cl) {
     Views.rerender();
   } });
   UI.modal({ title: isNew ? 'Nouvelle classe' : 'Modifier la classe', body: body, actions: actions });
+}
+function hrsLabel(h2) {
+  var t = 'S1 : ' + fmtDuree(h2.s1) + ' · S2 : ' + fmtDuree(h2.s2);
+  if (h2.gs1 || h2.gs2) t += ' (+ demi-groupes : S1 ' + fmtDuree(h2.gs1) + ' · S2 ' + fmtDuree(h2.gs2) + ')';
+  return t;
 }
 function importPreset(annee) {
   (Plan.PRESETS[annee] || []).forEach(function (p) { DB.create('fs_calendrier', { annee_scolaire: annee, class_id: null, type: p.type, label: p.label, debut: p.debut, fin: p.fin }); });
@@ -306,7 +330,7 @@ function calendarCard(c) {
   if (Plan.PRESETS[c.annee_scolaire] && !DB.list('fs_calendrier').some(function (r) { return r.annee_scolaire === c.annee_scolaire && !r.class_id; })) {
     btns.appendChild(h('button', { class: 'btn small', type: 'button', onclick: function () { importPreset(c.annee_scolaire); draw(); UI.toast('Calendrier zone A importé : vérifiez-le avec celui de votre établissement.'); } }, '📅 Importer le calendrier zone A ' + c.annee_scolaire));
   }
-  var cr = (c.creneaux || []).length ? 'Créneaux : ' + c.creneaux.map(function (x) { return jourNom(x.jour) + ' ' + x.debut + ' (' + fmtDuree(x.duree) + ')'; }).join(' · ') : 'Aucun créneau hebdomadaire : ajoutez-en dans « Modifier » pour obtenir des dates suggérées.';
+  var cr = (c.creneaux || []).length ? 'Créneaux : ' + c.creneaux.map(function (x) { return jourNom(x.jour) + ' ' + x.debut + ' (' + fmtDuree(x.duree) + ')' + (x.semaine ? ' S' + x.semaine : '') + (x.groupe ? ' ' + x.groupe : ''); }).join(' · ') + ' — ' + hrsLabel(Plan.heuresHebdo(c)) : 'Aucun créneau hebdomadaire : ajoutez-en dans « Modifier » pour obtenir des dates suggérées.';
   box.appendChild(info); box.appendChild(h('p', { class: 'small' }, cr)); box.appendChild(list); box.appendChild(btns);
   return box;
 }

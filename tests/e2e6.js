@@ -58,10 +58,11 @@ async function login(page) { await page.goto(BASE); await page.waitForSelector('
   const d1 = await page.evaluate((id) => { const s = DB.byId('fs_seances', id), cl = Cls.get(s.class_id); return { v1: Pronote.draft(s, cl, 'passe', 1), v2: Pronote.draft(s, cl, 'passe', 2), f2: Pronote.draft(s, cl, 'futur', 2) }; }, ids.s);
   console.log('     V1 » ' + d1.v1.contenu + '\n     V2 » ' + d1.v2.contenu + '\n     V2 travail » ' + d1.v2.travail + '\n     V2 futur » ' + d1.f2.contenu);
   ok(!/accroche|exercices d’entraînement|La séance a comporté|Déroulé/i.test(d1.v1.contenu) && /Nous avons travaillé : /.test(d1.v1.contenu), 'V1 : ce qui a été traité, aucune étape du déroulé');
+  ok(d1.v2.contenu !== d1.v1.contenu && !/indicateurs de position/.test(d1.v2.contenu) && /^Séance de cours : « Moyenne et médiane »/.test(d1.v2.contenu), 'V2 distincte de V1 : s’appuie sur le manuel, pas sur les phrases du BO');
   ok(d1.v1.manuel === false && !/manuel/.test(d1.v1.contenu), 'V1 : sans renvoi au manuel');
   ok(d1.v2.manuel && /manuel « Maths et MCV · 2de » : chapitre 2 « Statistique à une variable »/.test(d1.v2.contenu) && /« La moyenne »/.test(d1.v2.contenu) && /https:\/\/tom-rougeaud\.github\.io\/mcv\/2de\//.test(d1.v2.contenu), 'V2 : renvoi au manuel 2de, chapitre 2 et notions reconnues, lien de l’appli');
   ok(/^Revoir /.test(d1.v2.travail) && /chapitre 2/.test(d1.v2.travail), 'V2 : travail à faire proposé (revoir la notion dans le manuel)');
-  ok(/^Au programme : cours « Moyenne et médiane »/.test(d1.f2.contenu) && /Pour se préparer/.test(d1.f2.contenu), 'V2 au futur');
+  ok(/^Au programme : cours « Moyenne et médiane »/.test(d1.f2.contenu) && /Nous allons travailler avec le manuel/.test(d1.f2.contenu), 'V2 au futur');
   ok(!/[\u{1F300}-\u{1FAFF}☀-➿]/u.test(d1.v2.contenu), 'aucun émoji');
   const capv2 = await page.evaluate((id) => { const s = DB.byId('fs_seances', id); return Pronote.draft(s, Cls.get(s.class_id), 'passe', 2); }, ids.s2);
   ok(capv2.manuel === false && !/manuel/.test(capv2.contenu), 'CAP : version 2 retombe sur la version 1');
@@ -69,16 +70,20 @@ async function login(page) { await page.goto(BASE); await page.waitForSelector('
   console.log('# Interface Pronote');
   await page.goto(BASE + '#/seance/' + ids.s); await page.waitForSelector('.page-head h1');
   await page.click('text=📋 Pronote'); await sleep(400);
-  await page.selectOption('details.sec:has-text("Synthèse pour Pronote") .field:has(.lbl:text-is("Version")) select', '2');
-  await page.click('text=✨ Rédiger la synthèse'); await sleep(500);
+  await page.click('text=✨ Version 1 · ce qui a été fait'); await sleep(400);
+  const t1 = await page.locator('textarea[placeholder^="Quelques phrases"]').inputValue();
+  ok(/Nous avons travaillé : /.test(t1) && !/manuel/.test(t1), 'bouton version 1 : texte sans manuel');
+  await page.click('text=✨ Version 2 · avec mes manuels'); await page.waitForSelector('.modal'); await page.click('.modal-foot .btn.primary'); await sleep(500);
   const t2 = await page.locator('textarea[placeholder^="Quelques phrases"]').inputValue();
-  ok(/manuel « Maths et MCV · 2de »/.test(t2), 'bouton : version 2 rédigée');
+  ok(/manuel « Maths et MCV · 2de »/.test(t2) && t2 !== t1, 'bouton version 2 : texte distinct, avec les manuels');
   const trv = await page.locator('textarea[placeholder^="Travail à faire"]').inputValue(); ok(/^Revoir /.test(trv), 'travail à faire pré-rempli : ' + trv.slice(0, 60));
+  await page.click('text=✨ Version 1 · ce qui a été fait'); await page.waitForSelector('.modal'); await page.click('.modal-foot .btn.primary'); await sleep(400);
+  ok(await page.locator('textarea[placeholder^="Travail à faire"]').inputValue() === '', 'retour à la version 1 : le travail à faire généré par la version 2 est retiré');
   await sleep(2800);
-  ok(st.rows.fs_seances.some((x) => x.id === ids.s && x.data.pronote && x.data.pronote.version === 2), 'choix de la version enregistré');
+  ok(st.rows.fs_seances.some((x) => x.id === ids.s && x.data.pronote && /Nous avons travaillé : /.test(x.data.pronote.contenu)), 'texte enregistré en base');
   await page.screenshot({ path: SHOTS + '/40-pronote-v2.png' });
   await page.goto(BASE + '#/seance/' + ids.s2); await page.waitForSelector('.page-head h1'); await page.click('text=📋 Pronote'); await sleep(300);
-  ok(await page.locator('details.sec:has-text("Synthèse pour Pronote") option:has-text("aucun manuel")').count() === 1, 'CAP : option 2 signalée « aucun manuel pour ce niveau »');
+  ok(await page.locator('details.sec:has-text("Synthèse pour Pronote") button:has-text("Version 2")[disabled]').count() === 1, 'CAP : bouton version 2 désactivé (aucun manuel pour ce niveau)');
 
   console.log('# Alternance sans saut de semaine');
   const wk = await page.evaluate(() => {

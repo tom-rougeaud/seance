@@ -47,6 +47,7 @@ var Main = (function () {
       case 'sequence': return Views.sequence(r.arg);
       case 'seance': return Views.seance(r.arg);
       case 'planning': return Views.planning();
+      case 'historique': return Views.historique(r.arg);
       case 'progression': return Views.progression(r.arg);
       case 'biblio': return Views.biblio();
       case 'referentiel': return Views.referentiel(r.arg);

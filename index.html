@@ -173,7 +173,7 @@ span.chip{cursor:default;min-height:0;padding:.1rem .55rem;font-size:.78rem}
 .phase{display:flex;gap:.4rem;border:1px solid var(--line);border-radius:var(--rs);padding:.4rem;margin:.35rem 0;background:var(--surface)}
 .ph-body{flex:1;min-width:0}.ph-top{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;margin-bottom:.3rem}
 .ev-row{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;margin:.3rem 0}.ev-row .inp:first-child{flex:1;min-width:160px}
-.action-bar{display:flex;justify-content:flex-end;gap:.5rem;margin:1.2rem 0}
+.action-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:1.2rem 0}
 .date-hint{min-height:1.1rem}
 
 /* ressources */
@@ -290,6 +290,19 @@ ul.plain{padding-left:1.1rem;font-size:.9rem}
 .pal-btn[aria-pressed="true"],.font-btn[aria-pressed="true"]{border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 30%,transparent)}
 .pal-dots{display:flex;gap:.25rem}.pal-dots i{width:1.1rem;height:1.1rem;border-radius:50%;border:1px solid rgba(0,0,0,.18);display:block}
 .font-btn .smp{font-size:1.05rem;line-height:1.3}.font-btn .nm{font-size:.78rem;color:var(--muted);font-family:system-ui,sans-serif}
+
+/* historique */
+.hist-item{border-top:1px solid var(--line)}.hist-item summary{display:flex;gap:.7rem;align-items:center;padding:.5rem .2rem;cursor:pointer;flex-wrap:wrap}
+.hist-item .hi-n{min-width:1.6rem;color:var(--muted);font-variant-numeric:tabular-nums}.hist-item .hi-d{min-width:5.6rem;color:var(--muted);font-size:.9rem}.hist-item .hi-t{flex:1;font-weight:600}
+.hist-fiche-view{padding:.4rem .6rem 1rem;border-left:3px solid var(--line);margin:0 0 .6rem .4rem}
+.hist-fiche-view h1{font-size:1.2rem}.hist-fiche-view h3{font-size:.95rem;border-bottom:1px solid var(--line);margin:.9rem 0 .3rem}
+.hist-fiche-view table{border-collapse:collapse;width:100%;font-size:.9rem}.hist-fiche-view th,.hist-fiche-view td{border:1px solid var(--line);padding:.25rem .45rem;text-align:left;vertical-align:top}.hist-fiche-view th{background:var(--surface2)}
+.hist-fiche-view .meta,.hist-fiche-view .niv,.hist-fiche-view .small{color:var(--muted)}
+@media print{#print-root .pb{break-before:page}#print-root .hist-class:first-child .pb:first-child{break-before:auto}#print-root h2{font-size:13.5pt;color:#1F3A66}#print-root ul{margin:2pt 0 4pt;padding-left:14pt}#print-root p{margin:3pt 0}}
+.tpl-top{display:grid;gap:.5rem}.tpl-list{display:grid;gap:.5rem;margin-top:.6rem}.tpl-dom{margin:.8rem 0 .2rem;color:var(--muted);font-size:.9rem;text-transform:uppercase;letter-spacing:.04em}
+.tpl-card{border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;background:var(--card,var(--bg))}.tpl-h{display:flex;gap:.6rem;align-items:flex-start}.tpl-h .tpl-t{flex:1;min-width:0}.tpl-h input[type=checkbox]{margin-top:.3rem;width:1.15rem;height:1.15rem}
+.tpl-d{margin-top:.3rem}.tpl-chapd>summary{cursor:pointer;padding:.4rem 0}.tpl-chap{display:grid;gap:.4rem;padding:.3rem 0 .6rem .4rem}.tpl-more>summary{cursor:pointer;color:var(--muted);padding:.5rem 0}
+@media print{.tpl{display:none}}
 
 </style>
 </head>
@@ -1772,7 +1785,7 @@ Views.dashboard = function () {
   var root = h('div', { class: 'page' });
   var classes = Cls.actives();
   root.appendChild(pageHead('Bonjour 👋', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
-    [h('button', { class: 'btn primary', type: 'button', onclick: function () { Wizard.seance({}); } }, '＋ Nouvelle séance')]));
+    [h('button', { class: 'btn', type: 'button', onclick: function () { Tpl.open({ mode: 'create' }); } }, '📥 Modèle d’1 h'), h('button', { class: 'btn primary', type: 'button', onclick: function () { Wizard.seance({}); } }, '＋ Nouvelle séance')]));
   if (!classes.length) {
     root.appendChild(h('div', { class: 'card hero' }, h('h2', null, 'Commençons par créer une classe'),
       h('p', null, 'Une classe fixe le programme (3PM, CAP, 2de, 1re, Tle), le groupement et vos créneaux. Ensuite, vous cochez des objectifs dans les accordéons et la progression se remplit toute seule.'),
@@ -1847,7 +1860,7 @@ function setStatut(s, v) {
 /* ═══ Classes ═══ */
 Views.classes = function () {
   var root = h('div', { class: 'page' });
-  root.appendChild(pageHead('Mes classes', null, [h('button', { class: 'btn primary', type: 'button', onclick: function () { classModal(null); } }, '＋ Nouvelle classe')]));
+  root.appendChild(pageHead('Mes classes', null, [h('a', { class: 'btn', href: '#/historique/tout' }, '📚 Historique des fiches'), h('button', { class: 'btn primary', type: 'button', onclick: function () { classModal(null); } }, '＋ Nouvelle classe')]));
   var list = Cls.all(); var cards = h('div', { class: 'cards' });
   if (!list.length) root.appendChild(h('div', { class: 'card hero' }, h('p', null, 'Aucune classe pour le moment.')));
   list.forEach(function (c) {
@@ -1924,9 +1937,10 @@ Views.classe = function (id) {
   var c = Cls.get(id); if (!c) return notFound();
   var root = h('div', { class: 'page' });
   root.appendChild(pageHead(c.nom, Cls.niveauLabel(c) + (c.groupement ? ' · groupement ' + c.groupement : '') + (c.metier ? ' · ' + c.metier : '') + ' · ' + c.annee_scolaire,
-    [h('a', { class: 'btn', href: '#/progression/' + c.id }, '📈 Progression'), h('button', { class: 'btn', type: 'button', onclick: function () { classModal(c); } }, '✎ Modifier'),
+    [h('a', { class: 'btn', href: '#/progression/' + c.id }, '📈 Progression'), h('a', { class: 'btn', href: '#/historique/' + c.id }, '📚 Historique'), h('button', { class: 'btn', type: 'button', onclick: function () { classModal(c); } }, '✎ Modifier'),
     h('button', { class: 'btn', type: 'button', onclick: function () { var q = createSequence(c, { titre: 'Nouvelle séquence' }); location.hash = '#/sequence/' + q.id; } }, '＋ Séquence'),
-    h('button', { class: 'btn primary', type: 'button', onclick: function () { Wizard.seance({ classId: c.id }); } }, '＋ Séance')], ['#/classes', 'Classes']));
+    h('button', { class: 'btn primary', type: 'button', onclick: function () { Wizard.seance({ classId: c.id }); } }, '＋ Séance'),
+    h('button', { class: 'btn', type: 'button', onclick: function () { Tpl.open({ mode: 'create', cl: c }); } }, '📥 Séance depuis un modèle')], ['#/classes', 'Classes']));
 
   /* séquences */
   var seqs = Cls.sequences(c.id);
@@ -2033,9 +2047,8 @@ Views.sequence = function (id) {
   var seancesBox = h('div'); var totalsEl = h('div', { class: 'totals' });
 
   root.appendChild(pageHead(q.titre || 'Nouvelle séquence', cl.nom + ' · ' + Cls.niveauLabel(cl),
-    [h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Exp.print('sequence', q); } }, '🖨 Imprimer'),
-    h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Exp.word('sequence', q); } }, '📝 Word'),
-    h('button', { class: 'btn', type: 'button', onclick: function () { duplicateModal(); } }, '⧉ Copier vers…')], ['#/classe/' + cl.id, cl.nom]));
+    Exp.buttons('sequence', q, function () { save.now(); }).concat([copyBtn()]), ['#/classe/' + cl.id, cl.nom]));
+  function copyBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { duplicateModal(); } }, '⧉ Copier vers…'); }
 
   /* identité */
   var titre = UI.textinput(function () { return q.titre; }, function (v) { q.titre = v; save(); $('h1', root).textContent = v || 'Nouvelle séquence'; }, 'Ex. Proportionnalité et pourcentages');
@@ -2080,7 +2093,8 @@ Views.sequence = function (id) {
   var secS = UI.section('seq-seances', 'Séances de la séquence', [seancesBox,
     h('div', { class: 'row-gap' },
       h('button', { class: 'btn primary small', type: 'button', onclick: function () { var s = createSeance(cl, { sequence_id: q.id, titre: '', date_prevue: nextDateFor(cl, q.id) }); location.hash = '#/seance/' + s.id; } }, '＋ Séance'),
-      h('button', { class: 'btn small', type: 'button', onclick: function () { planType(); } }, '⚡ Générer un plan type…'))], { open: true });
+      h('button', { class: 'btn small', type: 'button', onclick: function () { planType(); } }, '⚡ Générer un plan type…'),
+      h('button', { class: 'btn small', type: 'button', onclick: function () { Tpl.open({ mode: 'create', cl: cl, seqId: q.id, chapIds: q.data.chapitres || [] }); } }, '📥 Séances d’1 h (modèles)'))], { open: true });
   root.appendChild(secS);
 
   function planType() {
@@ -2125,10 +2139,10 @@ Views.sequence = function (id) {
   root.appendChild(UI.section('seq-diff', 'Différenciation', [Ed.diffBlock(d, save, false)], { open: false }));
   root.appendChild(UI.section('seq-res', 'Ressources (PDF, liens, vidéos)', [Res.block('sequence', q, function () { /* rien à enregistrer : les liens sont dans fs_attachments */ })], { open: true }));
   root.appendChild(UI.section('seq-bilan', 'Bilan et notes', [Ed.area('Bilan de la séquence', d, 'bilan', save, 'Ce qui a fonctionné, ce qu’il faut modifier l’an prochain…', 3), Ed.area('Notes personnelles', d, 'notes', save, '', 2)], { open: false }));
-  root.appendChild(Ed.actionBar([h('button', { class: 'btn danger', type: 'button', onclick: function () {
+  root.appendChild(Ed.actionBar(Exp.buttons('sequence', q, function () { save.now(); }).concat([copyBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
     var n = Cls.seancesDe(q.id).length;
     UI.ask('Supprimer la séquence « ' + (q.titre || 'sans titre') + ' » ?' + (n ? ' Ses ' + plural(n, 'séance') + ' seront conservées en dehors de toute séquence.' : ''), { ok: 'Supprimer', danger: true }).then(function (ok) { if (ok) { DB.remove('fs_sequences', q.id); location.hash = '#/classe/' + cl.id; } });
-  } }, 'Supprimer la séquence')]));
+  } }, 'Supprimer la séquence')])));
 
   function duplicateModal() {
     save.now();
@@ -2170,11 +2184,13 @@ Views.seance = function (id) {
   var seq = s.sequence_id ? DB.byId('fs_sequences', s.sequence_id) : null;
   var dyn = h('div'); var head;
 
+  var flush = function () { save.now(); };
+  function pronoteBtn() { return h('button', { class: 'btn', type: 'button', title: 'Rédiger et copier la synthèse pour le cahier de textes Pronote', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Pronote') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '📋 Pronote'); }
+  function tplBtn() { return h('button', { class: 'btn', type: 'button', title: 'Pré-remplir cette séance avec une proposition d’1 h tirée du programme, ou avec un de vos modèles', onclick: function () { save.now(); Tpl.open({ mode: 'load', seance: s, cl: cl }); } }, '📥 Charger un modèle'); }
+  function modelBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Tpl.saveAsModel(s, cl); } }, '💾 Enregistrer comme modèle'); }
+  function dupBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); var n = duplicateSeance(s); UI.toast('Séance dupliquée.'); location.hash = '#/seance/' + n.id; } }, '⧉ Dupliquer'); }
   head = pageHead(s.titre || 'Nouvelle séance', cl.nom + ' · ' + lbl(K.TYPES, s.type) + (seq ? ' · ' + seq.titre : ''),
-    [h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Exp.print('seance', s); } }, '🖨 Imprimer'),
-    h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Exp.word('seance', s); } }, '📝 Word'),
-    h('button', { class: 'btn', type: 'button', title: 'Rédiger et copier la synthèse pour le cahier de textes Pronote', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Pronote') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '📋 Pronote'),
-    h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); var n = duplicateSeance(s); UI.toast('Séance dupliquée.'); location.hash = '#/seance/' + n.id; } }, '⧉ Dupliquer')],
+    Exp.buttons('seance', s, flush).concat([tplBtn(), pronoteBtn(), dupBtn()]),
     seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
   root.appendChild(head);
 
@@ -2260,11 +2276,11 @@ Views.seance = function (id) {
     dyn.appendChild(UI.section('sea-res', 'Ressources (PDF, liens, vidéos)', [Res.block('seance', s, function () { /* rien */ })], { open: true }));
     dyn.appendChild(bilan());
     dyn.appendChild(Pronote.section(s, cl, d, save));
-    dyn.appendChild(Ed.actionBar([h('button', { class: 'btn danger', type: 'button', onclick: function () {
+    dyn.appendChild(Ed.actionBar(Exp.buttons('seance', s, flush).concat([tplBtn(), modelBtn(), pronoteBtn(), dupBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
       UI.ask('Supprimer la séance « ' + (s.titre || 'sans titre') + ' » ?', { ok: 'Supprimer', danger: true }).then(function (ok) {
         if (ok) { var back = s.sequence_id ? '#/sequence/' + s.sequence_id : '#/classe/' + cl.id; DB.list('fs_seances').forEach(function (x) { if (x.jumelle_id === s.id) { x.jumelle_id = null; DB.save('fs_seances', x); } }); DB.remove('fs_seances', s.id); location.hash = back; }
       });
-    } }, 'Supprimer la séance')]));
+    } }, 'Supprimer la séance')])));
   }
 
   function deroule() {
@@ -2461,7 +2477,7 @@ Views.progression = function (classId) {
           var bd = h('div', { class: 'pg-body' });
           if (ch.objectifs.length) { bd.appendChild(h('div', { class: 'pk-gt' }, 'Objectifs')); ch.objectifs.forEach(function (it) { bd.appendChild(itemRow(it, 'o')); }); }
           if (ch.connaissances.length) { bd.appendChild(h('div', { class: 'pk-gt' }, 'Notions')); ch.connaissances.forEach(function (it) { bd.appendChild(itemRow(it, 'k')); }); }
-          bd.appendChild(h('div', { class: 'row-gap' }, h('button', { class: 'btn small', type: 'button', onclick: function () { Wizard.seance({ classId: cl.id }); } }, '＋ Séance sur ce chapitre')));
+          bd.appendChild(h('div', { class: 'row-gap' }, h('button', { class: 'btn small', type: 'button', onclick: function () { Wizard.seance({ classId: cl.id }); } }, '＋ Séance sur ce chapitre'), h('button', { class: 'btn small', type: 'button', onclick: function () { Tpl.open({ mode: 'create', cl: cl, chapIds: [ch.id] }); } }, '📥 Modèles d’1 h')));
           det.appendChild(bd); sec.appendChild(det);
         });
         out.appendChild(sec);
@@ -2752,19 +2768,23 @@ var Exp = (function () {
   }
   function metaLine(cl, parts) { return '<p class="meta">' + parts.filter(Boolean).map(E).join(' · ') + '</p>'; }
 
-  function seanceHtml(s) {
+  function seanceHtml(s, opt) {
+    opt = opt || {};
     var cl = Cls.get(s.class_id), d = s.data, seq = s.sequence_id ? DB.byId('fs_sequences', s.sequence_id) : null, dt = Plan.seanceDate(s);
     var h = '<h1>' + E(s.titre || 'Séance') + '</h1>';
-    h += metaLine(cl, [cl.nom, Cls.niveauLabel(cl) + (cl.groupement ? ' (gr. ' + cl.groupement + ')' : ''), lbl(K.TYPES, s.type), fmtDuree(s.duree_min), dt ? fmtD(dt) : '', s.modalite !== 'classe' ? lbl(K.MODALITES, s.modalite) + (s.groupe ? ' ' + s.groupe : '') : '', seq ? 'Séquence : ' + seq.titre : '']);
+    h += metaLine(cl, [cl.nom, Cls.niveauLabel(cl) + (cl.groupement ? ' (gr. ' + cl.groupement + ')' : ''), lbl(K.TYPES, s.type), fmtDuree(s.duree_min), dt ? fmtD(dt) : '', s.modalite !== 'classe' ? lbl(K.MODALITES, s.modalite) + (s.groupe ? ' ' + s.groupe : '') : '', seq ? 'Séquence : ' + seq.titre : '', opt.hist ? 'Statut : ' + lbl(K.STATUTS_SEANCE, s.statut).toLowerCase() + (s.statut === 'faite' && s.date_realisee ? ' le ' + fmtD(s.date_realisee) : '') : '']);
     if (d.objectif) h += '<p class="obj"><strong>Objectif :</strong> ' + nl(d.objectif) + '</p>';
     h += block('Programme', itemsHtml(s, true) + compsHtml(s, cl));
     h += block('Prérequis', para(d.prerequis)); h += block('Ancrage métier', para(d.ancrage));
     var mat = (d.materiel || []).map(function (m) { return lbl(K.MATERIEL, m); }).concat(d.materiel_libre ? [d.materiel_libre] : []);
-    h += block('Matériel', mat.length ? '<p>' + mat.map(E).join(', ') + '</p>' : '');
+    var defMat = (DB.settings().materiel_defaut || ['casio']).slice().sort().join('|');
+    var matIsDefault = !d.materiel_libre && (d.materiel || []).slice().sort().join('|') === defMat;
+    if (!(opt.hist && matIsDefault)) h += block('Matériel', mat.length ? '<p>' + mat.map(E).join(', ') + '</p>' : '');
     if (s.modalite === 'demi_groupes_paralleles') h += block('Demi-groupes en parallèle', '<table><tr>' + d.groupes.map(function (g) { return '<th>' + E(g.nom) + '</th>'; }).join('') + '</tr><tr>' + d.groupes.map(function (g) { return '<td>' + nl(g.contenu) + '</td>'; }).join('') + '</tr></table>');
     if (s.modalite === 'co_intervention' && d.notes_co) h += block('Co-intervention', para(d.notes_co));
-    if (d.phases && d.phases.length) {
-      h += block('Déroulé', '<table><tr><th>Phase</th><th>Durée</th><th>Organisation</th><th>Contenu</th></tr>' + d.phases.map(function (p) { return '<tr><td>' + E(lbl(K.PHASES, p.phase)) + '</td><td>' + (+p.duree || 0) + ' min</td><td>' + E(lbl(K.ORGA, p.orga || 'collectif')) + '</td><td>' + nl(p.contenu) + '</td></tr>'; }).join('') + '</table>');
+    var phs = (d.phases || []).filter(function (p) { return !opt.hist || (p.contenu && String(p.contenu).trim()); });
+    if (phs.length) {
+      h += block('Déroulé', '<table><tr><th>Phase</th><th>Durée</th><th>Organisation</th><th>Contenu</th></tr>' + phs.map(function (p) { return '<tr><td>' + E(lbl(K.PHASES, p.phase)) + '</td><td>' + (+p.duree || 0) + ' min</td><td>' + E(lbl(K.ORGA, p.orga || 'collectif')) + '</td><td>' + nl(p.contenu) + '</td></tr>'; }).join('') + '</table>');
     }
     if (s.type === 'evaluation') h += block('Évaluation', para(d.eval.criteres) + (d.eval.bareme ? '<p><strong>Barème :</strong> ' + nl(d.eval.bareme) + '</p>' : ''));
     h += block('Trace écrite', para(d.trace));
@@ -2803,21 +2823,86 @@ var Exp = (function () {
     return safeName((cl ? cl.nom + '_' : '') + t).replace(/_+/g, '_').slice(0, 60);
   }
 
-  function print(kind, rec) {
+  var DOC_CSS = 'body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#111}h1{font-size:18pt;color:#1F3A66;margin:0 0 4pt}h2{font-size:14pt;color:#1F3A66;margin:14pt 0 4pt}h3{font-size:12pt;color:#1F3A66;border-bottom:1px solid #9AA8C0;margin:12pt 0 4pt}table{border-collapse:collapse;width:100%}th,td{border:1px solid #9AA8C0;padding:3pt 5pt;vertical-align:top;text-align:left}th{background:#E6EBF4}.meta,.small,.niv{color:#555}.small{font-size:9pt}ul{margin:2pt 0 4pt;padding-left:16pt}p{margin:3pt 0}';
+
+  /* impression / enregistrement en PDF via la fenêtre d’impression du navigateur */
+  function printHtml(html) {
     var root = document.getElementById('print-root'); if (!root) return;
-    root.innerHTML = '<div class="doc">' + htmlFor(kind, rec) + '</div>';
+    root.innerHTML = '<div class="doc">' + html + '</div>';
     document.body.classList.add('printing');
     var done = function () { document.body.classList.remove('printing'); root.innerHTML = ''; window.removeEventListener('afterprint', done); };
     window.addEventListener('afterprint', done);
     setTimeout(function () { try { window.print(); } catch (e) { done(); } }, 60);
     setTimeout(function () { if (document.body.classList.contains('printing')) done(); }, 120000);
   }
-  function word(kind, rec) {
-    var css = 'body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#111}h1{font-size:18pt;color:#1F3A66;margin:0 0 4pt}h3{font-size:12pt;color:#1F3A66;border-bottom:1px solid #9AA8C0;margin:12pt 0 4pt}table{border-collapse:collapse;width:100%}th,td{border:1px solid #9AA8C0;padding:3pt 5pt;vertical-align:top;text-align:left}th{background:#E6EBF4}.meta,.small,.niv{color:#555}.small{font-size:9pt}';
-    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>' + E(rec.titre || kind) + '</title><style>' + css + '</style></head><body>' + htmlFor(kind, rec) + '</body></html>';
-    downloadBlob(new Blob(['﻿', html], { type: 'application/msword' }), fileBase(kind, rec) + '.doc');
+  function print(kind, rec) { printHtml(htmlFor(kind, rec)); }
+
+  function wordFile(title, body, name) {
+    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>' + E(title) + '</title><style>' + DOC_CSS + '.pb{page-break-before:always}</style></head><body>' + body + '</body></html>';
+    downloadBlob(new Blob(['﻿', html], { type: 'application/msword' }), name + '.doc');
     UI.toast('Fichier Word créé (s’ouvre dans Word, LibreOffice ou Google Docs).');
   }
+  function word(kind, rec) { wordFile(rec.titre || kind, htmlFor(kind, rec), fileBase(kind, rec)); }
+
+  /* page HTML autonome : un seul fichier, sans script ni ressource externe */
+  function htmlPage(title, body) {
+    return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'"><title>' + E(title) + '</title><style>' + DOC_CSS +
+      'body{max-width:920px;margin:0 auto;padding:1rem 1.2rem 3rem;line-height:1.45;background:#fff}.pb{margin-top:2.2rem;padding-top:1.4rem;border-top:3px solid #C9D2E3}@media print{body{max-width:none;padding:0}.pb{page-break-before:always;margin:0;padding:0;border:0}.nopr{display:none}}.foot{margin-top:2rem;color:#555;font-size:9pt}</style></head><body>' +
+      body + '<p class="foot">Document édité avec Fiches le ' + E(fmtD(today())) + '.</p></body></html>';
+  }
+  function htmlDownload(kind, rec) {
+    downloadBlob(new Blob([htmlPage(rec.titre || kind, htmlFor(kind, rec))], { type: 'text/html;charset=utf-8' }), fileBase(kind, rec) + '.html');
+    UI.toast('Page HTML enregistrée : elle s’ouvre dans n’importe quel navigateur.');
+  }
+
+  /* boutons d’export réutilisés en haut et en bas des fiches */
+  function buttons(kind, rec, flush) {
+    var f = function (fn) { return function () { if (flush) flush(); fn(); }; };
+    return [h('button', { class: 'btn', type: 'button', title: 'Choisissez « Enregistrer au format PDF » dans la fenêtre d’impression', onclick: f(function () { print(kind, rec); }) }, '🖨 Imprimer / PDF'),
+      h('button', { class: 'btn', type: 'button', onclick: f(function () { word(kind, rec); }) }, '📝 Word'),
+      h('button', { class: 'btn', type: 'button', onclick: f(function () { htmlDownload(kind, rec); }) }, '🌐 HTML')];
+  }
+
+  /* ── historique des fiches séances (une section par classe, uniquement ce qui a été saisi) ── */
+  function seancesOf(cl, opt) {
+    var ok = opt && opt.statuts ? opt.statuts : K.STATUTS_SEANCE.map(function (x) { return x[0]; });
+    var list = Cls.seances(cl.id).filter(function (s) { return ok.indexOf(s.statut) >= 0; });
+    if (opt && opt.ordre === 'seq') {
+      var rank = {}; Cls.sequences(cl.id).forEach(function (q) { rank[q.id] = q.ordre; });
+      list.sort(function (a, b) {
+        var ra = a.sequence_id ? rank[a.sequence_id] || 0 : 9999, rb = b.sequence_id ? rank[b.sequence_id] || 0 : 9999;
+        return (ra - rb) || (a.ordre - b.ordre) || Cls.cmpSeance(a, b);
+      });
+    }
+    return list;
+  }
+  function historyHtml(classes, opt) {
+    var out = '', n = 0;
+    classes.forEach(function (cl, ci) {
+      var list = seancesOf(cl, opt), tot = list.reduce(function (a, s) { return a + (s.statut === 'annulee' ? 0 : s.duree_min); }, 0);
+      n += list.length;
+      out += '<section class="hist-class' + (ci ? ' pb' : '') + '"><h1>Historique des fiches séances — ' + E(cl.nom) + '</h1>' +
+        metaLine(cl, [Cls.niveauLabel(cl) + (cl.groupement ? ' (gr. ' + cl.groupement + ')' : ''), cl.annee_scolaire, plural(list.length, 'séance'), fmtDuree(tot), 'Édité le ' + fmtD(today())]);
+      if (!list.length) { out += '<p>Aucune séance pour cette sélection.</p></section>'; return; }
+      out += '<h3>Sommaire</h3><table><tr><th>N°</th><th>Date</th><th>Séance</th><th>Séquence</th><th>Type</th><th>Durée</th><th>Statut</th></tr>' + list.map(function (s, i) {
+        var q = s.sequence_id ? DB.byId('fs_sequences', s.sequence_id) : null, dt = Plan.seanceDate(s);
+        return '<tr><td>' + (i + 1) + '</td><td>' + E(dt ? fmtD(dt) : '') + '</td><td>' + E(s.titre || '(sans titre)') + '</td><td>' + E(q ? q.titre : '') + '</td><td>' + E(lbl(K.TYPES, s.type)) + (s.modalite !== 'classe' ? ' · ' + E(lbl(K.MODALITES, s.modalite)) + (s.groupe ? ' ' + E(s.groupe) : '') : '') + '</td><td>' + E(fmtDuree(s.duree_min)) + '</td><td>' + E(lbl(K.STATUTS_SEANCE, s.statut)) + '</td></tr>';
+      }).join('') + '</table>';
+      list.forEach(function (s, i) { out += '<article class="hist-fiche pb"><p class="small">Fiche ' + (i + 1) + ' sur ' + list.length + ' · ' + E(cl.nom) + '</p>' + seanceHtml(s, { hist: true }) + '</article>'; });
+      out += '</section>';
+    });
+    return { html: out, count: n };
+  }
+  function historyName(classes) { return safeName('Historique_' + (classes.length === 1 ? classes[0].nom + '_' + classes[0].annee_scolaire : 'toutes_les_classes')).replace(/_+/g, '_'); }
+  function history(classes, opt, how) {
+    var r = historyHtml(classes, opt);
+    if (!r.count) { UI.toast('Aucune séance à exporter pour cette sélection.', 'err'); return; }
+    var title = 'Historique des fiches séances';
+    if (how === 'print') printHtml(r.html);
+    else if (how === 'word') wordFile(title, r.html, historyName(classes));
+    else { downloadBlob(new Blob([htmlPage(title, r.html)], { type: 'text/html;charset=utf-8' }), historyName(classes) + '.html'); UI.toast('Page HTML enregistrée.'); }
+  }
+
   function cahier(s) {
     var cl = Cls.get(s.class_id), d = s.data, dt = Plan.seanceDate(s);
     var L = [(dt ? fmtD(dt) + ' — ' : '') + cl.nom + ' — ' + (s.titre || 'Séance')];
@@ -2891,6 +2976,10 @@ var Exp = (function () {
       if (r.class_id && !ctx.cls[r.class_id]) return null;
       return { id: r.id, annee_scolaire: r.annee_scolaire, class_id: r.class_id || null, type: r.type, label: str(r.label, 200), debut: r.debut, fin: r.fin };
     },
+    fs_modeles: function (r) {
+      if (['seance', 'sequence'].indexOf(r.kind) < 0 || !isStr(r.titre, 200) || !r.titre.trim() || !okData(r.data) || (r.niveau_id && ENUM.niveau.indexOf(r.niveau_id) < 0)) return null;
+      return { id: r.id, kind: r.kind, titre: r.titre.trim(), niveau_id: r.niveau_id || null, data: r.data };
+    },
     fs_progress_override: function (r, ctx) {
       if (!ctx.cls[r.class_id] || !isStr(r.ref_id, 100) || !isInt(r.statut, 0, 3) || !isDate(r.date_realisation)) return null;
       return { id: r.id, class_id: r.class_id, ref_id: r.ref_id, statut: r.statut, date_realisation: r.date_realisation || null, note: str(r.note, 2000) };
@@ -2944,7 +3033,7 @@ var Exp = (function () {
     });
   }
 
-  return { print: print, word: word, cahier: cahier, progression: progression, json: json, importJson: importJson, wipe: wipe, html: htmlFor };
+  return { print: print, word: word, htmlDownload: htmlDownload, buttons: buttons, history: history, historyHtml: historyHtml, seanceHtml: seanceHtml, printHtml: printHtml, htmlPage: htmlPage, cahier: cahier, progression: progression, json: json, importJson: importJson, wipe: wipe, html: htmlFor };
 })();
 
 /* ── 66-views-planning.js ── */
@@ -3281,6 +3370,285 @@ var Pronote = (function () {
   return { draft: draft, section: section };
 })();
 
+/* ── 68-views-hist.js ── */
+/* ═══ FICHES · historique des fiches séances (par classe, uniquement ce qui a été saisi) ═══ */
+'use strict';
+Views.historique = function (arg) {
+  var all = Cls.actives(), root = h('div', { class: 'page' });
+  var cur = arg && arg !== 'tout' ? Cls.get(arg) : null;
+  if (arg && arg !== 'tout' && !cur) return notFound();
+  var STATS = K.STATUTS_SEANCE.map(function (x) { return x[0]; });
+  var sel = Store.getJSON('hist_statuts', STATS).filter(function (x) { return STATS.indexOf(x) >= 0; });
+  var ordre = Store.get('hist_ordre') === 'seq' ? 'seq' : 'date';
+  var body = h('div', { class: 'hist-body' });
+  var bar = h('div', { class: 'action-bar hist-bar' });
+
+  function classes() { return cur ? [cur] : all; }
+  function opt() { return { statuts: sel, ordre: ordre }; }
+  function exportButtons() {
+    var go = function (how) { return function () { Exp.history(classes(), opt(), how); }; };
+    return [h('button', { class: 'btn primary', type: 'button', title: 'Choisissez « Enregistrer au format PDF » dans la fenêtre d’impression', onclick: go('print') }, '🖨 Imprimer / PDF'),
+      h('button', { class: 'btn', type: 'button', onclick: go('word') }, '📝 Word'), h('button', { class: 'btn', type: 'button', onclick: go('html') }, '🌐 HTML')];
+  }
+  root.appendChild(pageHead('Historique des fiches', cur ? cur.nom + ' · ' + cur.annee_scolaire : 'Toutes les classes', exportButtons(), cur ? ['#/classe/' + cur.id, cur.nom] : ['#/classes', 'Classes']));
+
+  /* choix de la classe */
+  var chips = h('div', { class: 'chips', role: 'group', 'aria-label': 'Classe' });
+  chips.appendChild(h('a', { class: 'chip' + (!cur ? ' on' : ''), href: '#/historique/tout' }, 'Toutes les classes'));
+  all.forEach(function (c) { chips.appendChild(h('a', { class: 'chip' + (cur && cur.id === c.id ? ' on' : ''), href: '#/historique/' + c.id }, c.nom)); });
+  /* filtres */
+  var fl = h('div', { class: 'chips', role: 'group', 'aria-label': 'Statuts à inclure' });
+  function drawFilters() {
+    clear(fl);
+    K.STATUTS_SEANCE.forEach(function (st) {
+      var on = sel.indexOf(st[0]) >= 0;
+      fl.appendChild(h('button', { class: 'chip' + (on ? ' on' : ''), type: 'button', 'aria-pressed': on ? 'true' : 'false', onclick: function () { var i = sel.indexOf(st[0]); if (i >= 0) sel.splice(i, 1); else sel.push(st[0]); Store.setJSON('hist_statuts', sel); drawFilters(); draw(); } }, st[1]));
+    });
+  }
+  drawFilters();
+  var ordSel = UI.select([['date', 'Ordre chronologique'], ['seq', 'Regroupées par séquence']], ordre, function (v) { ordre = v; Store.set('hist_ordre', v); draw(); }, 'sm');
+  root.appendChild(h('section', { class: 'card' }, h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Classe'), chips),
+    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Séances à inclure'), fl), h('div', { class: 'row-gap' }, ordSel),
+    h('p', { class: 'muted small' }, 'Chaque fiche ne montre que ce que vous avez saisi : les rubriques vides sont omises. Pour obtenir un PDF, choisissez « Enregistrer au format PDF » dans la fenêtre d’impression.')));
+  root.appendChild(body);
+  root.appendChild(bar);
+
+  function draw() {
+    clear(body); clear(bar);
+    var total = 0;
+    classes().forEach(function (cl) {
+      var list = seancesFor(cl);
+      total += list.length;
+      var sec = h('section', { class: 'card' }, h('h2', null, cl.nom, h('span', { class: 'muted small' }, '  ' + plural(list.length, 'fiche') + ' · ' + cl.annee_scolaire)));
+      if (!list.length) sec.appendChild(h('p', { class: 'muted' }, 'Aucune séance pour cette sélection.'));
+      list.forEach(function (s, i) {
+        var dt = Plan.seanceDate(s);
+        var det = h('details', { class: 'hist-item' }, h('summary', null, h('span', { class: 'hi-n' }, String(i + 1)), h('span', { class: 'hi-d' }, dt ? fmtD(dt) : '—'), h('span', { class: 'hi-t' }, s.titre || '(sans titre)'),
+          h('span', { class: 'chip st-' + s.statut }, lbl(K.STATUTS_SEANCE, s.statut))));
+        var inner = h('div', { class: 'hist-fiche-view' });
+        det.addEventListener('toggle', function () { if (det.open && !inner.firstChild) { inner.innerHTML = Exp.seanceHtml(s, { hist: true }); inner.appendChild(h('p', null, h('a', { class: 'btn small', href: '#/seance/' + s.id }, 'Ouvrir la fiche pour la modifier'))); } });
+        det.appendChild(inner); sec.appendChild(det);
+      });
+      body.appendChild(sec);
+    });
+    if (total) { exportButtons().forEach(function (b) { bar.appendChild(b); }); bar.appendChild(h('span', { class: 'muted small' }, plural(total, 'fiche') + ' dans l’export.')); }
+  }
+  function seancesFor(cl) {
+    var ok = sel, list = Cls.seances(cl.id).filter(function (s) { return ok.indexOf(s.statut) >= 0; });
+    if (ordre === 'seq') {
+      var rank = {}; Cls.sequences(cl.id).forEach(function (q) { rank[q.id] = q.ordre; });
+      list.sort(function (a, b) { var ra = a.sequence_id ? rank[a.sequence_id] || 0 : 9999, rb = b.sequence_id ? rank[b.sequence_id] || 0 : 9999; return (ra - rb) || (a.ordre - b.ordre) || Cls.cmpSeance(a, b); });
+    }
+    return list;
+  }
+  draw();
+  return root;
+};
+
+/* ── 69-templates.js ── */
+/* ═══ FICHES · modèles de séances d’1 h générés à partir des programmes (et « mes modèles ») ═══ */
+'use strict';
+var Tpl = (function () {
+  var HEAVY = /simulation|programm|algorithm|tableur|logiciel|exp[ée]riment|conjectur|d[ée]monstr|mod[ée]lis|scratch|python|probl[eè]me ouvert/i;
+  var ACTIVITE = /simulation|programm|algorithm|tableur|logiciel|exp[ée]riment|conjectur|scratch|python/i;
+  var MATOS = [['casio', /calcul|pourcentage|racine|puissance|valeur|taux|moyenne|m[ée]diane|[ée]cart|probabilit|r[ée]soudre|[ée]quation|fr[ée]quence|proportion/i],
+    ['tableur', /tableur|feuille de calcul|simulation|donn[ée]es|diagramme|histogramme|graphique|s[ée]rie|fr[ée]quence/i],
+    ['geogebra', /g[ée]om[ée]tri|droite|courbe|repr[ée]sent|rep[eè]re|fonction|tracer|solide|section|transform|sym[ée]trie|translation|rotation|homoth[ée]tie|logiciel/i],
+    ['prog', /algorithm|programm|scratch|python|boucle/i], ['instruments', /construire|tracer|compas|rapporteur|angle|[ée]querre|mesurer/i]];
+  var BUDGET = 60;
+
+  function clean(t) { return String(t || '').replace(/\s+/g, ' ').trim().replace(/[.;:,\s]+$/, ''); }
+  function lc(t) { return t ? t.charAt(0).toLowerCase() + t.slice(1) : t; }
+  function shorten(t, n) { t = clean(t); if (t.length <= n) return t; return t.slice(0, n).replace(/\s+\S*$/, '') + '…'; }
+  function chapShort(c) { return clean(c.titre.replace(/\s*\([^)]*\)\s*$/, '')); }
+
+  /* durée estimée (minutes) d’un élément dans une séance d’1 h : un objectif demande de la pratique, une notion moins */
+  function weight(it, kind) {
+    var w = kind === 'o' ? 28 : 12, n = (it.txt || '').length;
+    if (n > 140) w += 8; if (HEAVY.test(it.txt || '')) w += 14;
+    return w;
+  }
+  /* objectifs et notions mélangés dans l’ordre du programme (les notions réparties le long des objectifs) */
+  function interleave(chap) {
+    var os = chap.objectifs.map(function (x, i) { return { it: x, kind: 'o', key: (i + 0.5) / chap.objectifs.length, s: 1 }; });
+    var ks = chap.connaissances.map(function (x, i) { return { it: x, kind: 'k', key: (i + 0.5) / chap.connaissances.length, s: 0 }; });
+    return os.concat(ks).sort(function (a, b) { return (a.key - b.key) || (a.s - b.s); });
+  }
+  function pack(items) {
+    var groups = [], cur = null;
+    items.forEach(function (x) {
+      var w = weight(x.it, x.kind);
+      if (!cur || (cur.min + w > BUDGET && cur.items.length)) { cur = { items: [], min: 0 }; groups.push(cur); }
+      cur.items.push(x); cur.min += w;
+    });
+    /* un dernier groupe très court est rattaché au précédent s’il y a la place */
+    if (groups.length > 1) { var l = groups[groups.length - 1], p = groups[groups.length - 2]; if (l.min < 20 && p.min + l.min <= BUDGET) { p.items = p.items.concat(l.items); p.min += l.min; groups.pop(); } }
+    return groups;
+  }
+  function forChapter(chap) {
+    var groups = pack(interleave(chap)), n = groups.length;
+    return groups.map(function (g, i) {
+      var os = g.items.filter(function (x) { return x.kind === 'o'; }), focus = os.length ? os : g.items;
+      var head = shorten(focus[0].it.txt, 72);
+      var heavy = g.items.some(function (x) { return ACTIVITE.test(x.it.txt || ''); });
+      var type = (os.length && (heavy || (n >= 2 && i === 0))) ? 'activite' : 'cours';
+      return { id: chap.id + '#' + (i + 1), chapId: chap.id, chapTitre: chap.titre, domaine: chap.domaine, rang: i + 1, total: n, head: head, minutes: g.min,
+        titre: chapShort(chap) + (n > 1 ? ' (' + (i + 1) + '/' + n + ')' : '') + ' — ' + head, type: type, duree: 60,
+        items: g.items.map(function (x) { return { k: x.kind, ref: x.it.id, txt: x.it.txt + (x.it.sous && x.it.sous.length ? ' — ' + x.it.sous.join(' ; ') : ''), comp: x.it.comp || [] }; }) };
+    });
+  }
+
+  /* contenu complet d’une séance (champs de data) pour une proposition et une classe */
+  function dataFor(p, cl) {
+    var d = emptySeanceData(cl), os = p.items.filter(function (x) { return x.k === 'o'; }), ks = p.items.filter(function (x) { return x.k === 'k'; }), focus = os.length ? os : p.items;
+    var txts = p.items.map(function (x) { return x.txt; }).join(' ');
+    d.objectif = 'À la fin de la séance, l’élève ' + (os.length ? 'sait : ' : 'connaît : ') + focus.slice(0, 3).map(function (x) { return lc(shorten(x.txt, 110)); }).join(' ; ') + (focus.length > 3 ? ' ; …' : '') + '.';
+    d.items = p.items.map(function (x) { return { k: x.k, ref: x.ref, txt: x.txt, niv: defaultNiv(p.type), chap: p.chapId }; });
+    d.chapitres = [p.chapId];
+    p.items.forEach(function (x) { (x.comp || []).forEach(function (c) { if (d.competences.indexOf(c) < 0) d.competences.push(c); }); });
+    d.comp_manual = false;
+    var mat = (d.materiel || []).slice(); MATOS.forEach(function (m) { if (m[1].test(txts) && mat.indexOf(m[0]) < 0) mat.push(m[0]); });
+    if (/tableur|simulation|geogebra|programm|algorithm|scratch|python|logiciel/i.test(txts) && mat.indexOf('ordi') < 0) mat.push('ordi');
+    d.materiel = mat;
+    d.prerequis = p.rang > 1 ? 'Séance précédente (' + (p.rang - 1) + '/' + p.total + ') du chapitre « ' + chapShort({ titre: p.chapTitre }) + ' ».' : '';
+    var ctx = cl && cl.metier ? 'le métier (' + clean(cl.metier) + ')' : 'la vie courante ou le métier';
+    var list = function (arr, k) { return arr.slice(0, k).map(function (x) { return lc(shorten(x.txt, 70)); }).join(' ; ') + (arr.length > k ? ' ; …' : ''); };
+    var ph = defaultPhases(p.type, p.duree);
+    ph.forEach(function (x) {
+      if (x.phase === 'accroche') x.contenu = 'Situation d’accroche tirée de ' + ctx + ' qui amène : ' + lc(shorten(focus[0].txt, 90)) + '.';
+      else if (x.phase === 'recherche') x.contenu = (p.type === 'activite' ? 'Les élèves cherchent en groupes : ' : 'Recherche en binômes à partir de la situation : ') + list(focus, 2) + ' (document de recherche à préparer).';
+      else if (x.phase === 'cours') x.contenu = 'Mise en commun et institutionnalisation : ' + list(p.items, 3) + '.';
+      else if (x.phase === 'exercices') x.contenu = 'Exercices d’application de difficulté croissante sur : ' + list(focus, 2) + '.';
+      else if (x.phase === 'automatismes') x.contenu = 'Trois à cinq questions flash en lien avec « ' + chapShort({ titre: p.chapTitre }) + ' ».';
+      else if (x.phase === 'bilan') x.contenu = 'Bilan : ce qu’il faut retenir (' + list(focus, 2) + ') et points de vigilance.';
+    });
+    d.phases = ph;
+    var tr = ['Titre : ' + p.head];
+    os.forEach(function (x) { tr.push('Méthode — ' + lc(shorten(x.txt, 100)) + ' : …\nExemple : …'); });
+    ks.forEach(function (x) { tr.push('À retenir — ' + shorten(x.txt, 110) + ' : …'); });
+    d.trace = tr.join('\n\n');
+    d.diff = { upe2a: 'Afficher le vocabulaire clé de la séance avec un exemple ou un schéma.', difficulte: 'Étayer avec un exemple résolu ; décomposer la tâche en étapes.', rapides: 'Prolonger avec un problème plus ouvert.', amenagements: '' };
+    return d;
+  }
+
+  function hasContent(s) { var d = s.data; return !!((d.items || []).length || (d.trace || '').trim() || (d.objectif || '').trim() || (d.phases || []).some(function (x) { return (x.contenu || '').trim(); })); }
+  var KEEP = ['objectif', 'items', 'chapitres', 'competences', 'comp_caps', 'comp_manual', 'prerequis', 'ancrage', 'materiel', 'materiel_libre', 'phases', 'trace', 'diff', 'eval'];
+  /* charge une proposition (ou un modèle perso) dans une séance existante : bilan, DM, ressources, notes sont conservés */
+  function applyTo(s, cl, spec) {
+    var d = spec.data;
+    KEEP.forEach(function (k) { if (d[k] !== undefined) s.data[k] = clone(d[k]); });
+    s.type = spec.type; s.duree_min = spec.duree || s.duree_min; if (!s.titre || spec.forceTitle) s.titre = spec.titre;
+    DB.save('fs_seances', s);
+  }
+  function specOfProposal(p, cl) { return { type: p.type, duree: p.duree, titre: p.titre, data: dataFor(p, cl) }; }
+  function specOfModel(m) { var dd = m.data || {}; return { type: dd.type || 'cours', duree: dd.duree_min || 60, titre: m.titre, data: dd.data || {} }; }
+
+  function createFrom(cl, spec, seqId, withDate) {
+    var init = { sequence_id: seqId || null, type: spec.type, titre: spec.titre, duree_min: spec.duree, data: clone(spec.data) };
+    if (withDate && (cl.creneaux || []).length) init.date_prevue = nextDateFor(cl, seqId || null);
+    return createSeance(cl, init);
+  }
+
+  /* ── sélecteur ── */
+  function open(opt) {
+    opt = opt || {};
+    var classes = Cls.actives(); if (!classes.length) { UI.toast('Créez d’abord une classe.'); return; }
+    var cl = opt.cl || Cls.get(Store.get('last_class')) || classes[0]; if (cl.archive) cl = classes[0];
+    var load = opt.mode === 'load', picked = {}, tab = 'prog', q = '', withDate = true;
+    var wrap = h('div', { class: 'tpl' }), list = h('div', { class: 'tpl-list' }), count = h('span', { class: 'muted small' });
+    var api;
+    function nPicked() { return Object.keys(picked).length; }
+    function updCount() { count.textContent = load ? '' : nPicked() + ' séance' + (nPicked() > 1 ? 's' : '') + ' sélectionnée' + (nPicked() > 1 ? 's' : ''); }
+
+    function card(spec, meta) {
+      var its = spec.data && spec.data.items ? spec.data.items : [];
+      var c = h('div', { class: 'tpl-card' });
+      var head = h('div', { class: 'tpl-h' });
+      if (!load) head.appendChild(h('input', { type: 'checkbox', 'aria-label': 'Sélectionner', checked: !!picked[meta.id], onchange: function (e) { if (e.target.checked) picked[meta.id] = { spec: spec }; else delete picked[meta.id]; updCount(); } }));
+      head.appendChild(h('div', { class: 'tpl-t' }, h('strong', null, spec.titre), h('div', { class: 'muted small' }, lbl(K.TYPES, spec.type) + ' · ' + fmtDuree(spec.duree) + ' · ' + plural(its.length, 'élément') + (meta.sub ? ' · ' + meta.sub : ''))));
+      if (load) head.appendChild(h('button', { class: 'btn small primary', type: 'button', onclick: function () { go(spec); } }, 'Charger'));
+      c.appendChild(head);
+      if (its.length) c.appendChild(h('details', { class: 'tpl-d' }, h('summary', { class: 'small' }, 'Voir le contenu'), h('ul', { class: 'small' }, its.map(function (x) { return h('li', null, x.txt); })),
+        spec.data.objectif ? h('p', { class: 'small' }, h('strong', null, 'Objectif : '), spec.data.objectif) : null));
+      return c;
+    }
+    function go(spec) {
+      var s = opt.seance;
+      var run = function () { applyTo(s, cl, spec); api.close(); UI.toast('Modèle chargé : relisez et adaptez.'); Views.rerender(); };
+      if (hasContent(s)) UI.ask('Cette séance contient déjà des éléments. Remplacer objectifs, déroulé, trace écrite et matériel par ce modèle ? (Le bilan, le DM, les ressources et les notes sont conservés.)', { ok: 'Remplacer' }).then(function (ok) { if (ok) run(); }); else run();
+    }
+
+    function chapterBlock(ch, open0) {
+      var props = null, box = h('div', { class: 'tpl-chap' });
+      var det = h('details', { class: 'tpl-chapd', open: open0 ? true : null }, h('summary', null, h('strong', null, ch.titre), h('span', { class: 'muted small' }, '  ' + (ch.objectifs.length + ch.connaissances.length) + ' éléments')));
+      function fill() {
+        if (props) return; props = forChapter(ch); clear(box);
+        if (!props.length) { box.appendChild(h('p', { class: 'muted small' }, 'Aucun élément dans ce chapitre.')); return; }
+        props.forEach(function (p) { box.appendChild(card(specOfProposal(p, cl), { id: p.id, sub: 'séance ' + p.rang + '/' + p.total })); });
+      }
+      det.addEventListener('toggle', function () { if (det.open) fill(); });
+      det.appendChild(box); if (open0) fill();
+      return det;
+    }
+    function drawProg() {
+      var e = Ref.effective(cl.niveau_id), ql = q.toLowerCase();
+      var chaps = e.chapitres.filter(function (c) { return !ql || (c.titre + ' ' + c.domaine + ' ' + c.objectifs.concat(c.connaissances).map(function (x) { return x.txt; }).join(' ')).toLowerCase().indexOf(ql) >= 0; });
+      var pre = {}; (opt.chapIds || []).forEach(function (x) { pre[x] = true; });
+      var ok = chaps.filter(function (c) { return Ref.portee(c, cl).ok; }), ko = chaps.filter(function (c) { return !Ref.portee(c, cl).ok; });
+      var dom = '';
+      ok.forEach(function (c) { if (c.domaine !== dom) { dom = c.domaine; list.appendChild(h('h4', { class: 'tpl-dom' }, dom)); } list.appendChild(chapterBlock(c, pre[c.id] || !!ql && ok.length <= 3)); });
+      if (!ok.length) list.appendChild(h('p', { class: 'muted' }, 'Aucun chapitre ne correspond.'));
+      if (ko.length) { var more = h('details', { class: 'tpl-more' }, h('summary', { class: 'small' }, 'Autres chapitres (hors groupement ou option de la classe) : ' + ko.length)); ko.forEach(function (c) { more.appendChild(chapterBlock(c, false)); }); list.appendChild(more); }
+    }
+    function drawMine() {
+      var ms = DB.list('fs_modeles').filter(function (m) { return m.kind === 'seance' && (m.niveau_id === cl.niveau_id || !m.niveau_id); }).sort(function (a, b) { return cmpStr(a.titre, b.titre); });
+      if (!ms.length) { list.appendChild(h('p', { class: 'muted' }, 'Aucun modèle personnel pour ce niveau. Dans une séance, utilisez « 💾 Enregistrer comme modèle ».')); return; }
+      ms.forEach(function (m) {
+        var spec = specOfModel(m), c = card(spec, { id: m.id, sub: 'mon modèle' });
+        $('.tpl-h', c).appendChild(h('button', { class: 'icon-btn sm', type: 'button', title: 'Supprimer ce modèle', 'aria-label': 'Supprimer ce modèle', onclick: function () { UI.ask('Supprimer le modèle « ' + m.titre + ' » ?', { ok: 'Supprimer', danger: true }).then(function (ok) { if (ok) { DB.remove('fs_modeles', m.id); draw(); } }); } }, '🗑'));
+        list.appendChild(c);
+      });
+    }
+    function draw() { clear(list); if (tab === 'prog') drawProg(); else drawMine(); }
+    function top() {
+      var t = h('div', { class: 'tpl-top' });
+      if (!opt.cl || !load) t.appendChild(UI.field('Classe', UI.select(classes.map(function (c) { return [c.id, c.nom + ' — ' + Cls.niveauLabel(c)]; }), cl.id, function (v) { cl = Cls.get(v); picked = {}; updCount(); draw(); })));
+      t.appendChild(h('div', { class: 'tabs', role: 'tablist' }, [['prog', 'Modèles des programmes'], ['mine', 'Mes modèles']].map(function (x) { return h('button', { class: 'tab' + (tab === x[0] ? ' on' : ''), type: 'button', role: 'tab', onclick: function () { tab = x[0]; clear(wrap); build(); } }, x[1]); })));
+      if (tab === 'prog') t.appendChild(h('input', { class: 'inp', type: 'search', placeholder: 'Filtrer par mot (ex. pourcentage, fonction, probabilité)…', value: q, oninput: function (e) { q = e.target.value; clear(list); drawProg(); } }));
+      return t;
+    }
+    function build() {
+      wrap.appendChild(top());
+      if (tab === 'prog') wrap.appendChild(h('p', { class: 'muted small' }, 'Chaque proposition regroupe les objectifs et notions du programme qui tiennent en 1 h (estimation). Elle préremplit objectif, déroulé, trace écrite, matériel et différenciation : vous adaptez ensuite.'));
+      if (!load) { wrap.appendChild(h('div', { class: 'row-gap' }, count, (cl.creneaux || []).length ? h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: withDate, onchange: function (e) { withDate = e.target.checked; } }), ' Proposer des dates selon mes créneaux') : null)); }
+      wrap.appendChild(list); updCount(); draw();
+    }
+    build();
+    var actions = [{ label: load ? 'Fermer' : 'Annuler', kind: 'ghost' }];
+    if (!load) actions.push({ label: 'Créer les séances sélectionnées', kind: 'primary', onClick: function () {
+      var ids = Object.keys(picked); if (!ids.length) { UI.toast('Cochez au moins une proposition.', 'err'); return false; }
+      var made = []; Store.set('last_class', cl.id);
+      /* ordre du programme : on respecte l’ordre d’affichage (chapitre puis rang) */
+      ids.sort(function (a, b) { return cmpStr(a, b); });
+      ids.forEach(function (id) { made.push(createFrom(cl, picked[id].spec, opt.seqId, withDate)); });
+      UI.toast(plural(made.length, 'séance créée', 'séances créées') + '.');
+      if (made.length === 1) location.hash = '#/seance/' + made[0].id; else if (opt.seqId) Views.rerender(); else location.hash = '#/classe/' + cl.id;
+    } });
+    api = UI.modal({ title: load ? 'Charger un modèle de séance d’1 h' : 'Séances d’1 h à partir d’un modèle', body: wrap, actions: actions, wide: true, noFocus: true });
+  }
+
+  /* ── enregistrer une séance comme modèle perso ── */
+  function saveAsModel(s, cl) {
+    UI.promptText('Nom du modèle', { value: s.titre || '', ok: 'Enregistrer', help: 'Le modèle garde objectif, programme, déroulé, trace écrite, matériel et différenciation (pas le bilan, le DM ni les ressources).' }).then(function (name) {
+      if (name === null) return; name = name.trim(); if (!name) { UI.toast('Donnez un nom au modèle.', 'err'); return; }
+      var data = {}; KEEP.forEach(function (k) { if (s.data[k] !== undefined) data[k] = clone(s.data[k]); });
+      DB.create('fs_modeles', { kind: 'seance', titre: name.slice(0, 120), niveau_id: cl.niveau_id, data: { type: s.type, duree_min: s.duree_min, data: data } });
+      UI.toast('Modèle enregistré : retrouvez-le dans « Mes modèles ».');
+    });
+  }
+  return { forChapter: forChapter, dataFor: dataFor, open: open, saveAsModel: saveAsModel, applyTo: applyTo, weight: weight, pack: pack, interleave: interleave };
+})();
+
 /* ── 90-main.js ── */
 /* ═══ FICHES · routeur, démarrage, thème, installation (PWA) ═══ */
 'use strict';
@@ -3331,6 +3699,7 @@ var Main = (function () {
       case 'sequence': return Views.sequence(r.arg);
       case 'seance': return Views.seance(r.arg);
       case 'planning': return Views.planning();
+      case 'historique': return Views.historique(r.arg);
       case 'progression': return Views.progression(r.arg);
       case 'biblio': return Views.biblio();
       case 'referentiel': return Views.referentiel(r.arg);

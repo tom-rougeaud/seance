@@ -35,19 +35,23 @@ var Exp = (function () {
   }
   function metaLine(cl, parts) { return '<p class="meta">' + parts.filter(Boolean).map(E).join(' · ') + '</p>'; }
 
-  function seanceHtml(s) {
+  function seanceHtml(s, opt) {
+    opt = opt || {};
     var cl = Cls.get(s.class_id), d = s.data, seq = s.sequence_id ? DB.byId('fs_sequences', s.sequence_id) : null, dt = Plan.seanceDate(s);
     var h = '<h1>' + E(s.titre || 'Séance') + '</h1>';
-    h += metaLine(cl, [cl.nom, Cls.niveauLabel(cl) + (cl.groupement ? ' (gr. ' + cl.groupement + ')' : ''), lbl(K.TYPES, s.type), fmtDuree(s.duree_min), dt ? fmtD(dt) : '', s.modalite !== 'classe' ? lbl(K.MODALITES, s.modalite) + (s.groupe ? ' ' + s.groupe : '') : '', seq ? 'Séquence : ' + seq.titre : '']);
+    h += metaLine(cl, [cl.nom, Cls.niveauLabel(cl) + (cl.groupement ? ' (gr. ' + cl.groupement + ')' : ''), lbl(K.TYPES, s.type), fmtDuree(s.duree_min), dt ? fmtD(dt) : '', s.modalite !== 'classe' ? lbl(K.MODALITES, s.modalite) + (s.groupe ? ' ' + s.groupe : '') : '', seq ? 'Séquence : ' + seq.titre : '', opt.hist ? 'Statut : ' + lbl(K.STATUTS_SEANCE, s.statut).toLowerCase() + (s.statut === 'faite' && s.date_realisee ? ' le ' + fmtD(s.date_realisee) : '') : '']);
     if (d.objectif) h += '<p class="obj"><strong>Objectif :</strong> ' + nl(d.objectif) + '</p>';
     h += block('Programme', itemsHtml(s, true) + compsHtml(s, cl));
     h += block('Prérequis', para(d.prerequis)); h += block('Ancrage métier', para(d.ancrage));
     var mat = (d.materiel || []).map(function (m) { return lbl(K.MATERIEL, m); }).concat(d.materiel_libre ? [d.materiel_libre] : []);
-    h += block('Matériel', mat.length ? '<p>' + mat.map(E).join(', ') + '</p>' : '');
+    var defMat = (DB.settings().materiel_defaut || ['casio']).slice().sort().join('|');
+    var matIsDefault = !d.materiel_libre && (d.materiel || []).slice().sort().join('|') === defMat;
+    if (!(opt.hist && matIsDefault)) h += block('Matériel', mat.length ? '<p>' + mat.map(E).join(', ') + '</p>' : '');
     if (s.modalite === 'demi_groupes_paralleles') h += block('Demi-groupes en parallèle', '<table><tr>' + d.groupes.map(function (g) { return '<th>' + E(g.nom) + '</th>'; }).join('') + '</tr><tr>' + d.groupes.map(function (g) { return '<td>' + nl(g.contenu) + '</td>'; }).join('') + '</tr></table>');
     if (s.modalite === 'co_intervention' && d.notes_co) h += block('Co-intervention', para(d.notes_co));
-    if (d.phases && d.phases.length) {
-      h += block('Déroulé', '<table><tr><th>Phase</th><th>Durée</th><th>Organisation</th><th>Contenu</th></tr>' + d.phases.map(function (p) { return '<tr><td>' + E(lbl(K.PHASES, p.phase)) + '</td><td>' + (+p.duree || 0) + ' min</td><td>' + E(lbl(K.ORGA, p.orga || 'collectif')) + '</td><td>' + nl(p.contenu) + '</td></tr>'; }).join('') + '</table>');
+    var phs = (d.phases || []).filter(function (p) { return !opt.hist || (p.contenu && String(p.contenu).trim()); });
+    if (phs.length) {
+      h += block('Déroulé', '<table><tr><th>Phase</th><th>Durée</th><th>Organisation</th><th>Contenu</th></tr>' + phs.map(function (p) { return '<tr><td>' + E(lbl(K.PHASES, p.phase)) + '</td><td>' + (+p.duree || 0) + ' min</td><td>' + E(lbl(K.ORGA, p.orga || 'collectif')) + '</td><td>' + nl(p.contenu) + '</td></tr>'; }).join('') + '</table>');
     }
     if (s.type === 'evaluation') h += block('Évaluation', para(d.eval.criteres) + (d.eval.bareme ? '<p><strong>Barème :</strong> ' + nl(d.eval.bareme) + '</p>' : ''));
     h += block('Trace écrite', para(d.trace));
@@ -86,21 +90,86 @@ var Exp = (function () {
     return safeName((cl ? cl.nom + '_' : '') + t).replace(/_+/g, '_').slice(0, 60);
   }
 
-  function print(kind, rec) {
+  var DOC_CSS = 'body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#111}h1{font-size:18pt;color:#1F3A66;margin:0 0 4pt}h2{font-size:14pt;color:#1F3A66;margin:14pt 0 4pt}h3{font-size:12pt;color:#1F3A66;border-bottom:1px solid #9AA8C0;margin:12pt 0 4pt}table{border-collapse:collapse;width:100%}th,td{border:1px solid #9AA8C0;padding:3pt 5pt;vertical-align:top;text-align:left}th{background:#E6EBF4}.meta,.small,.niv{color:#555}.small{font-size:9pt}ul{margin:2pt 0 4pt;padding-left:16pt}p{margin:3pt 0}';
+
+  /* impression / enregistrement en PDF via la fenêtre d’impression du navigateur */
+  function printHtml(html) {
     var root = document.getElementById('print-root'); if (!root) return;
-    root.innerHTML = '<div class="doc">' + htmlFor(kind, rec) + '</div>';
+    root.innerHTML = '<div class="doc">' + html + '</div>';
     document.body.classList.add('printing');
     var done = function () { document.body.classList.remove('printing'); root.innerHTML = ''; window.removeEventListener('afterprint', done); };
     window.addEventListener('afterprint', done);
     setTimeout(function () { try { window.print(); } catch (e) { done(); } }, 60);
     setTimeout(function () { if (document.body.classList.contains('printing')) done(); }, 120000);
   }
-  function word(kind, rec) {
-    var css = 'body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#111}h1{font-size:18pt;color:#1F3A66;margin:0 0 4pt}h3{font-size:12pt;color:#1F3A66;border-bottom:1px solid #9AA8C0;margin:12pt 0 4pt}table{border-collapse:collapse;width:100%}th,td{border:1px solid #9AA8C0;padding:3pt 5pt;vertical-align:top;text-align:left}th{background:#E6EBF4}.meta,.small,.niv{color:#555}.small{font-size:9pt}';
-    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>' + E(rec.titre || kind) + '</title><style>' + css + '</style></head><body>' + htmlFor(kind, rec) + '</body></html>';
-    downloadBlob(new Blob(['﻿', html], { type: 'application/msword' }), fileBase(kind, rec) + '.doc');
+  function print(kind, rec) { printHtml(htmlFor(kind, rec)); }
+
+  function wordFile(title, body, name) {
+    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>' + E(title) + '</title><style>' + DOC_CSS + '.pb{page-break-before:always}</style></head><body>' + body + '</body></html>';
+    downloadBlob(new Blob(['﻿', html], { type: 'application/msword' }), name + '.doc');
     UI.toast('Fichier Word créé (s’ouvre dans Word, LibreOffice ou Google Docs).');
   }
+  function word(kind, rec) { wordFile(rec.titre || kind, htmlFor(kind, rec), fileBase(kind, rec)); }
+
+  /* page HTML autonome : un seul fichier, sans script ni ressource externe */
+  function htmlPage(title, body) {
+    return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'"><title>' + E(title) + '</title><style>' + DOC_CSS +
+      'body{max-width:920px;margin:0 auto;padding:1rem 1.2rem 3rem;line-height:1.45;background:#fff}.pb{margin-top:2.2rem;padding-top:1.4rem;border-top:3px solid #C9D2E3}@media print{body{max-width:none;padding:0}.pb{page-break-before:always;margin:0;padding:0;border:0}.nopr{display:none}}.foot{margin-top:2rem;color:#555;font-size:9pt}</style></head><body>' +
+      body + '<p class="foot">Document édité avec Fiches le ' + E(fmtD(today())) + '.</p></body></html>';
+  }
+  function htmlDownload(kind, rec) {
+    downloadBlob(new Blob([htmlPage(rec.titre || kind, htmlFor(kind, rec))], { type: 'text/html;charset=utf-8' }), fileBase(kind, rec) + '.html');
+    UI.toast('Page HTML enregistrée : elle s’ouvre dans n’importe quel navigateur.');
+  }
+
+  /* boutons d’export réutilisés en haut et en bas des fiches */
+  function buttons(kind, rec, flush) {
+    var f = function (fn) { return function () { if (flush) flush(); fn(); }; };
+    return [h('button', { class: 'btn', type: 'button', title: 'Choisissez « Enregistrer au format PDF » dans la fenêtre d’impression', onclick: f(function () { print(kind, rec); }) }, '🖨 Imprimer / PDF'),
+      h('button', { class: 'btn', type: 'button', onclick: f(function () { word(kind, rec); }) }, '📝 Word'),
+      h('button', { class: 'btn', type: 'button', onclick: f(function () { htmlDownload(kind, rec); }) }, '🌐 HTML')];
+  }
+
+  /* ── historique des fiches séances (une section par classe, uniquement ce qui a été saisi) ── */
+  function seancesOf(cl, opt) {
+    var ok = opt && opt.statuts ? opt.statuts : K.STATUTS_SEANCE.map(function (x) { return x[0]; });
+    var list = Cls.seances(cl.id).filter(function (s) { return ok.indexOf(s.statut) >= 0; });
+    if (opt && opt.ordre === 'seq') {
+      var rank = {}; Cls.sequences(cl.id).forEach(function (q) { rank[q.id] = q.ordre; });
+      list.sort(function (a, b) {
+        var ra = a.sequence_id ? rank[a.sequence_id] || 0 : 9999, rb = b.sequence_id ? rank[b.sequence_id] || 0 : 9999;
+        return (ra - rb) || (a.ordre - b.ordre) || Cls.cmpSeance(a, b);
+      });
+    }
+    return list;
+  }
+  function historyHtml(classes, opt) {
+    var out = '', n = 0;
+    classes.forEach(function (cl, ci) {
+      var list = seancesOf(cl, opt), tot = list.reduce(function (a, s) { return a + (s.statut === 'annulee' ? 0 : s.duree_min); }, 0);
+      n += list.length;
+      out += '<section class="hist-class' + (ci ? ' pb' : '') + '"><h1>Historique des fiches séances — ' + E(cl.nom) + '</h1>' +
+        metaLine(cl, [Cls.niveauLabel(cl) + (cl.groupement ? ' (gr. ' + cl.groupement + ')' : ''), cl.annee_scolaire, plural(list.length, 'séance'), fmtDuree(tot), 'Édité le ' + fmtD(today())]);
+      if (!list.length) { out += '<p>Aucune séance pour cette sélection.</p></section>'; return; }
+      out += '<h3>Sommaire</h3><table><tr><th>N°</th><th>Date</th><th>Séance</th><th>Séquence</th><th>Type</th><th>Durée</th><th>Statut</th></tr>' + list.map(function (s, i) {
+        var q = s.sequence_id ? DB.byId('fs_sequences', s.sequence_id) : null, dt = Plan.seanceDate(s);
+        return '<tr><td>' + (i + 1) + '</td><td>' + E(dt ? fmtD(dt) : '') + '</td><td>' + E(s.titre || '(sans titre)') + '</td><td>' + E(q ? q.titre : '') + '</td><td>' + E(lbl(K.TYPES, s.type)) + (s.modalite !== 'classe' ? ' · ' + E(lbl(K.MODALITES, s.modalite)) + (s.groupe ? ' ' + E(s.groupe) : '') : '') + '</td><td>' + E(fmtDuree(s.duree_min)) + '</td><td>' + E(lbl(K.STATUTS_SEANCE, s.statut)) + '</td></tr>';
+      }).join('') + '</table>';
+      list.forEach(function (s, i) { out += '<article class="hist-fiche pb"><p class="small">Fiche ' + (i + 1) + ' sur ' + list.length + ' · ' + E(cl.nom) + '</p>' + seanceHtml(s, { hist: true }) + '</article>'; });
+      out += '</section>';
+    });
+    return { html: out, count: n };
+  }
+  function historyName(classes) { return safeName('Historique_' + (classes.length === 1 ? classes[0].nom + '_' + classes[0].annee_scolaire : 'toutes_les_classes')).replace(/_+/g, '_'); }
+  function history(classes, opt, how) {
+    var r = historyHtml(classes, opt);
+    if (!r.count) { UI.toast('Aucune séance à exporter pour cette sélection.', 'err'); return; }
+    var title = 'Historique des fiches séances';
+    if (how === 'print') printHtml(r.html);
+    else if (how === 'word') wordFile(title, r.html, historyName(classes));
+    else { downloadBlob(new Blob([htmlPage(title, r.html)], { type: 'text/html;charset=utf-8' }), historyName(classes) + '.html'); UI.toast('Page HTML enregistrée.'); }
+  }
+
   function cahier(s) {
     var cl = Cls.get(s.class_id), d = s.data, dt = Plan.seanceDate(s);
     var L = [(dt ? fmtD(dt) + ' — ' : '') + cl.nom + ' — ' + (s.titre || 'Séance')];
@@ -174,6 +243,10 @@ var Exp = (function () {
       if (r.class_id && !ctx.cls[r.class_id]) return null;
       return { id: r.id, annee_scolaire: r.annee_scolaire, class_id: r.class_id || null, type: r.type, label: str(r.label, 200), debut: r.debut, fin: r.fin };
     },
+    fs_modeles: function (r) {
+      if (['seance', 'sequence'].indexOf(r.kind) < 0 || !isStr(r.titre, 200) || !r.titre.trim() || !okData(r.data) || (r.niveau_id && ENUM.niveau.indexOf(r.niveau_id) < 0)) return null;
+      return { id: r.id, kind: r.kind, titre: r.titre.trim(), niveau_id: r.niveau_id || null, data: r.data };
+    },
     fs_progress_override: function (r, ctx) {
       if (!ctx.cls[r.class_id] || !isStr(r.ref_id, 100) || !isInt(r.statut, 0, 3) || !isDate(r.date_realisation)) return null;
       return { id: r.id, class_id: r.class_id, ref_id: r.ref_id, statut: r.statut, date_realisation: r.date_realisation || null, note: str(r.note, 2000) };
@@ -227,5 +300,5 @@ var Exp = (function () {
     });
   }
 
-  return { print: print, word: word, cahier: cahier, progression: progression, json: json, importJson: importJson, wipe: wipe, html: htmlFor };
+  return { print: print, word: word, htmlDownload: htmlDownload, buttons: buttons, history: history, historyHtml: historyHtml, seanceHtml: seanceHtml, printHtml: printHtml, htmlPage: htmlPage, cahier: cahier, progression: progression, json: json, importJson: importJson, wipe: wipe, html: htmlFor };
 })();

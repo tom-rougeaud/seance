@@ -128,7 +128,7 @@ Views.dashboard = function () {
   var root = h('div', { class: 'page' });
   var classes = Cls.actives();
   root.appendChild(pageHead('Bonjour 👋', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
-    [h('button', { class: 'btn primary', type: 'button', onclick: function () { Wizard.seance({}); } }, '＋ Nouvelle séance')]));
+    [h('button', { class: 'btn', type: 'button', onclick: function () { Tpl.open({ mode: 'create' }); } }, '📥 Modèle d’1 h'), h('button', { class: 'btn primary', type: 'button', onclick: function () { Wizard.seance({}); } }, '＋ Nouvelle séance')]));
   if (!classes.length) {
     root.appendChild(h('div', { class: 'card hero' }, h('h2', null, 'Commençons par créer une classe'),
       h('p', null, 'Une classe fixe le programme (3PM, CAP, 2de, 1re, Tle), le groupement et vos créneaux. Ensuite, vous cochez des objectifs dans les accordéons et la progression se remplit toute seule.'),
@@ -203,7 +203,7 @@ function setStatut(s, v) {
 /* ═══ Classes ═══ */
 Views.classes = function () {
   var root = h('div', { class: 'page' });
-  root.appendChild(pageHead('Mes classes', null, [h('button', { class: 'btn primary', type: 'button', onclick: function () { classModal(null); } }, '＋ Nouvelle classe')]));
+  root.appendChild(pageHead('Mes classes', null, [h('a', { class: 'btn', href: '#/historique/tout' }, '📚 Historique des fiches'), h('button', { class: 'btn primary', type: 'button', onclick: function () { classModal(null); } }, '＋ Nouvelle classe')]));
   var list = Cls.all(); var cards = h('div', { class: 'cards' });
   if (!list.length) root.appendChild(h('div', { class: 'card hero' }, h('p', null, 'Aucune classe pour le moment.')));
   list.forEach(function (c) {
@@ -280,9 +280,10 @@ Views.classe = function (id) {
   var c = Cls.get(id); if (!c) return notFound();
   var root = h('div', { class: 'page' });
   root.appendChild(pageHead(c.nom, Cls.niveauLabel(c) + (c.groupement ? ' · groupement ' + c.groupement : '') + (c.metier ? ' · ' + c.metier : '') + ' · ' + c.annee_scolaire,
-    [h('a', { class: 'btn', href: '#/progression/' + c.id }, '📈 Progression'), h('button', { class: 'btn', type: 'button', onclick: function () { classModal(c); } }, '✎ Modifier'),
+    [h('a', { class: 'btn', href: '#/progression/' + c.id }, '📈 Progression'), h('a', { class: 'btn', href: '#/historique/' + c.id }, '📚 Historique'), h('button', { class: 'btn', type: 'button', onclick: function () { classModal(c); } }, '✎ Modifier'),
     h('button', { class: 'btn', type: 'button', onclick: function () { var q = createSequence(c, { titre: 'Nouvelle séquence' }); location.hash = '#/sequence/' + q.id; } }, '＋ Séquence'),
-    h('button', { class: 'btn primary', type: 'button', onclick: function () { Wizard.seance({ classId: c.id }); } }, '＋ Séance')], ['#/classes', 'Classes']));
+    h('button', { class: 'btn primary', type: 'button', onclick: function () { Wizard.seance({ classId: c.id }); } }, '＋ Séance'),
+    h('button', { class: 'btn', type: 'button', onclick: function () { Tpl.open({ mode: 'create', cl: c }); } }, '📥 Séance depuis un modèle')], ['#/classes', 'Classes']));
 
   /* séquences */
   var seqs = Cls.sequences(c.id);

@@ -77,7 +77,7 @@ Views.progression = function (classId) {
           var bd = h('div', { class: 'pg-body' });
           if (ch.objectifs.length) { bd.appendChild(h('div', { class: 'pk-gt' }, 'Objectifs')); ch.objectifs.forEach(function (it) { bd.appendChild(itemRow(it, 'o')); }); }
           if (ch.connaissances.length) { bd.appendChild(h('div', { class: 'pk-gt' }, 'Notions')); ch.connaissances.forEach(function (it) { bd.appendChild(itemRow(it, 'k')); }); }
-          bd.appendChild(h('div', { class: 'row-gap' }, h('button', { class: 'btn small', type: 'button', onclick: function () { Wizard.seance({ classId: cl.id }); } }, '＋ Séance sur ce chapitre')));
+          bd.appendChild(h('div', { class: 'row-gap' }, h('button', { class: 'btn small', type: 'button', onclick: function () { Wizard.seance({ classId: cl.id }); } }, '＋ Séance sur ce chapitre'), h('button', { class: 'btn small', type: 'button', onclick: function () { Tpl.open({ mode: 'create', cl: cl, chapIds: [ch.id] }); } }, '📥 Modèles d’1 h')));
           det.appendChild(bd); sec.appendChild(det);
         });
         out.appendChild(sec);

@@ -8,6 +8,8 @@ Application web (une seule page HTML, installable sur l’écran d’accueil) po
 - Liens, vidéos, PDF et fichiers par saisie ou glisser-déposer, bibliothèque réutilisable.
 - **Emploi du temps** lundi→vendredi (8 h–18 h) : créneaux créés en glissant sur la grille, modifiables à tout moment ; **semaines 1 / 2** (semaine de rentrée à indiquer) ; heures par classe et par semaine ; dates de séances proposées selon l’alternance.
 - **Synthèse Pronote** : quelques phrases rédigées automatiquement à partir de la séance (contenu + travail à faire), modifiables et copiables en un clic.
+- **Historique des fiches** : par classe (ou toutes), uniquement les éléments saisis, export PDF (fenêtre d’impression › « Enregistrer au format PDF »), Word et HTML ; boutons d’export aussi en bas des fiches.
+- **Modèles de séances d’1 h** : pour chaque chapitre, les objectifs et notions sont regroupés en séances d’environ 1 h (≈ 270 propositions sur les 5 niveaux), chargeables dans une séance ou créables en lot ; « 💾 Enregistrer comme modèle » pour vos propres modèles (table `fs_modeles`).
 - **Apparence** : 8 palettes calmes (clair / sombre, dont un contraste élevé), 6 polices libres intégrées (OFL, aucun téléchargement), taille du texte ; le choix suit le compte.
 - Impression A4, export Word, texte détaillé pour le cahier de textes, sauvegarde / import JSON.
 - Données enregistrées dans **Supabase** (même projet et même compte que « Suivi Progression » / « Flash Maths »), lecture hors connexion.

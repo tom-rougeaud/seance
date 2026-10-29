@@ -38,9 +38,8 @@ Views.sequence = function (id) {
   var seancesBox = h('div'); var totalsEl = h('div', { class: 'totals' });
 
   root.appendChild(pageHead(q.titre || 'Nouvelle séquence', cl.nom + ' · ' + Cls.niveauLabel(cl),
-    [h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Exp.print('sequence', q); } }, '🖨 Imprimer'),
-    h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Exp.word('sequence', q); } }, '📝 Word'),
-    h('button', { class: 'btn', type: 'button', onclick: function () { duplicateModal(); } }, '⧉ Copier vers…')], ['#/classe/' + cl.id, cl.nom]));
+    Exp.buttons('sequence', q, function () { save.now(); }).concat([copyBtn()]), ['#/classe/' + cl.id, cl.nom]));
+  function copyBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { duplicateModal(); } }, '⧉ Copier vers…'); }
 
   /* identité */
   var titre = UI.textinput(function () { return q.titre; }, function (v) { q.titre = v; save(); $('h1', root).textContent = v || 'Nouvelle séquence'; }, 'Ex. Proportionnalité et pourcentages');
@@ -85,7 +84,8 @@ Views.sequence = function (id) {
   var secS = UI.section('seq-seances', 'Séances de la séquence', [seancesBox,
     h('div', { class: 'row-gap' },
       h('button', { class: 'btn primary small', type: 'button', onclick: function () { var s = createSeance(cl, { sequence_id: q.id, titre: '', date_prevue: nextDateFor(cl, q.id) }); location.hash = '#/seance/' + s.id; } }, '＋ Séance'),
-      h('button', { class: 'btn small', type: 'button', onclick: function () { planType(); } }, '⚡ Générer un plan type…'))], { open: true });
+      h('button', { class: 'btn small', type: 'button', onclick: function () { planType(); } }, '⚡ Générer un plan type…'),
+      h('button', { class: 'btn small', type: 'button', onclick: function () { Tpl.open({ mode: 'create', cl: cl, seqId: q.id, chapIds: q.data.chapitres || [] }); } }, '📥 Séances d’1 h (modèles)'))], { open: true });
   root.appendChild(secS);
 
   function planType() {
@@ -130,10 +130,10 @@ Views.sequence = function (id) {
   root.appendChild(UI.section('seq-diff', 'Différenciation', [Ed.diffBlock(d, save, false)], { open: false }));
   root.appendChild(UI.section('seq-res', 'Ressources (PDF, liens, vidéos)', [Res.block('sequence', q, function () { /* rien à enregistrer : les liens sont dans fs_attachments */ })], { open: true }));
   root.appendChild(UI.section('seq-bilan', 'Bilan et notes', [Ed.area('Bilan de la séquence', d, 'bilan', save, 'Ce qui a fonctionné, ce qu’il faut modifier l’an prochain…', 3), Ed.area('Notes personnelles', d, 'notes', save, '', 2)], { open: false }));
-  root.appendChild(Ed.actionBar([h('button', { class: 'btn danger', type: 'button', onclick: function () {
+  root.appendChild(Ed.actionBar(Exp.buttons('sequence', q, function () { save.now(); }).concat([copyBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
     var n = Cls.seancesDe(q.id).length;
     UI.ask('Supprimer la séquence « ' + (q.titre || 'sans titre') + ' » ?' + (n ? ' Ses ' + plural(n, 'séance') + ' seront conservées en dehors de toute séquence.' : ''), { ok: 'Supprimer', danger: true }).then(function (ok) { if (ok) { DB.remove('fs_sequences', q.id); location.hash = '#/classe/' + cl.id; } });
-  } }, 'Supprimer la séquence')]));
+  } }, 'Supprimer la séquence')])));
 
   function duplicateModal() {
     save.now();

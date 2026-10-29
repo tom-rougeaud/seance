@@ -67,23 +67,31 @@ async function login(page) { await page.goto(BASE); await page.waitForSelector('
   const capv2 = await page.evaluate((id) => { const s = DB.byId('fs_seances', id); return Pronote.draft(s, Cls.get(s.class_id), 'passe', 2); }, ids.s2);
   ok(capv2.manuel === false && !/manuel/.test(capv2.contenu), 'CAP : version 2 retombe sur la version 1');
 
-  console.log('# Interface Pronote');
+  console.log('# Interface : Pronote (public) et mémo perso (manuels)');
   await page.goto(BASE + '#/seance/' + ids.s); await page.waitForSelector('.page-head h1');
+  ok(await page.locator('button:has-text("✨ Rédiger la synthèse")').count() === 1 && await page.locator('button:has-text("Version 2")').count() === 0, 'section Pronote : un seul bouton (aucune trace des manuels)');
   await page.click('text=📋 Pronote'); await sleep(400);
-  await page.click('text=✨ Version 1 · ce qui a été fait'); await sleep(400);
+  await page.click('text=✨ Rédiger la synthèse'); await sleep(400);
   const t1 = await page.locator('textarea[placeholder^="Quelques phrases"]').inputValue();
-  ok(/Nous avons travaillé : /.test(t1) && !/manuel/.test(t1), 'bouton version 1 : texte sans manuel');
-  await page.click('text=✨ Version 2 · avec mes manuels'); await page.waitForSelector('.modal'); await page.click('.modal-foot .btn.primary'); await sleep(500);
-  const t2 = await page.locator('textarea[placeholder^="Quelques phrases"]').inputValue();
-  ok(/manuel « Maths et MCV · 2de »/.test(t2) && t2 !== t1, 'bouton version 2 : texte distinct, avec les manuels');
-  const trv = await page.locator('textarea[placeholder^="Travail à faire"]').inputValue(); ok(/^Revoir /.test(trv), 'travail à faire pré-rempli : ' + trv.slice(0, 60));
-  await page.click('text=✨ Version 1 · ce qui a été fait'); await page.waitForSelector('.modal'); await page.click('.modal-foot .btn.primary'); await sleep(400);
-  ok(await page.locator('textarea[placeholder^="Travail à faire"]').inputValue() === '', 'retour à la version 1 : le travail à faire généré par la version 2 est retiré');
+  ok(/Nous avons travaillé : /.test(t1) && !/manuel|Appli :/.test(t1), 'texte Pronote : ce qui a été fait, sans manuel ni lien');
+  ok(!/^Revoir/.test(await page.locator('textarea[placeholder^="Travail à faire"]').inputValue()), 'travail à faire Pronote : pas de renvoi au manuel');
+  ok(await page.locator('button:has-text("🔒 Mémo manuels")').count() === 2, 'boutons « Mémo manuels » en haut et en bas de la séance');
+  await page.locator('button:has-text("🔒 Mémo manuels")').first().click(); await sleep(300);
+  ok(await page.locator('details.sec:has-text("Mémo perso")[open]').count() === 1, 'le bouton ouvre le mémo perso');
+  await page.click('text=✨ Rédiger le mémo avec mes manuels'); await sleep(500);
+  const memo = await page.locator('textarea[placeholder^="Mémo pour moi"]').inputValue();
+  console.log('     mémo » ' + memo);
+  ok(/manuel « Maths et MCV · 2de »/.test(memo) && /« La moyenne »/.test(memo) && /tom-rougeaud\.github\.io\/mcv\/2de\//.test(memo) && /À revoir \/ à faire : Revoir /.test(memo), 'mémo perso : chapitre, notions, appli, à revoir');
+  await page.click('text=📋 Copier le mémo'); await sleep(200);
+  ok((await page.evaluate(() => navigator.clipboard.readText())) === memo, 'mémo copiable');
   await sleep(2800);
-  ok(st.rows.fs_seances.some((x) => x.id === ids.s && x.data.pronote && /Nous avons travaillé : /.test(x.data.pronote.contenu)), 'texte enregistré en base');
-  await page.screenshot({ path: SHOTS + '/40-pronote-v2.png' });
-  await page.goto(BASE + '#/seance/' + ids.s2); await page.waitForSelector('.page-head h1'); await page.click('text=📋 Pronote'); await sleep(300);
-  ok(await page.locator('details.sec:has-text("Synthèse pour Pronote") button:has-text("Version 2")[disabled]').count() === 1, 'CAP : bouton version 2 désactivé (aucun manuel pour ce niveau)');
+  const row = st.rows.fs_seances.find((x) => x.id === ids.s);
+  ok(row.data.pronote.perso === memo && !/manuel/.test(row.data.pronote.contenu), 'mémo enregistré à part, texte Pronote intact');
+  const exp = await page.evaluate((id) => Exp.seanceHtml(DB.byId('fs_seances', id), {}) + Exp.historyHtml([Cls.get(DB.byId('fs_seances', id).class_id)], {}).html, ids.s);
+  ok(!exp.includes('Mémo perso') && !exp.includes('mcv/2de'), 'le mémo perso n’apparaît dans aucun export de fiche');
+  await page.screenshot({ path: SHOTS + '/40-memo-perso.png' });
+  await page.goto(BASE + '#/seance/' + ids.s2); await page.waitForSelector('.page-head h1'); await page.locator('button:has-text("🔒 Mémo manuels")').first().click(); await sleep(300);
+  ok(await page.locator('button:has-text("Rédiger le mémo")').count() === 0 && /Pas de manuel pour ce niveau/.test(await page.locator('details.sec:has-text("Mémo perso")').innerText()), 'CAP : pas de génération, mémo libre');
 
   console.log('# Alternance sans saut de semaine');
   const wk = await page.evaluate(() => {

@@ -62,15 +62,14 @@ var Pronote = (function () {
     if (!d.pronote || typeof d.pronote !== 'object') d.pronote = { contenu: '', travail: '', temps: '' };
     var p = d.pronote;
     function tps() { return p.temps || (s.statut === 'faite' ? 'passe' : 'futur'); }
-    var hasMan = Manuels.has(cl && cl.niveau_id);
 
     var ta1, ta2, cnt = h('span', { class: 'muted small' });
     function upd() { cnt.textContent = (p.contenu || '').length + ' caractères'; }
     ta1 = UI.textarea(function () { return p.contenu; }, function (v) { p.contenu = v; save(); upd(); }, 'Quelques phrases : ce qui a été fait pendant la séance…', 4);
     ta2 = UI.textarea(function () { return p.travail; }, function (v) { p.travail = v; save(); }, 'Travail à faire pour la prochaine séance (facultatif)', 2);
     function setVal(ta, v) { ta.value = v; ta.dispatchEvent(new Event('input', { bubbles: true })); }
-    function gen(version) {
-      var r = draft(s, cl, tps(), version); if (version === 2 && !r.manuel) UI.toast('Aucun chapitre de tes manuels ne correspond à cette séance : texte de la version 1.', 'err');
+    function gen() {
+      var r = draft(s, cl, tps(), 1);
       var go = function () { setVal(ta1, r.contenu); p.contenu = r.contenu; if (r.travail || !(p.travail || '').trim() || p.travail === p.auto_travail) { setVal(ta2, r.travail); p.travail = r.travail; } p.auto_travail = r.travail; save(); UI.toast('Synthèse rédigée : relisez-la et ajustez-la.'); };
       if ((p.contenu || '').trim() && (p.contenu || '').trim() !== r.contenu) UI.ask('Remplacer le texte actuel par une nouvelle rédaction automatique ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
     }
@@ -78,9 +77,7 @@ var Pronote = (function () {
     var box = h('div', null,
       h('p', { class: 'muted small' }, 'Texte brut, sans mise en forme ni émojis : il se colle proprement dans le cahier de textes de Pronote. Relisez-le avant de le coller.'),
       h('div', { class: 'row-gap' }, UI.field('Rédaction', UI.select([['passe', 'Au passé (séance faite)'], ['futur', 'Au futur (séance à venir)']], tps(), function (v) { p.temps = v; save(); }, 'sm')),
-        h('button', { class: 'btn primary', type: 'button', title: 'Ce qui a été traité, d’après les éléments du programme cochés', onclick: function () { gen(1); } }, '✨ Version 1 · ce qui a été fait'),
-        h('button', { class: 'btn primary', type: 'button', disabled: hasMan ? null : true, title: hasMan ? 'S’appuie sur les chapitres et notions de tes manuels, avec le lien de l’appli' : 'Aucun manuel pour ce niveau', onclick: function () { gen(2); } }, '✨ Version 2 · avec mes manuels')),
-      hasMan ? null : h('p', { class: 'muted small' }, 'Pas de manuel pour ce niveau : seule la version 1 est disponible.'),
+        h('button', { class: 'btn primary', type: 'button', title: 'Ce qui a été traité, d’après les éléments du programme cochés', onclick: gen }, '✨ Rédiger la synthèse')),
       UI.field('Contenu de la séance', ta1), cnt,
       UI.field('Travail à faire', ta2, 'Pré-rempli avec le devoir maison s’il y en a un.'),
       h('div', { class: 'row-gap' },
@@ -91,5 +88,27 @@ var Pronote = (function () {
     upd();
     return UI.section('sea-pronote', 'Synthèse pour Pronote', [box], { open: s.statut === 'faite' || !!(p.contenu || '').trim() });
   }
-  return { draft: draft, section: section };
+
+  /* mémo personnel (non destiné à Pronote) appuyé sur mes manuels : chapitre, notions, lien de l’appli, notions à revoir */
+  function perso(s, cl, d, save) {
+    if (!d.pronote || typeof d.pronote !== 'object') d.pronote = { contenu: '', travail: '', temps: '' };
+    var p = d.pronote, hasMan = Manuels.has(cl && cl.niveau_id);
+    function tps() { return p.temps || (s.statut === 'faite' ? 'passe' : 'futur'); }
+    var ta = UI.textarea(function () { return p.perso || ''; }, function (v) { p.perso = v; save(); }, 'Mémo pour moi : chapitre du manuel, notions, lien de l’appli…', 5);
+    function gen() {
+      var r = draft(s, cl, tps(), 2);
+      if (!r.manuel) { UI.toast('Aucun chapitre de tes manuels ne correspond à cette séance.', 'err'); return; }
+      var txt = r.contenu + (r.travail ? '\n\nÀ revoir / à faire : ' + r.travail : '');
+      var go = function () { ta.value = txt; p.perso = txt; save(); UI.toast('Mémo rédigé : relisez-le et ajustez-le.'); };
+      if ((p.perso || '').trim() && (p.perso || '').trim() !== txt) UI.ask('Remplacer le mémo actuel par une nouvelle rédaction automatique ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
+    }
+    var box = h('div', null,
+      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Série Pro ») : chapitre, notions et lien de l’appli.'),
+      hasMan ? h('div', { class: 'row-gap' }, h('button', { class: 'btn primary', type: 'button', onclick: gen }, '✨ Rédiger le mémo avec mes manuels'),
+        h('button', { class: 'btn', type: 'button', onclick: function () { if (!(p.perso || '').trim()) { UI.toast('Rien à copier : rédigez d’abord le mémo.', 'err'); return; } copyText(p.perso).then(function (ok) { UI.toast(ok ? 'Mémo copié.' : 'Copie impossible : sélectionnez le texte et copiez-le à la main.', ok ? '' : 'err'); }); } }, '📋 Copier le mémo'))
+        : h('p', { class: 'muted small' }, 'Pas de manuel pour ce niveau (CAP) : le mémo reste libre, vous pouvez le saisir à la main.'),
+      ta);
+    return UI.section('sea-perso', '🔒 Mémo perso (avec mes manuels)', [box], { open: !!(p.perso || '').trim() });
+  }
+  return { draft: draft, section: section, perso: perso };
 })();

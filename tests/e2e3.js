@@ -138,7 +138,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.goto(BASE + '#/seance/' + sid); await page.waitForSelector('.page-head h1');
   await page.click('text=📋 Pronote'); await sleep(500);
   ok(await page.locator('details.sec:has-text("Synthèse pour Pronote")[open]').count() === 1, 'bouton « Pronote » ouvre la section');
-  await page.click('text=✨ Version 1 · ce qui a été fait'); await sleep(500);
+  await page.click('text=✨ Rédiger la synthèse'); await sleep(500);
   const txt = await page.locator('textarea[placeholder^="Quelques phrases"]').inputValue();
   console.log('     » ' + txt);
   ok(/^Séance de cours : « Moyenne et médiane » \(chapitre « /.test(txt) && /Nous avons travaillé : /.test(txt) && /À reprendre : la lecture/.test(txt), 'rédaction au passé : ce qui a été fait');
@@ -155,7 +155,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // modification manuelle puis nouvelle rédaction : confirmation
   await page.fill('textarea[placeholder^="Quelques phrases"]', 'Mon texte à moi.');
   await page.selectOption('details.sec:has-text("Synthèse pour Pronote") select', 'futur');
-  await page.click('text=✨ Version 1 · ce qui a été fait'); await page.waitForSelector('.modal');
+  await page.click('text=✨ Rédiger la synthèse'); await page.waitForSelector('.modal');
   await page.click('.modal-foot .btn.primary'); await sleep(400);
   ok(/^Au programme : cours/.test(await page.locator('textarea[placeholder^="Quelques phrases"]').inputValue()), 'confirmation avant écrasement, puis rédaction au futur');
   await sleep(2800);

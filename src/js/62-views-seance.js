@@ -30,9 +30,10 @@ Views.seance = function (id) {
   function pronoteBtn() { return h('button', { class: 'btn', type: 'button', title: 'Rédiger et copier la synthèse pour le cahier de textes Pronote', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Pronote') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '📋 Pronote'); }
   function tplBtn() { return h('button', { class: 'btn', type: 'button', title: 'Pré-remplir cette séance avec une proposition d’1 h tirée du programme, ou avec un de vos modèles', onclick: function () { save.now(); Tpl.open({ mode: 'load', seance: s, cl: cl }); } }, '📥 Charger un modèle'); }
   function modelBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Tpl.saveAsModel(s, cl); } }, '💾 Enregistrer comme modèle'); }
+  function persoBtn() { return h('button', { class: 'btn', type: 'button', title: 'Mémo personnel appuyé sur mes manuels (pas pour Pronote)', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Mémo perso') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '🔒 Mémo manuels'); }
   function dupBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); var n = duplicateSeance(s); UI.toast('Séance dupliquée.'); location.hash = '#/seance/' + n.id; } }, '⧉ Dupliquer'); }
   head = pageHead(s.titre || 'Nouvelle séance', cl.nom + ' · ' + lbl(K.TYPES, s.type) + (seq ? ' · ' + seq.titre : ''),
-    Exp.buttons('seance', s, flush).concat([tplBtn(), pronoteBtn(), dupBtn()]),
+    Exp.buttons('seance', s, flush).concat([tplBtn(), pronoteBtn(), persoBtn(), dupBtn()]),
     seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
   root.appendChild(head);
 
@@ -118,7 +119,8 @@ Views.seance = function (id) {
     dyn.appendChild(UI.section('sea-res', 'Ressources (PDF, liens, vidéos)', [Res.block('seance', s, function () { /* rien */ })], { open: true }));
     dyn.appendChild(bilan());
     dyn.appendChild(Pronote.section(s, cl, d, save));
-    dyn.appendChild(Ed.actionBar(Exp.buttons('seance', s, flush).concat([tplBtn(), modelBtn(), pronoteBtn(), dupBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
+    dyn.appendChild(Pronote.perso(s, cl, d, save));
+    dyn.appendChild(Ed.actionBar(Exp.buttons('seance', s, flush).concat([tplBtn(), modelBtn(), pronoteBtn(), persoBtn(), dupBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
       UI.ask('Supprimer la séance « ' + (s.titre || 'sans titre') + ' » ?', { ok: 'Supprimer', danger: true }).then(function (ok) {
         if (ok) { var back = s.sequence_id ? '#/sequence/' + s.sequence_id : '#/classe/' + cl.id; DB.list('fs_seances').forEach(function (x) { if (x.jumelle_id === s.id) { x.jumelle_id = null; DB.save('fs_seances', x); } }); DB.remove('fs_seances', s.id); location.hash = back; }
       });

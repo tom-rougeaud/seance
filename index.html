@@ -841,7 +841,7 @@ var Plan = (function () {
 
   /* ── alternance semaine 1 / semaine 2 ── */
   function altConfig(annee) { var a = (DB.settings().alternance || {})[annee]; return a && /^\d{4}-\d{2}-\d{2}$/.test(a.lundi || '') && (a.type === 1 || a.type === 2) ? a : null; }
-  function setAltConfig(annee, cfg) { var all = Object.assign({}, DB.settings().alternance || {}); all[annee] = cfg; DB.saveSettings({ alternance: all }); }
+  function setAltConfig(annee, cfg) { var all = Object.assign({}, DB.settings().alternance || {}); all[annee] = Object.assign({}, cfg, { v: 2 }); DB.saveSettings({ alternance: all }); }
   /* une semaine est « de pause » si du lundi au vendredi tout est en vacances (période valable pour toutes les classes) */
   function semainePause(mondayISO, annee) {
     var rs = DB.list('fs_calendrier').filter(function (c) { return c.annee_scolaire === annee && !c.class_id && c.type === 'vacances'; });
@@ -853,7 +853,7 @@ var Plan = (function () {
   function weekType(iso, annee) {
     var cfg = altConfig(annee); if (!cfg) return null;
     var ref = weekStart(cfg.lundi), w = weekStart(iso), n = 0, g = 0;
-    var skip = cfg.sauter_vacances !== false;
+    var skip = cfg.v === 2 && cfg.sauter_vacances === true; /* par défaut : on suit l’ordre du calendrier, sans sauter de semaine */
     if (w > ref) { for (var x = ref; x < w && g++ < 120; x = addDays(x, 7)) if (!(skip && semainePause(x, annee))) n++; }
     else if (w < ref) { for (var y = w; y < ref && g++ < 120; y = addDays(y, 7)) if (!(skip && semainePause(y, annee))) n++; }
     return n % 2 === 0 ? cfg.type : 3 - cfg.type;
@@ -1307,6 +1307,76 @@ var Picker = (function () {
     return root;
   }
   return { create: create };
+})();
+
+/* ── 57-manuels.js ── */
+/* ═══ FICHES · correspondance programme du BO ↔ chapitres de mes manuels « Maths et MCV » / « 3ème Série Pro » ═══ */
+'use strict';
+var Manuels = (function () {
+  var BASE = 'https://tom-rougeaud.github.io/';
+  function N(n, t, refs, notions) { return { n: n, t: t, refs: refs, notions: notions.map(function (x) { return { t: x[0], re: new RegExp(x[1]) }; }) }; }
+  var M = {
+    bp2: { nom: 'Maths et MCV · 2de', url: BASE + 'mcv/2de/', chap: [
+      N(1, 'Prix, marges et TVA', ['bp2.calc'], [['Prendre un pourcentage', 'pourcentage|proportion'], ['Le coefficient multiplicateur', 'coefficient|multiplicateur|evolution'], ['Prix HT, TVA, prix TTC', 'tva|ttc|\\bht\\b|taxe'], ['La marge, le taux de marge, le taux de marque', 'marge|taux de marque|prix de vente|prix d.achat|cout'], ['Appliquer une baisse avec le coefficient', 'baisse|hausse|diminu|augment']]),
+      N(2, 'Statistique à une variable', ['bp2.stat1'], [['Effectifs et fréquences', 'effectif|frequence|tableau'], ['La moyenne', 'moyenne|moyen'], ['La médiane et les quartiles', 'mediane|quartile'], ['Dispersion et boîte à moustaches', 'dispersion|etendue|ecart|boite|moustache|interquartile']]),
+      N(3, 'Problèmes du premier degré', ['bp2.eq1'], [['Résoudre une équation', 'equation'], ['Mettre un problème en équation', 'probleme|mettre en equation|modelis'], ['Les intervalles', 'intervalle'], ['Résoudre une inéquation', 'inequation']]),
+      N(4, 'Factures, réductions et intérêts', ['bp2.calc'], [['Les réductions commerciales', 'reduction|remise|rabais|ristourne|solde|escompte'], ['Devis et facture', 'devis|facture|commande'], ['L’intérêt simple', 'interet'], ['Deux remises successives', 'successiv']]),
+      N(5, 'Fonctions', ['bp2.fonc'], [['Image et antécédent', 'image|antecedent'], ['Tableau de valeurs et courbe', 'tableau de valeurs|courbe|representation|graphique|tracer'], ['Fonction affine : la pente', 'affine|lineaire|pente|coefficient directeur|droite'], ['La fonction carré, le sens de variation', 'carre|variation|croissan|decroissan|extremum']]),
+      N(6, 'Fluctuation et probabilités', ['bp2.proba'], [['Qu’est-ce qu’une probabilité ?', 'probabilite|experience aleatoire|evenement|issue'], ['Calculer une probabilité', 'equiprobab|calcul'], ['Compter avec un arbre ou un tableau', 'arbre|tableau|denombr'], ['Fréquence et fluctuation', 'frequence|fluctuation|echantillon|simulation'], ['Probabilité et événement contraire', 'contraire']]),
+      N(7, 'Géométrie', ['bp2.geo'], [['Aires et périmètres', 'aire|perimetre|surface'], ['Volumes et contenances', 'volume|contenance|capacite|solide'], ['Le théorème de Pythagore', 'pythagore|triangle rectangle|hypotenuse'], ['Agrandir et réduire', 'agrand|reduction|reduire|thales|homothet|echelle']]),
+      N(8, 'Croisement de deux variables', ['bp2.stat1', 'bp2.proba'], [['Lire un tableau croisé', 'croise|double entree|deux variables'], ['Compléter un tableau croisé', 'croise|completer'], ['Sur le total, ou « parmi » ?', 'parmi|sachant|conditionnel'], ['Comparer deux groupes', 'comparer|croise']])] },
+    bp1: { nom: 'Maths et MCV · 1re', url: BASE + 'mcv/1ere/', chap: [
+      N(1, 'Calculs commerciaux et financiers', ['bp1.calc'], [['Coût total, recette et résultat', 'cout total|recette|resultat|benefice|cout fixe|cout variable'], ['Coût moyen et coût marginal', 'moyen|marginal'], ['Les intérêts simples', 'interet'], ['Les taux : an, mois, quinzaine, jour', 'taux|equivalent|proportionnel|quinzaine|mensuel']]),
+      N(2, 'Résolution graphique d’équations et d’inéquations', ['bp1.resgraph'], [['Lire une image et un antécédent', 'image|antecedent|lire'], ['Résoudre f(x) = g(x)', 'equation|intersection|resoudre'], ['Comparer : f(x) ≥ g(x)', 'inequation|comparer|superieur'], ['Le seuil de rentabilité', 'seuil|rentabilite']]),
+      N(3, 'Fonctions polynômes de degré 2', ['bp1.poly2'], [['La parabole : ax² + bx + c', 'parabole|degre 2|second degre|polynome'], ['Les racines : f(x) = 0', 'racine|discriminant|annul|f\\(x\\) ?= ?0'], ['Forme factorisée et signe', 'factoris|signe'], ['Le sommet et l’extremum', 'sommet|extremum|maximum|minimum|axe de symetrie|variation']]),
+      N(4, 'Fonction dérivée et étude des variations', ['bp1.deriv'], [['Taux de variation et tangente', 'taux de variation|tangente|nombre derive'], ['La fonction dérivée', 'fonction derivee|deriv|formule'], ['Signe de la dérivée et variations', 'signe|variation|extremum'], ['Dérivée et coût marginal', 'marginal'], ['La fonction inverse', 'inverse']]),
+      N(5, 'Suites numériques', ['bp1.suites'], [['Notation indicielle et termes', 'notation|indice|terme|rang|recurrence|explicite'], ['Le sens de variation d’une suite', 'variation|croissan|decroissan|monoton'], ['Les suites arithmétiques', 'arithmetique|raison'], ['La somme des premiers termes', 'somme'], ['Les suites géométriques', 'geometrique|exponentiel']]),
+      N(6, 'Statistique à deux variables quantitatives', ['bp1.stat2'], [['Nuage de points et point moyen', 'nuage|point moyen|representer|deux variables'], ['La droite d’ajustement', 'ajustement|droite|moindres|affine'], ['Le coefficient de détermination R²', 'coefficient de determination|r2|qualite|determination'], ['Prévoir et rester prudent', 'prevoir|prevision|extrapol|interpol|estim']]),
+      N(7, 'Probabilités', ['bp1.proba'], [['Expérience aléatoire et probabilité', 'experience|probabilite|loi|equiprobab|univers|issue'], ['Contraire et incompatibles', 'contraire|incompatible'], ['Réunion et intersection', 'reunion|intersection|formule'], ['Le tableau croisé', 'tableau|croise|arbre'], ['La probabilité conditionnelle', 'condition|sachant|arbre']]),
+      N(8, 'Géométrie dans l’espace', ['bp1.espace'], [['Représenter un solide en perspective', 'perspective|representer|patron|solide|cavaliere'], ['Volumes : prismes, cylindres, pyramides, cônes', 'volume|prisme|cylindre|pyramide|cone'], ['Le volume de la boule', 'boule|sphere'], ['Les sections planes', 'section'], ['Les solides composés', 'compose|assembl|decompos']])] },
+    bpt: { nom: 'Maths et MCV · Terminale', url: BASE + 'mcv/terminale/', chap: [
+      N(1, 'Suites numériques', ['bpt.suites'], [['Reconnaître une suite géométrique', 'geometrique|raison|reconnaitre'], ['Le terme de rang n', 'rang|terme general|explicite|recurrence'], ['Sens de variation et nuage de points', 'variation|nuage|representation|croissan'], ['La somme des premiers termes', 'somme'], ['Évolution à taux fixe et fonction exponentielle', 'taux|evolution|exponentiel|modelis']]),
+      N(2, 'Calculs commerciaux et financiers', ['bpt.calc'], [['Les intérêts composés', 'interets? compos|capital|valeur acquise|placement'], ['La durée d’un placement', 'duree|periode|logarithme'], ['Taux mensuel équivalent et taux moyen', 'equivalent|moyen|taux'], ['L’emprunt à amortissement constant', 'amortissement'], ['L’emprunt à annuités constantes', 'annuite|mensualite|emprunt']]),
+      N(3, 'Fonctions polynômes de degré 3', ['bpt.poly3'], [['La fonction cube', 'cube|degre 3|polynome'], ['Dériver un polynôme de degré 3', 'deriv'], ['Variations et extremums locaux', 'variation|extremum|signe'], ['Nombre de solutions de f(x) = c', 'solution|equation|valeurs intermediaires']]),
+      N(4, 'Fonctions exponentielles et logarithme décimal', ['bpt.expo'], [['La fonction exponentielle x ↦ qˣ', 'exponentiel'], ['Les propriétés opératoires', 'propriete|operatoire|regle|puissance'], ['Le logarithme décimal', 'logarithme|\\blog\\b'], ['Résoudre qˣ = a', 'resoudre|equation'], ['Équation log(x) = a et inéquations', 'inequation|equation']]),
+      N(5, 'Statistique à deux variables', ['bpt.stat2'], [['Nuage de points et choix d’un modèle', 'nuage|modele|choisir'], ['Le coefficient de détermination R²', 'determination|r2|qualite'], ['Le changement de variable z = log(y)', 'changement de variable|log'], ['Les changements de variable z = 1/x et z = qˣ', 'changement de variable|inverse'], ['Interpoler et extrapoler', 'interpol|extrapol|prevoir|estim']]),
+      N(6, 'Probabilités', ['bpt.proba'], [['L’arbre pondéré', 'arbre|pondere'], ['La probabilité d’un chemin', 'chemin|produit'], ['La probabilité conditionnelle', 'condition|sachant'], ['La formule des probabilités totales', 'totale'], ['Évènements indépendants', 'independan']]),
+      N(7, 'Exponentielle et logarithme népérien', ['bpt.lnexp'], [['Le nombre e et la fonction exponentielle', 'nombre e|exponentielle'], ['Dérivée de eˣ et croissance continue', 'deriv|croissance'], ['Le logarithme népérien', 'neperien|\\bln\\b'], ['Résoudre eˣ = a et ln(x) = a', 'resoudre|equation']])] },
+    pm: { nom: '3ème Série Pro', url: BASE + '3eme/', chap: [
+      N(1, 'Nombres entiers et arithmétique', ['pm.A3'], [['Multiples, diviseurs et critères de divisibilité', 'multiple|diviseur|divisib|critere'], ['Nombres premiers', 'premier'], ['Décomposer en produit de facteurs premiers', 'decompos|produit de facteurs'], ['Rendre une fraction irréductible', 'irreductible|fraction|pgcd']]),
+      N(2, 'Fractions, puissances et écriture scientifique', ['pm.A1', 'pm.A2'], [['Additionner et soustraire des fractions', 'fraction|addition|soustra'], ['Prendre une fraction d’une quantité', 'fraction'], ['Puissances de 10 et préfixes', 'puissance|prefixe'], ['L’écriture scientifique', 'scientifique']]),
+      N(3, 'Calcul littéral et équations', ['pm.A4'], [['Développer une expression', 'develop'], ['Factoriser et prouver avec une lettre', 'factoris|identit|prouver'], ['Résoudre une équation du premier degré', 'equation|resoudre'], ['Résoudre une équation produit nul', 'produit nul']]),
+      N(4, 'Proportionnalité, pourcentages et grandeurs composées', ['pm.B7', 'pm.C9'], [['Proportionnalité et quatrième proportionnelle', 'proportionnalit|quatrieme|coefficient'], ['Pourcentages d’évolution', 'pourcentage|evolution|taux'], ['Grandeurs composées : vitesse et débit', 'vitesse|debit|grandeur|unite|conversion'], ['Partager selon un ratio', 'ratio|partage']]),
+      N(5, 'Fonctions linéaires et affines', ['pm.B8'], [['Image, antécédent, lecture graphique', 'image|antecedent|lecture|notion de fonction|graphique|courbe'], ['Fonction linéaire et proportionnalité', 'lineaire'], ['Fonction affine', 'affine'], ['Comparer deux formules', 'comparer|formule|tableur|programme de calcul']]),
+      N(6, 'Statistiques', ['pm.B5'], [['Calculer une moyenne', 'moyenne|moyen'], ['Médiane et étendue', 'mediane|etendue|quartile|dispersion'], ['Lire et comparer des diagrammes', 'diagramme|histogramme|representer|graphique|interpreter'], ['Fréquences et tableur', 'frequence|tableur|effectif']]),
+      N(7, 'Probabilités', ['pm.B6'], [['Calculer une probabilité', 'probabilit|issue|equiprobab'], ['Événement contraire, impossible, certain', 'contraire|impossible|certain'], ['Une expérience à deux épreuves', 'epreuve|arbre|tableau'], ['Fréquence et probabilité', 'frequence|simulation|fluctuation']]),
+      N(8, 'Pythagore et trigonométrie', ['pm.D12'], [['Le théorème de Pythagore', 'pythagore'], ['Prouver qu’un triangle est rectangle', 'reciproque|rectangle'], ['Calculer une longueur avec la trigonométrie', 'trigonom|sinus|cosinus|tangente'], ['Calculer un angle', 'angle']]),
+      N(9, 'Échelles, agrandissements et Thalès', ['pm.D12', 'pm.C9', 'pm.D10'], [['Utiliser une échelle', 'echelle|plan|maquette'], ['Agrandir et réduire des longueurs', 'agrand|reduction|homothet|rapport'], ['Aires et volumes : k² et k³', 'aire|volume|coefficient'], ['Le théorème de Thalès', 'thales']]),
+      N(10, 'Espace, transformations et programmes', ['pm.D11', 'pm.D10', 'pm.E13', 'pm.C9'], [['Volume d’un cylindre, d’un cône, d’une pyramide', 'volume|solide|cylindre|cone|pyramide|section'], ['Volume d’une boule', 'boule|sphere'], ['Se repérer sur la Terre', 'latitude|longitude|terre|coordonn'], ['Les transformations', 'transform|symetrie|translation|rotation|homothetie'], ['Programmer une boucle avec Scratch', 'scratch|programm|algorithm|boucle|instruction']])] }
+  };
+
+  function norm(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  function has(niveauId) { return !!M[niveauId]; }
+  function get(niveauId) { return M[niveauId] || null; }
+
+  /* chapitres (et notions) du manuel qui correspondent à une séance : [{ chap, notions: [titres] }] */
+  function match(niveauId, data, titre) {
+    var m = M[niveauId]; if (!m) return null;
+    var chapIds = (data.chapitres || []).slice();
+    (data.items || []).forEach(function (i) { if (i.chap && chapIds.indexOf(i.chap) < 0) chapIds.push(i.chap); });
+    var out = [];
+    m.chap.forEach(function (c) {
+      var hit = c.refs.filter(function (r) { return chapIds.indexOf(r) >= 0; }); if (!hit.length) return;
+      var txt = norm((data.items || []).filter(function (i) { return hit.indexOf(i.chap) >= 0 || !i.chap; }).map(function (i) { return i.txt; }).join(' ') + ' ' + (titre || '') + ' ' + (data.objectif || ''));
+      var ns = c.notions.filter(function (n) { return n.re.test(txt); }).map(function (n) { return n.t; });
+      out.push({ chap: c, notions: ns.slice(0, 3), exact: ns.length > 0 });
+    });
+    /* si un chapitre du BO correspond à plusieurs chapitres du manuel, on garde ceux où une notion est reconnue */
+    var withN = out.filter(function (x) { return x.exact; });
+    if (withN.length) out = withN; else out = out.slice(0, 1);
+    return out.slice(0, 2);
+  }
+  return { get: get, has: has, match: match, norm: norm };
 })();
 
 /* ── 58-common.js ── */
@@ -1898,7 +1968,7 @@ function classModal(cl) {
         UI.select([['', 'Classe entière'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']], c.groupe || '', function (v) { if (v) c.groupe = v; else delete c.groupe; drawSum(); }, 'sm'),
         h('button', { class: 'icon-btn sm', type: 'button', onclick: function () { d.creneaux.splice(i, 1); drawCren(); } }, '✕')));
     });
-    cren.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { d.creneaux.push({ jour: 1, debut: '08:00', duree: 110 }); drawCren(); } }, '＋ Ajouter un créneau hebdomadaire'));
+    cren.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { d.creneaux.push({ jour: 1, debut: '08:00', duree: 110, semaine: 1 }); drawCren(); } }, '＋ Ajouter un créneau hebdomadaire'));
     cren.appendChild(sum); drawSum();
   }
   redraw(); drawCren();
@@ -3014,7 +3084,7 @@ var Exp = (function () {
         DB.ORDER.forEach(function (t) { if (CLEAN[t]) DB.bulkPut(t, clean[t]); });
         if (j.reglages && typeof j.reglages === 'object' && okData(j.reglages)) DB.saveSettings({ materiel_defaut: Array.isArray(j.reglages.materiel_defaut) ? j.reglages.materiel_defaut.filter(function (m) { return ENUM && K.MATERIEL.some(function (x) { return x[0] === m; }); }) : undefined });
         if (j.reglages.apparence && typeof j.reglages.apparence === 'object') { var ap = j.reglages.apparence; DB.saveSettings({ apparence: { theme: ['auto', 'light', 'dark'].indexOf(ap.theme) >= 0 ? ap.theme : 'auto', palette: K.PALETTES.some(function (x) { return x[0] === ap.palette; }) ? ap.palette : 'marine', font: K.POLICES.some(function (x) { return x[0] === ap.font; }) ? ap.font : 'systeme', fs: K.TAILLES.some(function (x) { return x[0] === ap.fs; }) ? ap.fs : '1' } }); Main.applyTheme(); }
-        if (j.reglages.alternance && typeof j.reglages.alternance === 'object') Object.keys(j.reglages.alternance).forEach(function (an) { var a = j.reglages.alternance[an]; if (/^\d{4}-\d{4}$/.test(an) && a && /^\d{4}-\d{2}-\d{2}$/.test(a.lundi || '') && (a.type === 1 || a.type === 2)) Plan.setAltConfig(an, { lundi: a.lundi, type: a.type, sauter_vacances: a.sauter_vacances !== false }); });
+        if (j.reglages.alternance && typeof j.reglages.alternance === 'object') Object.keys(j.reglages.alternance).forEach(function (an) { var a = j.reglages.alternance[an]; if (/^\d{4}-\d{4}$/.test(an) && a && /^\d{4}-\d{2}-\d{2}$/.test(a.lundi || '') && (a.type === 1 || a.type === 2)) Plan.setAltConfig(an, { lundi: a.lundi, type: a.type, sauter_vacances: a.v === 2 && a.sauter_vacances === true }); });
         Ref.invalidate(); UI.toast('Sauvegarde importée.'); Views.rerender();
       });
     };
@@ -3056,10 +3126,10 @@ Views.planning = function () {
   /* ── semaine de rentrée / alternance ── */
   function altCard() {
     var cfg = Plan.altConfig(st.annee), t = today();
-    var def = cfg || { lundi: weekStart(st.annee.slice(0, 4) + '-09-01'), type: 1, sauter_vacances: true };
+    var def = cfg || { lundi: weekStart(st.annee.slice(0, 4) + '-09-01'), type: 1, sauter_vacances: false };
     var dateInp = h('input', { class: 'inp', type: 'date', value: def.lundi });
     var typeSel = UI.select([[1, 'Semaine 1'], [2, 'Semaine 2']], def.type, function () { save(); });
-    var skip = h('input', { type: 'checkbox', checked: def.sauter_vacances !== false, onchange: function () { save(); } });
+    var skip = h('input', { type: 'checkbox', checked: def.v === 2 && def.sauter_vacances === true, onchange: function () { save(); } });
     function save() {
       var v = dateInp.value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { UI.toast('Choisissez une date.', 'err'); return; }
       Plan.setAltConfig(st.annee, { lundi: weekStart(v), type: +typeSel.value, sauter_vacances: skip.checked });
@@ -3073,7 +3143,7 @@ Views.planning = function () {
       h('div', { class: 'form' }, h('div', { class: 'grid3' },
         UI.field('Semaine de référence (en général la rentrée)', dateInp, 'N’importe quel jour de cette semaine convient.'),
         UI.field('Cette semaine-là est une…', typeSel),
-        h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Vacances'), h('label', { class: 'check' }, skip, ' Ne pas compter les semaines de vacances entières', h('span', { class: 'hint' }, ' (l’alternance reprend là où elle s’était arrêtée)')))),
+        h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Vacances'), h('label', { class: 'check' }, skip, ' Sauter les semaines de vacances entières', h('span', { class: 'hint' }, ' (décoché : l’alternance suit toutes les semaines de l’année, vacances comprises)')))),
         line));
     return box;
   }
@@ -3203,7 +3273,7 @@ Views.planning = function () {
     if (!cls.length) { UI.toast('Créez d’abord une classe pour l’année ' + st.annee + '.'); return; }
     var edit = o.cl && o.i !== undefined, cur = edit ? o.cl.creneaux[o.i] : null;
     var d = edit ? { cl: o.cl, jour: cur.jour, debut: cur.debut, duree: +cur.duree, semaine: cur.semaine || 0, groupe: cur.groupe || '', salle: cur.salle || '' }
-      : { cl: Cls.get(Store.get('last_class')) && classesOf().indexOf(Cls.get(Store.get('last_class'))) >= 0 ? Cls.get(Store.get('last_class')) : cls[0], jour: o.jour || 1, debut: o.debut || '08:00', duree: o.duree || 60, semaine: +(Store.get('last_sem') || 0), groupe: '', salle: '' };
+      : { cl: Cls.get(Store.get('last_class')) && classesOf().indexOf(Cls.get(Store.get('last_class'))) >= 0 ? Cls.get(Store.get('last_class')) : cls[0], jour: o.jour || 1, debut: o.debut || '08:00', duree: o.duree || 60, semaine: st.tab === 2 ? 2 : 1, groupe: '', salle: '' };
     var warn = h('p', { class: 'small warnt', role: 'status' }), fin = h('span', { class: 'muted small' });
     var clsSel = UI.select(cls.map(function (c) { return [c.id, c.nom]; }), d.cl.id, function (v) { d.cl = Cls.get(v); upd(); });
     var jourSel = UI.select([1, 2, 3, 4, 5, 6].map(function (j) { return [j, TT_JOURS[j]]; }), d.jour, function (v) { d.jour = +v; upd(); });
@@ -3301,31 +3371,32 @@ var Pronote = (function () {
   var ORGA = { binomes: ' en binômes', groupes: ' en groupes' };
 
   function fin(t) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t ? t.replace(/[.;:,\s]+$/, '') : ''; }
-  function court(t, n) { t = fin(String(t || '').split(' — ')[0]); return t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : t; }
+  function court(t, n) { t = fin(String(t || '').split(' — ')[0]).replace(/\s:\s/g, ' — '); return t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : t; }
   function minus(t) { return t ? t.charAt(0).toLowerCase() + t.slice(1) : t; }
   function liste(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' et ' + a[a.length - 1]; }
   function unique(a) { return a.filter(function (x, i) { return x && a.indexOf(x) === i; }); }
 
-  /* retourne { contenu, travail } ; temps : 'passe' | 'futur' */
-  function draft(s, cl, temps) {
+  /* retourne { contenu, travail, manuel } ; temps : 'passe' | 'futur' ; version : 1 (ce qui a été fait) | 2 (avec renvoi au manuel)
+     Le texte dit CE QUI A ÉTÉ TRAITÉ (savoir-faire, notions), jamais le déroulé de la séance. */
+  function draft(s, cl, temps, version) {
     var d = s.data, past = temps !== 'futur', L = [];
     var ou = OUV[s.type] || OUV.autre;
-    var chaps = unique((d.chapitres || []).map(function (id) { var l = Ref.lookup(id); return l && l.txt; })).slice(0, 2);
-    var theme = chaps.length ? liste(chaps.map(function (c) { return '« ' + fin(c) + ' »'; })) : (s.titre ? '« ' + fin(s.titre) + ' »' : '');
     var mod = s.modalite === 'demi_groupe' ? ' en demi-groupe' + (s.groupe ? ' (groupe ' + s.groupe.slice(1) + ')' : '') : '';
-    L.push((past ? ou[0] : 'Au programme : ' + ou[1]) + mod + (theme ? (past ? ' sur ' : ' sur ') + theme : '') + '.');
-    var its = (d.items || []).filter(function (i) { return i.k !== 'a'; }).map(function (i) { return court(i.txt, 95); });
-    its = unique(its);
-    if (d.objectif && fin(d.objectif)) L.push((past ? 'Objectif de la séance : ' : 'Objectif : ') + minus(fin(d.objectif)) + '.');
-    else if (its.length) L.push((past ? 'Les élèves ont travaillé : ' : 'Les élèves vont travailler : ') + its.slice(0, 3).map(minus).join(' ; ') + (its.length > 3 ? ' ; …' : '') + '.');
+    var chaps = unique((d.chapitres || []).map(function (id) { var l = Ref.lookup(id); return l && l.txt; })).slice(0, 2);
+    var theme = chaps.length ? liste(chaps.map(function (c) { return '« ' + fin(c) + ' »'; })) : '';
+    var titre = fin(s.titre);
+    var chp = theme ? ' sur ' + theme : '';
+    if (titre) {
+      var ch2 = theme && theme.indexOf(titre) < 0 ? ' (chapitre ' + theme + ')' : '';
+      L.push(past ? ou[0] + mod + ' : « ' + titre + ' »' + ch2 + '.' : 'Au programme' + mod + ' : ' + ou[1] + ' « ' + titre + ' »' + ch2 + '.');
+    } else L.push(past ? ou[0] + mod + chp + '.' : 'Au programme' + mod + ' : ' + ou[1] + chp + '.');
+    var its = unique((d.items || []).filter(function (i) { return i.k !== 'a'; }).map(function (i) { return court(i.txt, 95); }));
+    if (its.length) L.push((past ? 'Nous avons travaillé : ' : 'Nous allons travailler : ') + its.slice(0, 4).map(minus).join(' ; ') + (its.length > 4 ? ' ; …' : '') + '.');
+    else if (d.objectif && fin(d.objectif)) L.push((past ? 'Objectif : ' : 'Objectif : ') + minus(fin(d.objectif)) + '.');
+    var au = unique((d.items || []).filter(function (i) { return i.k === 'a'; }).map(function (i) { return court(i.txt, 70); }));
+    if (au.length) L.push('Automatismes : ' + minus(au.slice(0, 2).join(' ; ')) + '.');
     var b = d.bilan || {};
     if (past && fin(b.realise)) L.push(fin(b.realise).replace(/^./, function (c) { return c.toUpperCase(); }) + '.');
-    else {
-      var ph = unique((d.phases || []).filter(function (p) { return PHASE[p.phase]; }).map(function (p) { return PHASE[p.phase] + (ORGA[p.orga] || ''); }));
-      if (ph.length) L.push((past ? 'La séance a comporté ' : 'Déroulé prévu : ') + liste(ph) + '.');
-    }
-    var au = (d.items || []).filter(function (i) { return i.k === 'a'; }).map(function (i) { return court(i.txt, 70); });
-    if (au.length) L.push('Automatismes : ' + minus(au.slice(0, 2).join(' ; ')) + '.');
     if (past && fin(b.a_reprendre)) L.push('À reprendre : ' + minus(fin(b.a_reprendre)) + '.');
     var tr = '';
     if (d.dm && d.dm.actif) {
@@ -3335,20 +3406,33 @@ var Pronote = (function () {
       if (d.dm.rendu) tr += ' — à rendre pour le ' + fmtD(d.dm.rendu);
       tr += '.';
     }
-    return { contenu: L.join(' '), travail: tr };
+    var manuel = false;
+    if (version === 2) {
+      var man = Manuels.get(cl && cl.niveau_id), mt = man ? Manuels.match(cl.niveau_id, d, s.titre) : null;
+      if (mt && mt.length) {
+        manuel = true;
+        var parts = mt.map(function (x) { return 'chapitre ' + x.chap.n + ' « ' + x.chap.t + ' »' + (x.notions.length ? ', ' + (x.notions.length > 1 ? 'notions ' : 'notion ') + liste(x.notions.map(function (t) { return '« ' + t + ' »'; })) : ''); });
+        L.push((past ? 'Pour revoir, dans le manuel « ' : 'Pour se préparer, dans le manuel « ') + man.nom + ' » : ' + parts.join(' ; ') + '. Appli : ' + man.url);
+        var rev = (past ? 'Revoir ' : 'Lire ') + (mt[0].notions.length ? (mt[0].notions.length > 1 ? 'les notions ' : 'la notion ') + liste(mt[0].notions.map(function (t) { return '« ' + t + ' »'; })) : 'le chapitre ' + mt[0].chap.n) + ' dans le manuel (chapitre ' + mt[0].chap.n + '), puis faire les exercices de la notion.';
+        tr = tr ? tr + ' Pour réviser : ' + minus(rev) : rev;
+      }
+    }
+    return { contenu: L.join(' '), travail: tr, manuel: manuel };
   }
 
   function section(s, cl, d, save) {
     if (!d.pronote || typeof d.pronote !== 'object') d.pronote = { contenu: '', travail: '', temps: '' };
     var p = d.pronote;
     function tps() { return p.temps || (s.statut === 'faite' ? 'passe' : 'futur'); }
+    var hasMan = Manuels.has(cl && cl.niveau_id);
+    function ver() { return p.version === 2 && hasMan ? 2 : 1; }
     var ta1, ta2, cnt = h('span', { class: 'muted small' });
     function upd() { cnt.textContent = (p.contenu || '').length + ' caractères'; }
     ta1 = UI.textarea(function () { return p.contenu; }, function (v) { p.contenu = v; save(); upd(); }, 'Quelques phrases : ce qui a été fait pendant la séance…', 4);
     ta2 = UI.textarea(function () { return p.travail; }, function (v) { p.travail = v; save(); }, 'Travail à faire pour la prochaine séance (facultatif)', 2);
     function setVal(ta, v) { ta.value = v; ta.dispatchEvent(new Event('input', { bubbles: true })); }
     function gen() {
-      var r = draft(s, cl, tps());
+      var r = draft(s, cl, tps(), ver()); if (ver() === 2 && !r.manuel) UI.toast('Aucun chapitre du manuel ne correspond à cette séance : version sans renvoi.', 'err');
       var go = function () { setVal(ta1, r.contenu); if (r.travail || !(p.travail || '').trim()) setVal(ta2, r.travail); UI.toast('Synthèse rédigée : relisez-la et ajustez-la.'); };
       if ((p.contenu || '').trim() && (p.contenu || '').trim() !== r.contenu) UI.ask('Remplacer le texte actuel par une nouvelle rédaction automatique ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
     }
@@ -3356,6 +3440,7 @@ var Pronote = (function () {
     var box = h('div', null,
       h('p', { class: 'muted small' }, 'Texte brut, sans mise en forme ni émojis : il se colle proprement dans le cahier de textes de Pronote. Relisez-le avant de le coller.'),
       h('div', { class: 'row-gap' }, UI.field('Rédaction', UI.select([['passe', 'Au passé (séance faite)'], ['futur', 'Au futur (séance à venir)']], tps(), function (v) { p.temps = v; save(); }, 'sm')),
+        UI.field('Version', UI.select([[1, '1 · Ce qui a été fait'], [2, '2 · Avec renvoi à mon manuel' + (hasMan ? '' : ' (aucun manuel pour ce niveau)')]], ver(), function (v) { p.version = +v; save(); }, 'sm')),
         h('button', { class: 'btn primary', type: 'button', onclick: gen }, '✨ Rédiger la synthèse')),
       UI.field('Contenu de la séance', ta1), cnt,
       UI.field('Travail à faire', ta2, 'Pré-rempli avec le devoir maison s’il y en a un.'),

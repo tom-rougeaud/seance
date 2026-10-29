@@ -17,10 +17,10 @@ Views.planning = function () {
   /* ── semaine de rentrée / alternance ── */
   function altCard() {
     var cfg = Plan.altConfig(st.annee), t = today();
-    var def = cfg || { lundi: weekStart(st.annee.slice(0, 4) + '-09-01'), type: 1, sauter_vacances: true };
+    var def = cfg || { lundi: weekStart(st.annee.slice(0, 4) + '-09-01'), type: 1, sauter_vacances: false };
     var dateInp = h('input', { class: 'inp', type: 'date', value: def.lundi });
     var typeSel = UI.select([[1, 'Semaine 1'], [2, 'Semaine 2']], def.type, function () { save(); });
-    var skip = h('input', { type: 'checkbox', checked: def.sauter_vacances !== false, onchange: function () { save(); } });
+    var skip = h('input', { type: 'checkbox', checked: def.v === 2 && def.sauter_vacances === true, onchange: function () { save(); } });
     function save() {
       var v = dateInp.value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { UI.toast('Choisissez une date.', 'err'); return; }
       Plan.setAltConfig(st.annee, { lundi: weekStart(v), type: +typeSel.value, sauter_vacances: skip.checked });
@@ -34,7 +34,7 @@ Views.planning = function () {
       h('div', { class: 'form' }, h('div', { class: 'grid3' },
         UI.field('Semaine de référence (en général la rentrée)', dateInp, 'N’importe quel jour de cette semaine convient.'),
         UI.field('Cette semaine-là est une…', typeSel),
-        h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Vacances'), h('label', { class: 'check' }, skip, ' Ne pas compter les semaines de vacances entières', h('span', { class: 'hint' }, ' (l’alternance reprend là où elle s’était arrêtée)')))),
+        h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Vacances'), h('label', { class: 'check' }, skip, ' Sauter les semaines de vacances entières', h('span', { class: 'hint' }, ' (décoché : l’alternance suit toutes les semaines de l’année, vacances comprises)')))),
         line));
     return box;
   }
@@ -164,7 +164,7 @@ Views.planning = function () {
     if (!cls.length) { UI.toast('Créez d’abord une classe pour l’année ' + st.annee + '.'); return; }
     var edit = o.cl && o.i !== undefined, cur = edit ? o.cl.creneaux[o.i] : null;
     var d = edit ? { cl: o.cl, jour: cur.jour, debut: cur.debut, duree: +cur.duree, semaine: cur.semaine || 0, groupe: cur.groupe || '', salle: cur.salle || '' }
-      : { cl: Cls.get(Store.get('last_class')) && classesOf().indexOf(Cls.get(Store.get('last_class'))) >= 0 ? Cls.get(Store.get('last_class')) : cls[0], jour: o.jour || 1, debut: o.debut || '08:00', duree: o.duree || 60, semaine: +(Store.get('last_sem') || 0), groupe: '', salle: '' };
+      : { cl: Cls.get(Store.get('last_class')) && classesOf().indexOf(Cls.get(Store.get('last_class'))) >= 0 ? Cls.get(Store.get('last_class')) : cls[0], jour: o.jour || 1, debut: o.debut || '08:00', duree: o.duree || 60, semaine: st.tab === 2 ? 2 : 1, groupe: '', salle: '' };
     var warn = h('p', { class: 'small warnt', role: 'status' }), fin = h('span', { class: 'muted small' });
     var clsSel = UI.select(cls.map(function (c) { return [c.id, c.nom]; }), d.cl.id, function (v) { d.cl = Cls.get(v); upd(); });
     var jourSel = UI.select([1, 2, 3, 4, 5, 6].map(function (j) { return [j, TT_JOURS[j]]; }), d.jour, function (v) { d.jour = +v; upd(); });

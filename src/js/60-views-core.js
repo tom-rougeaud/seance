@@ -241,7 +241,7 @@ function classModal(cl) {
         UI.select([['', 'Classe entière'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']], c.groupe || '', function (v) { if (v) c.groupe = v; else delete c.groupe; drawSum(); }, 'sm'),
         h('button', { class: 'icon-btn sm', type: 'button', onclick: function () { d.creneaux.splice(i, 1); drawCren(); } }, '✕')));
     });
-    cren.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { d.creneaux.push({ jour: 1, debut: '08:00', duree: 110 }); drawCren(); } }, '＋ Ajouter un créneau hebdomadaire'));
+    cren.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { d.creneaux.push({ jour: 1, debut: '08:00', duree: 110, semaine: 1 }); drawCren(); } }, '＋ Ajouter un créneau hebdomadaire'));
     cren.appendChild(sum); drawSum();
   }
   redraw(); drawCren();

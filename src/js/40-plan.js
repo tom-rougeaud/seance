@@ -29,7 +29,7 @@ var Plan = (function () {
 
   /* ── alternance semaine 1 / semaine 2 ── */
   function altConfig(annee) { var a = (DB.settings().alternance || {})[annee]; return a && /^\d{4}-\d{2}-\d{2}$/.test(a.lundi || '') && (a.type === 1 || a.type === 2) ? a : null; }
-  function setAltConfig(annee, cfg) { var all = Object.assign({}, DB.settings().alternance || {}); all[annee] = cfg; DB.saveSettings({ alternance: all }); }
+  function setAltConfig(annee, cfg) { var all = Object.assign({}, DB.settings().alternance || {}); all[annee] = Object.assign({}, cfg, { v: 2 }); DB.saveSettings({ alternance: all }); }
   /* une semaine est « de pause » si du lundi au vendredi tout est en vacances (période valable pour toutes les classes) */
   function semainePause(mondayISO, annee) {
     var rs = DB.list('fs_calendrier').filter(function (c) { return c.annee_scolaire === annee && !c.class_id && c.type === 'vacances'; });
@@ -41,7 +41,7 @@ var Plan = (function () {
   function weekType(iso, annee) {
     var cfg = altConfig(annee); if (!cfg) return null;
     var ref = weekStart(cfg.lundi), w = weekStart(iso), n = 0, g = 0;
-    var skip = cfg.sauter_vacances !== false;
+    var skip = cfg.v === 2 && cfg.sauter_vacances === true; /* par défaut : on suit l’ordre du calendrier, sans sauter de semaine */
     if (w > ref) { for (var x = ref; x < w && g++ < 120; x = addDays(x, 7)) if (!(skip && semainePause(x, annee))) n++; }
     else if (w < ref) { for (var y = w; y < ref && g++ < 120; y = addDays(y, 7)) if (!(skip && semainePause(y, annee))) n++; }
     return n % 2 === 0 ? cfg.type : 3 - cfg.type;

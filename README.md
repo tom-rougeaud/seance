@@ -8,6 +8,7 @@ Application web (une seule page HTML, installable sur l’écran d’accueil) po
 - Liens, vidéos, PDF et fichiers par saisie ou glisser-déposer, bibliothèque réutilisable.
 - **Emploi du temps** lundi→vendredi (8 h–18 h) : créneaux créés en glissant sur la grille, modifiables à tout moment ; **semaines 1 / 2** (semaine de rentrée à indiquer) ; heures par classe et par semaine ; dates de séances proposées selon l’alternance.
 - **Synthèse Pronote** : quelques phrases rédigées automatiquement à partir de la séance (contenu + travail à faire), modifiables et copiables en un clic.
+- **Apparence** : 8 palettes calmes (clair / sombre, dont un contraste élevé), 6 polices libres intégrées (OFL, aucun téléchargement), taille du texte ; le choix suit le compte.
 - Impression A4, export Word, texte détaillé pour le cahier de textes, sauvegarde / import JSON.
 - Données enregistrées dans **Supabase** (même projet et même compte que « Suivi Progression » / « Flash Maths »), lecture hors connexion.
 - Aucune donnée d’élève, aucun traceur, aucune ressource externe (pas de CDN, pas de police distante).
@@ -28,6 +29,9 @@ node build.js          # src/ → index.html + sw.js (aucune dépendance)
 - `tests/` : tests de bout en bout Playwright avec un faux Supabase (`node tests/e2e.js`, `node tests/e2e2.js`, serveur statique sur le port 8765) ; `tests/rls_test.sql` : test d’isolation des comptes (PostgreSQL).
 
 ## Sources et licence
+
+Polices intégrées : Source Sans 3, Lora, Nunito, Atkinson Hyperlegible, Patrick Hand (SIL OFL 1.1, voir `src/fonts/LICENSES-polices.txt`).
+
 
 Programmes : Bulletin officiel / éduscol (3e cycle 4 et DNB 2026 ; CAP, BO n°30 du 23 juillet 2020 ; Bac Pro 2de BO spécial n°5 du 11 avril 2019 ; 1re et Tle BO spécial n°1 du 6 février 2020). Calendrier zone A 2026-2027 : service-public.gouv.fr, à vérifier avec l’établissement.
 

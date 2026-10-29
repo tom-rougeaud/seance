@@ -17,7 +17,8 @@
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+html{font-size:calc(100% * var(--fs,1))}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif);font-size:1rem;line-height:var(--lh,1.5);letter-spacing:var(--ls,normal);word-spacing:var(--ws,normal)}
 a{color:var(--primary)}h1,h2,h3{line-height:1.25;margin:0}
 h1{font-size:1.5rem}h2{font-size:1.1rem;margin-bottom:.5rem}h3{font-size:1rem;margin:1rem 0 .3rem}
 p{margin:.4rem 0 .6rem}ul,ol{margin:.3rem 0 .6rem;padding-left:1.3rem}
@@ -227,3 +228,38 @@ ul.plain{padding-left:1.1rem;font-size:.9rem}
 
 @media (max-width:760px){.tt{min-width:0;grid-template-columns:2.4rem repeat(var(--n,5),minmax(0,1fr))}.tt-dh{font-size:.72rem;padding:.3rem 0}.tt-times{font-size:.62rem}.tt-b{font-size:.62rem;padding:.1rem .2rem}.tt-b b{font-size:.68rem}.tt-b .tt-t,.tt-b .tt-m{font-size:.58rem}}
 .nav .t-s{display:none}@media (max-width:760px){.nav .t-l{display:none}.nav .t-s{display:inline}.nav a{font-size:.66rem}}
+
+/* palettes (le défaut « Marine » est défini plus haut) */
+:root[data-palette="ardoise"]{--bg:#F2F3F5;--surface:#FFFFFF;--surface2:#E8EAEE;--line:#D3D7DE;--text:#1C2028;--muted:#5A6372;--primary:#46566E;--primary-d:#38465B;--on-primary:#FFFFFF;--accent:#6B7C93}
+:root[data-palette="foret"]{--bg:#F2F6F3;--surface:#FFFFFF;--surface2:#E5EEE8;--line:#D0DDD4;--text:#18261E;--muted:#587062;--primary:#3C6B52;--primary-d:#2F5641;--on-primary:#FFFFFF;--accent:#5E8A6E}
+:root[data-palette="ocean"]{--bg:#F1F6F7;--surface:#FFFFFF;--surface2:#E2EDEF;--line:#CDDDE0;--text:#13262B;--muted:#4A646E;--primary:#2F6F7E;--primary-d:#245764;--on-primary:#FFFFFF;--accent:#4F8A9A}
+:root[data-palette="prune"]{--bg:#F6F3F8;--surface:#FFFFFF;--surface2:#ECE6F0;--line:#DBD2E2;--text:#241A2C;--muted:#6A5C78;--primary:#6A4C7C;--primary-d:#543B63;--on-primary:#FFFFFF;--accent:#8A6A9C}
+:root[data-palette="terre"]{--bg:#F8F4F0;--surface:#FFFFFF;--surface2:#EFE6DE;--line:#DDD0C4;--text:#2A1D15;--muted:#74604F;--primary:#9A5A3C;--primary-d:#7E4930;--on-primary:#FFFFFF;--accent:#B07A50}
+:root[data-palette="bordeaux"]{--bg:#F8F3F4;--surface:#FFFFFF;--surface2:#F0E4E7;--line:#E0CFD3;--text:#2A1A1E;--muted:#7A5F66;--primary:#8A3A48;--primary-d:#6E2E3A;--on-primary:#FFFFFF;--accent:#A5525C}
+:root[data-palette="contraste"]{--bg:#FFFFFF;--surface:#FFFFFF;--surface2:#EDEDED;--line:#4A4F5A;--text:#000000;--muted:#2E323B;--primary:#0B2A66;--primary-d:#061B45;--on-primary:#FFFFFF;--accent:#0B2A66}
+@media (prefers-color-scheme:dark){:root[data-palette="ardoise"]:not([data-theme="light"]){--bg:#14171C;--surface:#1D2128;--surface2:#272C35;--line:#343A46;--text:#E6E9EE;--muted:#A0A8B6;--primary:#9DB0CC;--primary-d:#B6C5DB;--on-primary:#12161D;--accent:#8C9BB2}}
+:root[data-palette="ardoise"][data-theme="dark"]{--bg:#14171C;--surface:#1D2128;--surface2:#272C35;--line:#343A46;--text:#E6E9EE;--muted:#A0A8B6;--primary:#9DB0CC;--primary-d:#B6C5DB;--on-primary:#12161D;--accent:#8C9BB2}
+@media (prefers-color-scheme:dark){:root[data-palette="foret"]:not([data-theme="light"]){--bg:#111A15;--surface:#1A261F;--surface2:#243229;--line:#2F4237;--text:#E4EEE8;--muted:#9DB3A5;--primary:#8CC3A1;--primary-d:#A6D3B8;--on-primary:#0D1F15;--accent:#7FB093}}
+:root[data-palette="foret"][data-theme="dark"]{--bg:#111A15;--surface:#1A261F;--surface2:#243229;--line:#2F4237;--text:#E4EEE8;--muted:#9DB3A5;--primary:#8CC3A1;--primary-d:#A6D3B8;--on-primary:#0D1F15;--accent:#7FB093}
+@media (prefers-color-scheme:dark){:root[data-palette="ocean"]:not([data-theme="light"]){--bg:#101A1D;--surface:#192629;--surface2:#233337;--line:#2D4247;--text:#E2EEF0;--muted:#9BB5BA;--primary:#7EC0CE;--primary-d:#9BD0DB;--on-primary:#0B1E22;--accent:#6FB0BF}}
+:root[data-palette="ocean"][data-theme="dark"]{--bg:#101A1D;--surface:#192629;--surface2:#233337;--line:#2D4247;--text:#E2EEF0;--muted:#9BB5BA;--primary:#7EC0CE;--primary-d:#9BD0DB;--on-primary:#0B1E22;--accent:#6FB0BF}
+@media (prefers-color-scheme:dark){:root[data-palette="prune"]:not([data-theme="light"]){--bg:#17121C;--surface:#211A28;--surface2:#2C2336;--line:#3A2F47;--text:#EAE4F0;--muted:#AEA2BC;--primary:#C0A3D6;--primary-d:#D1BAE2;--on-primary:#1B1024;--accent:#A98BBF}}
+:root[data-palette="prune"][data-theme="dark"]{--bg:#17121C;--surface:#211A28;--surface2:#2C2336;--line:#3A2F47;--text:#EAE4F0;--muted:#AEA2BC;--primary:#C0A3D6;--primary-d:#D1BAE2;--on-primary:#1B1024;--accent:#A98BBF}
+@media (prefers-color-scheme:dark){:root[data-palette="terre"]:not([data-theme="light"]){--bg:#1C1511;--surface:#271E19;--surface2:#332821;--line:#443629;--text:#F0E8E1;--muted:#BAA898;--primary:#DFA27F;--primary-d:#E8B999;--on-primary:#25140B;--accent:#C98F6B}}
+:root[data-palette="terre"][data-theme="dark"]{--bg:#1C1511;--surface:#271E19;--surface2:#332821;--line:#443629;--text:#F0E8E1;--muted:#BAA898;--primary:#DFA27F;--primary-d:#E8B999;--on-primary:#25140B;--accent:#C98F6B}
+@media (prefers-color-scheme:dark){:root[data-palette="bordeaux"]:not([data-theme="light"]){--bg:#1C1215;--surface:#281B1F;--surface2:#35252A;--line:#47323A;--text:#F0E5E8;--muted:#BCA4AB;--primary:#E0A0AB;--primary-d:#E9B8C0;--on-primary:#2A0F16;--accent:#CC8591}}
+:root[data-palette="bordeaux"][data-theme="dark"]{--bg:#1C1215;--surface:#281B1F;--surface2:#35252A;--line:#47323A;--text:#F0E5E8;--muted:#BCA4AB;--primary:#E0A0AB;--primary-d:#E9B8C0;--on-primary:#2A0F16;--accent:#CC8591}
+@media (prefers-color-scheme:dark){:root[data-palette="contraste"]:not([data-theme="light"]){--bg:#000000;--surface:#0D0D0D;--surface2:#1A1A1A;--line:#8A8A8A;--text:#FFFFFF;--muted:#D0D0D0;--primary:#A9CBFF;--primary-d:#C7DDFF;--on-primary:#000000;--accent:#8EC5FF}}
+:root[data-palette="contraste"][data-theme="dark"]{--bg:#000000;--surface:#0D0D0D;--surface2:#1A1A1A;--line:#8A8A8A;--text:#FFFFFF;--muted:#D0D0D0;--primary:#A9CBFF;--primary-d:#C7DDFF;--on-primary:#000000;--accent:#8EC5FF}
+/* polices (les familles embarquées sont déclarées en tête de feuille) */
+:root[data-font="humaniste"]{--font:"Source Sans 3",Seravek,"Gill Sans Nova","Trebuchet MS",system-ui,sans-serif}
+:root[data-font="classique"]{--font:Lora,"Iowan Old Style","Palatino Linotype",Georgia,serif}
+:root[data-font="arrondi"]{--font:Nunito,ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif}
+:root[data-font="lisible"]{--font:"Atkinson Hyperlegible",Verdana,Tahoma,sans-serif;--ls:.015em;--ws:.05em;--lh:1.6}
+:root[data-font="manuscrit"]{--font:"Patrick Hand","Segoe Print","Comic Sans MS",cursive;--lh:1.55}
+/* sélecteurs d'apparence (Réglages) */
+.pal-grid,.font-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr));gap:.5rem;margin:.4rem 0}
+.pal-btn,.font-btn{display:flex;flex-direction:column;gap:.35rem;align-items:flex-start;text-align:left;padding:.55rem .65rem;border:2px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--text);cursor:pointer;min-height:44px}
+.pal-btn[aria-pressed="true"],.font-btn[aria-pressed="true"]{border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 30%,transparent)}
+.pal-dots{display:flex;gap:.25rem}.pal-dots i{width:1.1rem;height:1.1rem;border-radius:50%;border:1px solid rgba(0,0,0,.18);display:block}
+.font-btn .smp{font-size:1.05rem;line-height:1.3}.font-btn .nm{font-size:.78rem;color:var(--muted);font-family:system-ui,sans-serif}

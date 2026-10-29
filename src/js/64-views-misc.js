@@ -107,9 +107,30 @@ Views.reglages = function () {
   drawMat();
   root.appendChild(h('section', { class: 'card' }, h('h2', null, 'Matériel par défaut'), h('p', { class: 'muted small' }, 'Pré-coché dans chaque nouvelle séance.'), mat));
 
-  /* affichage */
-  var theme = Store.get('theme') || 'auto';
-  root.appendChild(h('section', { class: 'card' }, h('h2', null, 'Affichage'), UI.field('Thème', UI.select([['auto', 'Automatique (appareil)'], ['light', 'Clair'], ['dark', 'Sombre']], theme, function (v) { Store.set('theme', v); Main.applyTheme(); }))));
+  /* apparence */
+  var look = h('section', { class: 'card' }, h('h2', null, 'Apparence'),
+    h('p', { class: 'muted small' }, 'Ces choix s’appliquent tout de suite et suivent votre compte sur vos autres appareils.'));
+  var lookBody = h('div'); look.appendChild(lookBody);
+  function drawLook() {
+    clear(lookBody);
+    var cur = { theme: Store.get('theme') || 'auto', palette: Store.get('palette') || 'marine', font: Store.get('font') || 'systeme', fs: Store.get('fs') || '1' };
+    lookBody.appendChild(UI.field('Mode', UI.select([['auto', 'Automatique (appareil)'], ['light', 'Clair'], ['dark', 'Sombre']], cur.theme, function (v) { Main.setLook({ theme: v }); drawLook(); })));
+    var pg = h('div', { class: 'pal-grid', role: 'group', 'aria-label': 'Palette de couleurs' });
+    K.PALETTES.forEach(function (p) {
+      pg.appendChild(h('button', { class: 'pal-btn', type: 'button', 'aria-pressed': cur.palette === p[0] ? 'true' : 'false', onclick: function () { Main.setLook({ palette: p[0] }); drawLook(); } },
+        h('span', { class: 'pal-dots' }, p[2].map(function (c) { return h('i', { style: { background: c } }); })), h('span', null, p[1])));
+    });
+    lookBody.appendChild(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Palette'), pg));
+    var fg = h('div', { class: 'font-grid', role: 'group', 'aria-label': 'Police de caractères' });
+    K.POLICES.forEach(function (f) {
+      fg.appendChild(h('button', { class: 'font-btn', type: 'button', 'aria-pressed': cur.font === f[0] ? 'true' : 'false', onclick: function () { Main.setLook({ font: f[0] }); drawLook(); } },
+        h('span', { class: 'smp', style: { fontFamily: f[2] } }, 'Aa 0,25 × 40 = 10'), h('span', { class: 'nm' }, f[1])));
+    });
+    lookBody.appendChild(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Police'), fg, h('span', { class: 'hint' }, 'Les polices sont intégrées à l’application (aucun téléchargement) ; « Système » reprend celle de votre appareil.')));
+    lookBody.appendChild(UI.field('Taille du texte', UI.select(K.TAILLES, cur.fs, function (v) { Main.setLook({ fs: v }); drawLook(); })));
+    lookBody.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { Main.setLook({ theme: 'auto', palette: 'marine', font: 'systeme', fs: '1' }); drawLook(); UI.toast('Apparence réinitialisée.'); } }, '↺ Revenir à l’apparence d’origine'));
+  }
+  drawLook(); root.appendChild(look);
 
   /* installation */
   root.appendChild(h('section', { class: 'card' }, h('h2', null, 'Installer sur l’écran d’accueil'), h('p', { class: 'muted small' }, 'Fiches fonctionne comme une appli (plein écran, lancement rapide, lecture hors connexion de vos fiches déjà chargées).'), h('button', { class: 'btn', type: 'button', onclick: function () { Main.installHelp(); } }, '📲 Comment installer ?')));
@@ -139,6 +160,8 @@ Views.apropos = function () {
     h('h3', null, 'Sources des programmes'),
     h('ul', null, Ref.niveaux().map(function (n) { return h('li', null, h('strong', null, n.label), ' — ' + n.bo); })),
     h('p', { class: 'small muted' }, 'Les formulations sont reprises des textes officiels (éduscol / Bulletin officiel) ; les identifiants de compétences et la suggestion automatique selon le verbe d’action sont des aides de l’outil, à valider par l’enseignant(e). Vérifiez toujours les textes en vigueur.'),
+    h('h3', null, 'Polices'),
+    h('p', { class: 'small' }, 'Source Sans 3, Lora, Nunito, Atkinson Hyperlegible et Patrick Hand sont des polices libres (licence SIL Open Font License 1.1), intégrées à l’application : aucun chargement externe. Les textes de licence sont dans le dépôt, fichier src/fonts/LICENSES-polices.txt.'),
     h('h3', null, 'Calendrier scolaire'),
     h('p', null, 'Le calendrier zone A 2026-2027 est proposé comme point de départ (source : ', h('a', { href: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F1727', target: '_blank', rel: 'noopener noreferrer' }, 'service-public.gouv.fr'), '). Adaptez-le à votre établissement : PFMP, examens, journées banalisées.'),
     h('h3', null, 'Licence et auteur'),

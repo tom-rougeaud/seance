@@ -9,6 +9,28 @@ var Main = (function () {
   function applyTheme() {
     var t = Store.get('theme') || 'auto', r = document.documentElement;
     if (t === 'light' || t === 'dark') r.setAttribute('data-theme', t); else r.removeAttribute('data-theme');
+    var pal = Store.get('palette') || 'marine', fo = Store.get('font') || 'systeme', fs = Store.get('fs') || '1';
+    if (!K.PALETTES.some(function (x) { return x[0] === pal; })) pal = 'marine';
+    if (!K.POLICES.some(function (x) { return x[0] === fo; })) fo = 'systeme';
+    if (!K.TAILLES.some(function (x) { return x[0] === fs; })) fs = '1';
+    if (pal === 'marine') r.removeAttribute('data-palette'); else r.setAttribute('data-palette', pal);
+    if (fo === 'systeme') r.removeAttribute('data-font'); else r.setAttribute('data-font', fo);
+    r.style.setProperty('--fs', fs);
+    try { var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', getComputedStyle(r).getPropertyValue('--primary').trim() || '#2B4C7E'); } catch (e) { /* ignoré */ }
+  }
+  /* mémorise le choix sur cet appareil et dans le compte (il suit alors sur les autres appareils) */
+  function setLook(patch) {
+    Object.keys(patch).forEach(function (k) { Store.set(k, String(patch[k])); });
+    applyTheme();
+    DB.saveSettings({ apparence: { theme: Store.get('theme') || 'auto', palette: Store.get('palette') || 'marine', font: Store.get('font') || 'systeme', fs: Store.get('fs') || '1' } });
+  }
+  function adoptLook() {
+    var a = DB.settings().apparence; if (!a || typeof a !== 'object') return;
+    if (['auto', 'light', 'dark'].indexOf(a.theme) >= 0) Store.set('theme', a.theme);
+    if (K.PALETTES.some(function (x) { return x[0] === a.palette; })) Store.set('palette', a.palette);
+    if (K.POLICES.some(function (x) { return x[0] === a.font; })) Store.set('font', a.font);
+    if (K.TAILLES.some(function (x) { return x[0] === a.fs; })) Store.set('fs', a.fs);
+    applyTheme();
   }
 
   /* ── routeur ── */
@@ -91,7 +113,7 @@ var Main = (function () {
     Store.set('last_uid', Api.uid());
     loading('Chargement de vos fiches…');
     DB.loadAll().then(function (res) {
-      Ref.invalidate(); started = true; Shell.build();
+      adoptLook(); Ref.invalidate(); started = true; Shell.build();
       if (res === 'cache') UI.toast('Hors connexion : données de la dernière synchronisation.');
       if (!location.hash || location.hash === '#') location.hash = '#/';
       route();
@@ -160,5 +182,5 @@ var Main = (function () {
     else if (Api.configured() && Api.restore()) afterLogin();
     else { var r = parse(); if (PUBLIC[r.name]) showPublic(build(r)); else showAuth(Api.configured() ? '' : 'La base n’est pas configurée : renseignez config.js.'); }
   }
-  return { boot: boot, afterLogin: afterLogin, logout: logout, applyTheme: applyTheme, installHelp: installHelp, isStandalone: isStandalone };
+  return { boot: boot, afterLogin: afterLogin, logout: logout, applyTheme: applyTheme, setLook: setLook, installHelp: installHelp, isStandalone: isStandalone };
 })();

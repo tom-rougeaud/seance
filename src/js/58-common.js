@@ -11,7 +11,12 @@ var K = {
   ORGA: [['collectif', 'Collectif'], ['individuel', 'Individuel'], ['binomes', 'Binômes'], ['groupes', 'Groupes']],
   USAGES: [['prof', 'Pour le professeur'], ['eleve', 'Pour les élèves'], ['projete', 'À projeter'], ['dm', 'Pour le DM'], ['evaluation', 'Évaluation']],
   PALETTE: ['#2B4C7E', '#3B7C8F', '#4C8A6B', '#8A7A3A', '#B0703A', '#A5525C', '#7C6BB0', '#5B6F8F', '#6B7F55', '#8F5B7A'],
-  DM_POUR: [['classe', 'Toute la classe'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']]
+  DM_POUR: [['classe', 'Toute la classe'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']],
+  PALETTES: [['marine', 'Marine', ['#F3F5F9', '#2B4C7E', '#3B7C8F']], ['ardoise', 'Ardoise', ['#F2F3F5', '#46566E', '#6B7C93']], ['foret', 'Forêt', ['#F2F6F3', '#3C6B52', '#5E8A6E']], ['ocean', 'Lagon', ['#F1F6F7', '#2F6F7E', '#4F8A9A']],
+    ['prune', 'Prune', ['#F6F3F8', '#6A4C7C', '#8A6A9C']], ['terre', 'Terre cuite', ['#F8F4F0', '#9A5A3C', '#B07A50']], ['bordeaux', 'Bordeaux', ['#F8F3F4', '#8A3A48', '#A5525C']], ['contraste', 'Contraste élevé', ['#FFFFFF', '#0B2A66', '#000000']]],
+  POLICES: [['systeme', 'Système', 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif'], ['humaniste', 'Humaniste', '"Source Sans 3",system-ui,sans-serif'], ['classique', 'Classique (serif)', 'Lora,Georgia,serif'],
+    ['arrondi', 'Arrondie', 'Nunito,system-ui,sans-serif'], ['lisible', 'Très lisible', '"Atkinson Hyperlegible",Verdana,sans-serif'], ['manuscrit', 'Manuscrite', '"Patrick Hand","Segoe Print",cursive']],
+  TAILLES: [['1', 'Normal'], ['1.12', 'Grand'], ['1.25', 'Très grand']]
 };
 function lbl(list, v) { var r = list.filter(function (x) { return x[0] === v; })[0]; return r ? r[1] : v; }
 function defaultNiv(type) { return { cours: 'decouverte', activite: 'decouverte', exercices: 'entrainement', automatismes: 'entrainement', evaluation: 'evaluation', revision: 'maitrise', ap: 'entrainement' }[type] || 'entrainement'; }

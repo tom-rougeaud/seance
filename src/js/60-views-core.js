@@ -107,6 +107,22 @@ Views.auth = function () {
   return h('div', { class: 'auth-wrap' }, form);
 };
 
+/* ═══ Nouveau mot de passe (lien « mot de passe oublié ») ═══ */
+Views.newPassword = function () {
+  var p1 = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password', placeholder: 'Nouveau mot de passe (8 caractères minimum)', required: true });
+  var p2 = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password', placeholder: 'Répétez le mot de passe', required: true });
+  var msg = h('div', { class: 'auth-msg', role: 'alert' });
+  var btn = h('button', { class: 'btn primary wide', type: 'submit' }, 'Enregistrer le mot de passe');
+  var form = h('form', { class: 'auth-card', onsubmit: function (e) {
+    e.preventDefault(); msg.textContent = '';
+    if (p1.value.length < 8) { msg.textContent = 'Au moins 8 caractères.'; return; }
+    if (p1.value !== p2.value) { msg.textContent = 'Les deux mots de passe sont différents.'; return; }
+    btn.disabled = true;
+    Api.auth.updatePassword(p1.value).then(function () { Main.afterLogin(); }, function (err) { msg.textContent = err.network ? 'Réseau indisponible. Réessayez.' : err.message; btn.disabled = false; });
+  } }, h('div', { class: 'auth-logo' }, '🔑'), h('h1', null, 'Nouveau mot de passe'), h('p', { class: 'muted' }, 'Choisissez un mot de passe pour votre compte.'), UI.field('Nouveau mot de passe', p1), UI.field('Confirmation', p2), msg, btn);
+  return h('div', { class: 'auth-wrap' }, form);
+};
+
 /* ═══ Tableau de bord ═══ */
 Views.dashboard = function () {
   var root = h('div', { class: 'page' });

@@ -64,6 +64,16 @@ var Main = (function () {
     var v = Views.auth(); app.appendChild(v);
     if (msg) { var m = $('.auth-msg', v); if (m) m.textContent = msg; }
   }
+  /* retour d’un lien e-mail : confirmation de compte ou réinitialisation du mot de passe */
+  function handleAuthHash() {
+    loading('Vérification du lien…');
+    var clean = function () { try { history.replaceState(null, '', location.pathname + location.search + '#/'); } catch (e) { location.hash = '#/'; } };
+    Api.auth.fromHash(location.hash).then(function (r) {
+      clean();
+      if (r && r.type === 'recovery') { var app = $('#app'); clear(app); app.appendChild(Views.newPassword()); }
+      else afterLogin();
+    }, function (e) { clean(); showAuth(/expired|invalid|otp/i.test(e.message || '') ? 'Ce lien a expiré ou a déjà servi. Refaites la demande depuis « Mot de passe oublié ? ».' : 'Lien invalide : ' + e.message); });
+  }
   function loading(txt) { var app = $('#app'); clear(app); app.appendChild(h('div', { class: 'boot' }, h('div', { class: 'spinner' }), h('p', null, txt || 'Chargement…'))); }
   function setupScreen(e) {
     var app = $('#app'); clear(app);
@@ -145,7 +155,8 @@ var Main = (function () {
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && started) DB.flush(); });
     Api.onAuth(function (s) { if (!s && started) { started = false; showAuth('Session expirée : reconnectez-vous.'); } });
     registerSW();
-    if (Api.configured() && Api.restore()) afterLogin();
+    if (Api.configured() && /[#&](access_token|error)=/.test(location.hash)) handleAuthHash();
+    else if (Api.configured() && Api.restore()) afterLogin();
     else { var r = parse(); if (PUBLIC[r.name]) showPublic(build(r)); else showAuth(Api.configured() ? '' : 'La base n’est pas configurée : renseignez config.js.'); }
   }
   return { boot: boot, afterLogin: afterLogin, logout: logout, applyTheme: applyTheme, installHelp: installHelp, isStandalone: isStandalone };

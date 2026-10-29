@@ -125,7 +125,7 @@ var DB = (function () {
   function loadAll() {
     var uidv = Api.uid();
     return flush().then(function () {
-      return Promise.all(ORDER.map(function (t) { return Api.rest.selectAll(t, { order: 'created_at.asc' }); }).concat([Api.rest.select('fs_settings', {})]));
+      return Promise.all(ORDER.map(function (t) { return Api.rest.selectAll(t, { order: (t === 'fs_progress_override' ? 'updated_at' : 'created_at') + '.asc' }); }).concat([Api.rest.select('fs_settings', {})]));
     }).then(function (res) {
       ORDER.forEach(function (t, i) {
         var remote = res[i] || [];

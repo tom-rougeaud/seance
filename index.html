@@ -382,24 +382,36 @@ var Api = (function () {
     });
   }
 
+  function redirectQs() { try { if (/^https?:$/.test(location.protocol)) return '?redirect_to=' + encodeURIComponent(location.origin + location.pathname); } catch (e) { /* ignoré */ } return ''; }
+  /* retour d’un lien reçu par e-mail (confirmation, réinitialisation) : jetons dans le fragment de l’adresse */
+  function sessionFromHash(hash) {
+    var p = new URLSearchParams(String(hash || '').replace(/^#\/?/, ''));
+    if (p.get('error_description') || p.get('error')) return Promise.reject(new Error((p.get('error_description') || p.get('error')).replace(/\+/g, ' ')));
+    var at = p.get('access_token'); if (!at) return Promise.resolve(null);
+    var s = { access_token: at, refresh_token: p.get('refresh_token'), expires_at: Math.floor(Date.now() / 1000) + (+p.get('expires_in') || 3600), user: null };
+    session = s;
+    return call('/auth/v1/user').then(function (u) { s.user = u; setSession(s); return { type: p.get('type') || '' }; }, function (e) { session = null; throw e; });
+  }
   var auth = {
     signIn: function (email, password) {
       return fetch(CFG.SUPABASE_URL + '/auth/v1/token?grant_type=password', { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email, password: password }) })
         .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); setSession(fromToken(b)); return session; }); }, function (e) { throw netErr(e); });
     },
     signUp: function (email, password) {
-      return fetch(CFG.SUPABASE_URL + '/auth/v1/signup', { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email, password: password }) })
+      return fetch(CFG.SUPABASE_URL + '/auth/v1/signup' + redirectQs(), { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email, password: password }) })
         .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); if (b && b.access_token) { setSession(fromToken(b)); return { connected: true }; } return { connected: false }; }); }, function (e) { throw netErr(e); });
     },
     recover: function (email) {
-      return fetch(CFG.SUPABASE_URL + '/auth/v1/recover', { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email }) })
+      return fetch(CFG.SUPABASE_URL + '/auth/v1/recover' + redirectQs(), { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email }) })
         .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); return true; }); }, function (e) { throw netErr(e); });
     },
     signOut: function () {
       var p = session ? fetch(CFG.SUPABASE_URL + '/auth/v1/logout', { method: 'POST', headers: headers() }).catch(function () { /* ignoré */ }) : Promise.resolve();
       return p.then(function () { setSession(null); });
     },
-    check: function () { return call('/auth/v1/user'); }
+    check: function () { return call('/auth/v1/user'); },
+    updatePassword: function (pw) { return call('/auth/v1/user', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }) }); },
+    fromHash: sessionFromHash
   };
 
   /* PostgREST */
@@ -570,7 +582,7 @@ var DB = (function () {
   function loadAll() {
     var uidv = Api.uid();
     return flush().then(function () {
-      return Promise.all(ORDER.map(function (t) { return Api.rest.selectAll(t, { order: 'created_at.asc' }); }).concat([Api.rest.select('fs_settings', {})]));
+      return Promise.all(ORDER.map(function (t) { return Api.rest.selectAll(t, { order: (t === 'fs_progress_override' ? 'updated_at' : 'created_at') + '.asc' }); }).concat([Api.rest.select('fs_settings', {})]));
     }).then(function (res) {
       ORDER.forEach(function (t, i) {
         var remote = res[i] || [];
@@ -1601,6 +1613,22 @@ Views.auth = function () {
     h('div', { class: 'auth-links' }, toggle, forgot),
     h('p', { class: 'muted small' }, 'Même compte que « Suivi Progression » si vous en avez déjà un. Aucune donnée d’élève n’est nécessaire.'),
     h('p', { class: 'small' }, h('a', { href: '#/confidentialite' }, 'Confidentialité'), ' · ', h('a', { href: '#/apropos' }, 'À propos')));
+  return h('div', { class: 'auth-wrap' }, form);
+};
+
+/* ═══ Nouveau mot de passe (lien « mot de passe oublié ») ═══ */
+Views.newPassword = function () {
+  var p1 = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password', placeholder: 'Nouveau mot de passe (8 caractères minimum)', required: true });
+  var p2 = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password', placeholder: 'Répétez le mot de passe', required: true });
+  var msg = h('div', { class: 'auth-msg', role: 'alert' });
+  var btn = h('button', { class: 'btn primary wide', type: 'submit' }, 'Enregistrer le mot de passe');
+  var form = h('form', { class: 'auth-card', onsubmit: function (e) {
+    e.preventDefault(); msg.textContent = '';
+    if (p1.value.length < 8) { msg.textContent = 'Au moins 8 caractères.'; return; }
+    if (p1.value !== p2.value) { msg.textContent = 'Les deux mots de passe sont différents.'; return; }
+    btn.disabled = true;
+    Api.auth.updatePassword(p1.value).then(function () { Main.afterLogin(); }, function (err) { msg.textContent = err.network ? 'Réseau indisponible. Réessayez.' : err.message; btn.disabled = false; });
+  } }, h('div', { class: 'auth-logo' }, '🔑'), h('h1', null, 'Nouveau mot de passe'), h('p', { class: 'muted' }, 'Choisissez un mot de passe pour votre compte.'), UI.field('Nouveau mot de passe', p1), UI.field('Confirmation', p2), msg, btn);
   return h('div', { class: 'auth-wrap' }, form);
 };
 
@@ -2801,6 +2829,16 @@ var Main = (function () {
     var v = Views.auth(); app.appendChild(v);
     if (msg) { var m = $('.auth-msg', v); if (m) m.textContent = msg; }
   }
+  /* retour d’un lien e-mail : confirmation de compte ou réinitialisation du mot de passe */
+  function handleAuthHash() {
+    loading('Vérification du lien…');
+    var clean = function () { try { history.replaceState(null, '', location.pathname + location.search + '#/'); } catch (e) { location.hash = '#/'; } };
+    Api.auth.fromHash(location.hash).then(function (r) {
+      clean();
+      if (r && r.type === 'recovery') { var app = $('#app'); clear(app); app.appendChild(Views.newPassword()); }
+      else afterLogin();
+    }, function (e) { clean(); showAuth(/expired|invalid|otp/i.test(e.message || '') ? 'Ce lien a expiré ou a déjà servi. Refaites la demande depuis « Mot de passe oublié ? ».' : 'Lien invalide : ' + e.message); });
+  }
   function loading(txt) { var app = $('#app'); clear(app); app.appendChild(h('div', { class: 'boot' }, h('div', { class: 'spinner' }), h('p', null, txt || 'Chargement…'))); }
   function setupScreen(e) {
     var app = $('#app'); clear(app);
@@ -2882,7 +2920,8 @@ var Main = (function () {
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && started) DB.flush(); });
     Api.onAuth(function (s) { if (!s && started) { started = false; showAuth('Session expirée : reconnectez-vous.'); } });
     registerSW();
-    if (Api.configured() && Api.restore()) afterLogin();
+    if (Api.configured() && /[#&](access_token|error)=/.test(location.hash)) handleAuthHash();
+    else if (Api.configured() && Api.restore()) afterLogin();
     else { var r = parse(); if (PUBLIC[r.name]) showPublic(build(r)); else showAuth(Api.configured() ? '' : 'La base n’est pas configurée : renseignez config.js.'); }
   }
   return { boot: boot, afterLogin: afterLogin, logout: logout, applyTheme: applyTheme, installHelp: installHelp, isStandalone: isStandalone };

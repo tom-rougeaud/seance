@@ -64,24 +64,36 @@ var Api = (function () {
     });
   }
 
+  function redirectQs() { try { if (/^https?:$/.test(location.protocol)) return '?redirect_to=' + encodeURIComponent(location.origin + location.pathname); } catch (e) { /* ignoré */ } return ''; }
+  /* retour d’un lien reçu par e-mail (confirmation, réinitialisation) : jetons dans le fragment de l’adresse */
+  function sessionFromHash(hash) {
+    var p = new URLSearchParams(String(hash || '').replace(/^#\/?/, ''));
+    if (p.get('error_description') || p.get('error')) return Promise.reject(new Error((p.get('error_description') || p.get('error')).replace(/\+/g, ' ')));
+    var at = p.get('access_token'); if (!at) return Promise.resolve(null);
+    var s = { access_token: at, refresh_token: p.get('refresh_token'), expires_at: Math.floor(Date.now() / 1000) + (+p.get('expires_in') || 3600), user: null };
+    session = s;
+    return call('/auth/v1/user').then(function (u) { s.user = u; setSession(s); return { type: p.get('type') || '' }; }, function (e) { session = null; throw e; });
+  }
   var auth = {
     signIn: function (email, password) {
       return fetch(CFG.SUPABASE_URL + '/auth/v1/token?grant_type=password', { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email, password: password }) })
         .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); setSession(fromToken(b)); return session; }); }, function (e) { throw netErr(e); });
     },
     signUp: function (email, password) {
-      return fetch(CFG.SUPABASE_URL + '/auth/v1/signup', { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email, password: password }) })
+      return fetch(CFG.SUPABASE_URL + '/auth/v1/signup' + redirectQs(), { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email, password: password }) })
         .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); if (b && b.access_token) { setSession(fromToken(b)); return { connected: true }; } return { connected: false }; }); }, function (e) { throw netErr(e); });
     },
     recover: function (email) {
-      return fetch(CFG.SUPABASE_URL + '/auth/v1/recover', { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email }) })
+      return fetch(CFG.SUPABASE_URL + '/auth/v1/recover' + redirectQs(), { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email }) })
         .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); return true; }); }, function (e) { throw netErr(e); });
     },
     signOut: function () {
       var p = session ? fetch(CFG.SUPABASE_URL + '/auth/v1/logout', { method: 'POST', headers: headers() }).catch(function () { /* ignoré */ }) : Promise.resolve();
       return p.then(function () { setSession(null); });
     },
-    check: function () { return call('/auth/v1/user'); }
+    check: function () { return call('/auth/v1/user'); },
+    updatePassword: function (pw) { return call('/auth/v1/user', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }) }); },
+    fromHash: sessionFromHash
   };
 
   /* PostgREST */

@@ -94,7 +94,7 @@ const txt = (page, sel) => page.evaluate((s) => { const e = document.querySelect
   await page.waitForSelector('.guide');
   ok(/Saisir le titre/.test(await txt(page, '.guide')), 'la nouvelle séance repart à l’étape ①');
   await page.goto(BASE + '#/planning'); await page.waitForSelector('.guide');
-  ok(/Créer une séance/.test(await txt(page, '.guide')), 'planning : guide');
+  ok(/Ouvrir « Mon année »/.test(await txt(page, '.guide')), 'emploi du temps : le guide renvoie vers « Mon année »');
   for (const r of ['classes', 'progression', 'historique/' + ids.c, 'biblio', 'reglages', 'classe/' + ids.c, '']) {
     await page.goto(BASE + '#/' + r); await page.waitForSelector('#view .page, #view .guide', { timeout: 5000 });
     ok((await page.locator('#view .guide').count()) === 1, 'guide en bas de #/' + r);

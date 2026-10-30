@@ -308,3 +308,32 @@ body.printing .guide-wrap{display:none!important}
 .man-row.rel:not(.on){border-style:dashed}
 .man-ref{display:flex;gap:.3rem;flex-wrap:wrap}
 .tag.t-defi{background:var(--warn-bg);color:var(--warn)}.tag.t-probleme{background:var(--surface2)}
+
+/* Mon année : périodes entre vacances, une pastille par semaine, emploi du temps de la semaine choisie */
+.an-cls{margin:.2rem 0 .6rem}.an-cl{min-height:40px;padding:.35rem 1rem;font-size:.95rem;border-width:2px;font-weight:700}
+.an-how{margin:.2rem 0 .8rem;font-size:.95rem}.an-pick{margin:.2rem 0 .8rem;padding:.6rem .8rem;border-radius:var(--rs);background:var(--warn-bg);color:var(--text);border:1px solid var(--warn)}
+.an-wrap{display:grid;grid-template-columns:minmax(290px,370px) minmax(0,1fr);gap:1rem;align-items:start}
+.an-left{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.an-per{padding:.7rem .75rem}.an-ph{display:flex;align-items:baseline;justify-content:space-between;gap:.3rem .6rem;flex-wrap:wrap;margin-bottom:.5rem}.an-ph h2{margin:0;font-size:1rem}
+.an-weeks{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:.35rem}
+.an-w{position:relative;height:60px;padding:.2rem 0 .4rem;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;user-select:none;-webkit-user-select:none;overflow:hidden}
+.an-w:hover{border-color:var(--muted)}.an-w .an-s{font-size:.66rem;opacity:.85;min-height:.8rem}.an-w .an-d{font-size:1rem;font-weight:700}.an-w .an-n{font-size:.7rem;opacity:.9}
+.an-w.on{box-shadow:var(--shadow)}.an-w.now:not(.on){border-color:var(--primary);border-style:dashed}.an-w.full:not(.on){background:var(--ok-bg);border-color:transparent}.an-w.empty:not(.on){background:var(--surface2);color:var(--muted)}
+.an-w.drag{background:color-mix(in srgb,var(--primary) 22%,var(--surface));border-color:var(--primary)}.an-w.picka{outline:3px solid var(--warn);outline-offset:1px}
+.an-bar{position:absolute;left:0;right:0;bottom:0;height:7px}
+.an-vac{text-align:center;font-size:.8rem;color:var(--muted);margin:-.1rem 0}
+.an-band{display:flex;align-items:center;gap:.4rem .5rem;flex-wrap:wrap;margin-top:.6rem}.an-band.cont{margin-top:.4rem}
+.an-sw{width:12px;height:12px;border-radius:4px;flex:none;display:inline-block}.an-name{width:min(240px,100%);min-height:36px}.an-info{white-space:nowrap}
+.an-side{min-width:0}
+.an-sh{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.an-st{flex:1;min-width:0;text-align:center}.an-st h2{margin:0;font-size:1.15rem}.an-sh .icon-btn{font-size:1.6rem;min-width:44px;height:44px;border-color:var(--line);background:var(--surface)}.an-sh .icon-btn[disabled]{opacity:.35;cursor:default}
+.an-inband{display:flex;flex-wrap:wrap;justify-content:center;gap:.35rem;margin:.2rem 0 .5rem}.an-tag{font-size:.85rem;padding:.15rem .6rem;border-radius:999px;border:2px solid var(--line);text-decoration:none;color:var(--text);background:var(--surface2)}
+.an-leg{margin:.2rem 0}.an-lg{display:inline-block;padding:0 .4rem;border-radius:5px;border:2px dashed var(--muted);font-size:.78rem}.an-lg.has{border-style:solid;background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.an-tt{min-width:30rem}.an-tt .tt-dh small.an-off{display:block;font-weight:400;font-size:.65rem;color:var(--muted);line-height:1.1}
+.an-col{cursor:default}.an-col.off{background-color:var(--surface2)}
+.an-tb{cursor:pointer;border:2px dashed var(--line);background:var(--surface);font-size:.76rem;display:flex;flex-direction:column;gap:0;padding:.2rem .35rem}.an-tb.has{border-style:solid}
+.an-tb b{font-size:.84rem}.an-tb:hover{box-shadow:var(--shadow);z-index:3}
+.an-tb .an-bt{display:block;margin-top:auto;font-weight:700;font-size:.74rem;line-height:1.15;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal}
+.an-tb:not(.has) .an-bt{color:var(--primary)}
+.an-other{display:block;padding:.3rem 0;border-top:1px dashed var(--line);text-decoration:none;color:var(--text)}
+.an-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--line)}
+@media (max-width:900px){.an-wrap{grid-template-columns:1fr}.an-weeks{grid-template-columns:repeat(auto-fill,minmax(56px,1fr))}.an-name{width:100%}.an-tt{min-width:0}.an-tb{font-size:.62rem;padding:.1rem .2rem}.an-tb b{font-size:.68rem}.an-tb .an-bt{font-size:.62rem}}

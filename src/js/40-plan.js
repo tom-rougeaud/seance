@@ -126,6 +126,62 @@ var Plan = (function () {
     return n;
   }
 
+
+  /* ── « Mon année » : périodes entre vacances, créneaux d’une semaine, séance d’un créneau ── */
+  function vacShort(label) {
+    var t = String(label || '').replace(/^Vacances\s+(de la |de l’|de l'|de |d’|d'|du |des )?/i, '').trim();
+    return t ? t.charAt(0).toUpperCase() + t.slice(1) : 'Vacances';
+  }
+  /* [{ title, from, to, weeks:[lundi…] }] ; sans calendrier : tranches de 8 semaines */
+  function periods(cl) {
+    var an = cl.annee_scolaire, b = bornes(an), vac = ranges(cl.id, an).filter(function (r) { return r.type === 'vacances'; });
+    var w = weekStart(b.debut), out = [], cur = null, prev = 'Rentrée', g = 0;
+    for (; w <= b.fin && g++ < 60; w = addDays(w, 7)) {
+      var pause = vac.length > 0; for (var i = 0; i < 5 && pause; i++) if (!blockedReason(addDays(w, i), vac)) pause = false;
+      if (pause) {
+        if (cur) { cur.to = vacShort((blockedReason(w, vac) || {}).label); out.push(cur); cur = null; }
+        prev = vacShort((blockedReason(w, vac) || {}).label);
+      } else { if (!cur) cur = { from: prev, to: 'Fin d’année', weeks: [] }; cur.weeks.push(w); }
+    }
+    if (cur) out.push(cur);
+    if (!vac.length && out.length === 1) {
+      var all = out[0].weeks; out = [];
+      for (var k = 0; k < all.length; k += 8) out.push({ from: '', to: '', weeks: all.slice(k, k + 8), plain: true });
+    }
+    out.forEach(function (p, n) { p.title = p.plain ? 'Semaines ' + (n * 8 + 1) + ' à ' + (n * 8 + p.weeks.length) : p.from + ' → ' + p.to; p.debut = p.weeks[0]; p.fin = addDays(p.weeks[p.weeks.length - 1], 4); });
+    return out;
+  }
+  /* créneaux d’une classe qui ont lieu pendant la semaine (jours bloqués et autre semaine 1/2 exclus) */
+  function weekSlots(cl, monday) {
+    var rs = ranges(cl.id, cl.annee_scolaire), out = [];
+    (cl.creneaux || []).forEach(function (c, i) {
+      if (!(c.jour >= 1 && c.jour <= 6)) return;
+      var date = addDays(monday, c.jour - 1);
+      if (blockedReason(date, rs) || !slotOn(c, date, cl.annee_scolaire)) return;
+      out.push({ c: c, i: i, date: date, debut: c.debut, duree: +c.duree || 0 });
+    });
+    return out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.debut < b.debut ? -1 : a.debut > b.debut ? 1 : a.i - b.i; });
+  }
+  /* la séance rattachée à un créneau daté (séances créées depuis un créneau, ou anciennes séances du même jour) */
+  function seanceFor(cl, sl, byDate) {
+    var ss = (byDate ? (byDate[sl.date] || []) : DB.list('fs_seances').filter(function (s) { return s.class_id === cl.id && s.date_prevue === sl.date; })).filter(function (s) { return s.statut !== 'annulee'; });
+    if (!ss.length) return null;
+    var exact = ss.filter(function (s) { var k = s.data && s.data.creneau; return k && k.debut === sl.debut && (k.groupe || '') === (sl.c.groupe || '') && (k.matiere || 'maths') === (sl.c.matiere || 'maths'); });
+    if (exact.length) return exact[0];
+    var legacy = ss.filter(function (s) { return !(s.data && s.data.creneau); });
+    if (!legacy.length) return null;
+    var first = weekSlots(cl, weekStart(sl.date)).filter(function (x) { return x.date === sl.date; })[0];
+    return first && first.i === sl.i ? legacy[0] : null;
+  }
+  function seancesByDate(cl) {
+    var m = {}; DB.list('fs_seances').forEach(function (s) { if (s.class_id === cl.id && s.date_prevue) (m[s.date_prevue] = m[s.date_prevue] || []).push(s); });
+    return m;
+  }
+  /* séquences d’une classe qui ont une période prévue : [{ q, a, b }] */
+  function planned(cl) {
+    return Cls.sequences(cl.id).filter(function (q) { var p = q.data && q.data.plan; return p && /^\d{4}-\d{2}-\d{2}$/.test(p.a || '') && /^\d{4}-\d{2}-\d{2}$/.test(p.b || ''); }).map(function (q) { return { q: q, a: q.data.plan.a, b: q.data.plan.b }; });
+  }
+
   /* ── progression automatique ── */
   var STATUTS = [
     { v: 0, nom: 'Non commencé', court: '○', c: 'var(--s0)' },
@@ -179,5 +235,5 @@ var Plan = (function () {
     return { total: tot, vus: vus, maitrises: maitr, planifies: plan, minutes: min };
   }
 
-  return { altConfig: altConfig, setAltConfig: setAltConfig, weekType: weekType, semainePause: semainePause, slotOn: slotOn, slotsFor: slotsFor, heuresHebdo: heuresHebdo, slotsOnDate: slotsOnDate, libSemaine: libSemaine, PRESETS: PRESETS, bornes: bornes, ranges: ranges, blockedReason: blockedReason, nextSlots: nextSlots, heuresDispo: heuresDispo, semainesTravaillees: semainesTravaillees, STATUTS: STATUTS, compute: compute, get: get, planifie: planifie, chapStats: chapStats, seanceDate: seanceDate };
+  return { periods: periods, weekSlots: weekSlots, seanceFor: seanceFor, seancesByDate: seancesByDate, planned: planned, vacShort: vacShort, altConfig: altConfig, setAltConfig: setAltConfig, weekType: weekType, semainePause: semainePause, slotOn: slotOn, slotsFor: slotsFor, heuresHebdo: heuresHebdo, slotsOnDate: slotsOnDate, libSemaine: libSemaine, PRESETS: PRESETS, bornes: bornes, ranges: ranges, blockedReason: blockedReason, nextSlots: nextSlots, heuresDispo: heuresDispo, semainesTravaillees: semainesTravaillees, STATUTS: STATUTS, compute: compute, get: get, planifie: planifie, chapStats: chapStats, seanceDate: seanceDate };
 })();

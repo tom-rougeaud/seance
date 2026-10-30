@@ -30,7 +30,7 @@ function nextDateFor(cl, sequenceId) {
 
 /* ═══ Coque ═══ */
 var Shell = (function () {
-  var NAV = [['#/', 'Accueil', '🏠', 'Accueil'], ['#/classes', 'Classes', '👥', 'Classes'], ['#/planning', 'Planning', '🗓️', 'Planning'], ['#/progression', 'Progression', '📈', 'Suivi'], ['#/biblio', 'Bibliothèque', '📚', 'Biblio'], ['#/referentiel', 'Programmes', '📘', 'BO'], ['#/reglages', 'Réglages', '⚙️', 'Réglages']];
+  var NAV = [['#/', 'Accueil', '🏠', 'Accueil'], ['#/classes', 'Classes', '👥', 'Classes'], ['#/annee', 'Mon année', '📆', 'Année'], ['#/planning', 'Emploi du temps', '🕒', 'Horaires'], ['#/progression', 'Progression', '📈', 'Suivi'], ['#/biblio', 'Bibliothèque', '📚', 'Biblio'], ['#/referentiel', 'Programmes', '📘', 'BO'], ['#/reglages', 'Réglages', '⚙️', 'Réglages']];
   var el = {}, syncBtn;
 
   function build() {
@@ -147,7 +147,7 @@ Views.dashboard = function () {
       var end = hhmmAdd(x.c.debut, x.c.duree);
       tb.appendChild(h('div', { class: 'row-s' }, h('span', { class: 'tt-hr' }, x.c.debut + '–' + end), Cls.chip(x.cl), matId(x.c) !== 'maths' ? h('em', { class: 'tag' }, matShort(x.c)) : null, x.c.groupe ? h('em', { class: 'tag' }, x.c.groupe) : null, x.c.salle ? h('span', { class: 'muted small' }, x.c.salle) : null,
         ex.length ? ex.map(function (s) { return h('a', { class: 'row-t', href: '#/seance/' + s.id }, s.titre || '(sans titre)'); }) : h('span', { class: 'muted small grow' }, 'Pas de séance prévue'),
-        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = createSeance(x.cl, Object.assign({ date_prevue: t }, slotSeanceInit(x.c))); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
+        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = seanceFromSlot(x.cl, { c: x.c, date: t, debut: x.c.debut }); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
     });
     root.appendChild(tb);
   }

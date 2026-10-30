@@ -30,12 +30,19 @@ function slotSeanceInit(c) {
   if (m === 'consolidation' || m === 'soutien' || m === 'aide_devoirs') o.type = 'ap';
   return o;
 }
+/* crée la séance d’un créneau daté : date, durée, matière et créneau sont repris du planning */
+function seanceFromSlot(cl, sl, extra) {
+  var c = sl.c, init = Object.assign({ date_prevue: sl.date }, slotSeanceInit(c), extra || {});
+  var s = createSeance(cl, init);
+  s.data.creneau = { debut: c.debut, duree: +c.duree || 0, matiere: matId(c), groupe: c.groupe || null, salle: c.salle || null };
+  DB.save('fs_seances', s); return s;
+}
 function lbl(list, v) { var r = list.filter(function (x) { return x[0] === v; })[0]; return r ? r[1] : v; }
 function defaultNiv(type) { return { cours: 'decouverte', activite: 'decouverte', exercices: 'entrainement', automatismes: 'entrainement', evaluation: 'evaluation', revision: 'maitrise', ap: 'entrainement' }[type] || 'entrainement'; }
 
 function emptySeanceData(cl) {
   var s = DB.settings();
-  return { objectif: '', items: [], chapitres: [], manuel: { chap: null, notions: [], exos: [] }, competences: [], comp_caps: [], comp_manual: false, prerequis: '', ancrage: (cl && cl.metier) || '',
+  return { objectif: '', items: [], chapitres: [], manuel: { chap: null, notions: [], exos: [] }, creneau: null, competences: [], comp_caps: [], comp_manual: false, prerequis: '', ancrage: (cl && cl.metier) || '',
     materiel: (s.materiel_defaut || ['casio']).slice(), materiel_libre: '', phases: [],
     groupes: [{ nom: 'Groupe 1', contenu: '' }, { nom: 'Groupe 2', contenu: '' }],
     diff: { upe2a: '', difficulte: '', rapides: '', amenagements: '' }, trace: '',
@@ -43,7 +50,7 @@ function emptySeanceData(cl) {
     bilan: { realise: '', notes: '', a_reprendre: '' }, pronote: { contenu: '', travail: '', temps: '', perso: '' }, notes: '' };
 }
 function emptySequenceData(cl) {
-  return { items: [], chapitres: [], competences: [], comp_caps: [], comp_manual: false, probleme: '', ancrage: (cl && cl.metier) || '', prerequis: '',
+  return { items: [], chapitres: [], plan: null, competences: [], comp_caps: [], comp_manual: false, probleme: '', ancrage: (cl && cl.metier) || '', prerequis: '',
     evaluations: [], diff: { upe2a: '', difficulte: '', rapides: '' }, bilan: '', notes: '' };
 }
 /* complète un enregistrement chargé avec les valeurs par défaut (anciennes données, import) */

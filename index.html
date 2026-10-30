@@ -336,6 +336,35 @@ body.printing .guide-wrap{display:none!important}
 .man-ref{display:flex;gap:.3rem;flex-wrap:wrap}
 .tag.t-defi{background:var(--warn-bg);color:var(--warn)}.tag.t-probleme{background:var(--surface2)}
 
+/* Mon année : périodes entre vacances, une pastille par semaine, emploi du temps de la semaine choisie */
+.an-cls{margin:.2rem 0 .6rem}.an-cl{min-height:40px;padding:.35rem 1rem;font-size:.95rem;border-width:2px;font-weight:700}
+.an-how{margin:.2rem 0 .8rem;font-size:.95rem}.an-pick{margin:.2rem 0 .8rem;padding:.6rem .8rem;border-radius:var(--rs);background:var(--warn-bg);color:var(--text);border:1px solid var(--warn)}
+.an-wrap{display:grid;grid-template-columns:minmax(290px,370px) minmax(0,1fr);gap:1rem;align-items:start}
+.an-left{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.an-per{padding:.7rem .75rem}.an-ph{display:flex;align-items:baseline;justify-content:space-between;gap:.3rem .6rem;flex-wrap:wrap;margin-bottom:.5rem}.an-ph h2{margin:0;font-size:1rem}
+.an-weeks{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:.35rem}
+.an-w{position:relative;height:60px;padding:.2rem 0 .4rem;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;user-select:none;-webkit-user-select:none;overflow:hidden}
+.an-w:hover{border-color:var(--muted)}.an-w .an-s{font-size:.66rem;opacity:.85;min-height:.8rem}.an-w .an-d{font-size:1rem;font-weight:700}.an-w .an-n{font-size:.7rem;opacity:.9}
+.an-w.on{box-shadow:var(--shadow)}.an-w.now:not(.on){border-color:var(--primary);border-style:dashed}.an-w.full:not(.on){background:var(--ok-bg);border-color:transparent}.an-w.empty:not(.on){background:var(--surface2);color:var(--muted)}
+.an-w.drag{background:color-mix(in srgb,var(--primary) 22%,var(--surface));border-color:var(--primary)}.an-w.picka{outline:3px solid var(--warn);outline-offset:1px}
+.an-bar{position:absolute;left:0;right:0;bottom:0;height:7px}
+.an-vac{text-align:center;font-size:.8rem;color:var(--muted);margin:-.1rem 0}
+.an-band{display:flex;align-items:center;gap:.4rem .5rem;flex-wrap:wrap;margin-top:.6rem}.an-band.cont{margin-top:.4rem}
+.an-sw{width:12px;height:12px;border-radius:4px;flex:none;display:inline-block}.an-name{width:min(240px,100%);min-height:36px}.an-info{white-space:nowrap}
+.an-side{min-width:0}
+.an-sh{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.an-st{flex:1;min-width:0;text-align:center}.an-st h2{margin:0;font-size:1.15rem}.an-sh .icon-btn{font-size:1.6rem;min-width:44px;height:44px;border-color:var(--line);background:var(--surface)}.an-sh .icon-btn[disabled]{opacity:.35;cursor:default}
+.an-inband{display:flex;flex-wrap:wrap;justify-content:center;gap:.35rem;margin:.2rem 0 .5rem}.an-tag{font-size:.85rem;padding:.15rem .6rem;border-radius:999px;border:2px solid var(--line);text-decoration:none;color:var(--text);background:var(--surface2)}
+.an-leg{margin:.2rem 0}.an-lg{display:inline-block;padding:0 .4rem;border-radius:5px;border:2px dashed var(--muted);font-size:.78rem}.an-lg.has{border-style:solid;background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.an-tt{min-width:30rem}.an-tt .tt-dh small.an-off{display:block;font-weight:400;font-size:.65rem;color:var(--muted);line-height:1.1}
+.an-col{cursor:default}.an-col.off{background-color:var(--surface2)}
+.an-tb{cursor:pointer;border:2px dashed var(--line);background:var(--surface);font-size:.76rem;display:flex;flex-direction:column;gap:0;padding:.2rem .35rem}.an-tb.has{border-style:solid}
+.an-tb b{font-size:.84rem}.an-tb:hover{box-shadow:var(--shadow);z-index:3}
+.an-tb .an-bt{display:block;margin-top:auto;font-weight:700;font-size:.74rem;line-height:1.15;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal}
+.an-tb:not(.has) .an-bt{color:var(--primary)}
+.an-other{display:block;padding:.3rem 0;border-top:1px dashed var(--line);text-decoration:none;color:var(--text)}
+.an-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--line)}
+@media (max-width:900px){.an-wrap{grid-template-columns:1fr}.an-weeks{grid-template-columns:repeat(auto-fill,minmax(56px,1fr))}.an-name{width:100%}.an-tt{min-width:0}.an-tb{font-size:.62rem;padding:.1rem .2rem}.an-tb b{font-size:.68rem}.an-tb .an-bt{font-size:.62rem}}
+
 </style>
 </head>
 <body>
@@ -353,7 +382,7 @@ null
 /* ── 00-util.js ── */
 /* ═══ FICHES · utilitaires ═══ */
 'use strict';
-var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202610300946","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
+var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202610302028","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
 
 /* ── stockage local sécurisé (try/catch + repli en mémoire) ── */
 var Mem = {};
@@ -973,6 +1002,62 @@ var Plan = (function () {
     return n;
   }
 
+
+  /* ── « Mon année » : périodes entre vacances, créneaux d’une semaine, séance d’un créneau ── */
+  function vacShort(label) {
+    var t = String(label || '').replace(/^Vacances\s+(de la |de l’|de l'|de |d’|d'|du |des )?/i, '').trim();
+    return t ? t.charAt(0).toUpperCase() + t.slice(1) : 'Vacances';
+  }
+  /* [{ title, from, to, weeks:[lundi…] }] ; sans calendrier : tranches de 8 semaines */
+  function periods(cl) {
+    var an = cl.annee_scolaire, b = bornes(an), vac = ranges(cl.id, an).filter(function (r) { return r.type === 'vacances'; });
+    var w = weekStart(b.debut), out = [], cur = null, prev = 'Rentrée', g = 0;
+    for (; w <= b.fin && g++ < 60; w = addDays(w, 7)) {
+      var pause = vac.length > 0; for (var i = 0; i < 5 && pause; i++) if (!blockedReason(addDays(w, i), vac)) pause = false;
+      if (pause) {
+        if (cur) { cur.to = vacShort((blockedReason(w, vac) || {}).label); out.push(cur); cur = null; }
+        prev = vacShort((blockedReason(w, vac) || {}).label);
+      } else { if (!cur) cur = { from: prev, to: 'Fin d’année', weeks: [] }; cur.weeks.push(w); }
+    }
+    if (cur) out.push(cur);
+    if (!vac.length && out.length === 1) {
+      var all = out[0].weeks; out = [];
+      for (var k = 0; k < all.length; k += 8) out.push({ from: '', to: '', weeks: all.slice(k, k + 8), plain: true });
+    }
+    out.forEach(function (p, n) { p.title = p.plain ? 'Semaines ' + (n * 8 + 1) + ' à ' + (n * 8 + p.weeks.length) : p.from + ' → ' + p.to; p.debut = p.weeks[0]; p.fin = addDays(p.weeks[p.weeks.length - 1], 4); });
+    return out;
+  }
+  /* créneaux d’une classe qui ont lieu pendant la semaine (jours bloqués et autre semaine 1/2 exclus) */
+  function weekSlots(cl, monday) {
+    var rs = ranges(cl.id, cl.annee_scolaire), out = [];
+    (cl.creneaux || []).forEach(function (c, i) {
+      if (!(c.jour >= 1 && c.jour <= 6)) return;
+      var date = addDays(monday, c.jour - 1);
+      if (blockedReason(date, rs) || !slotOn(c, date, cl.annee_scolaire)) return;
+      out.push({ c: c, i: i, date: date, debut: c.debut, duree: +c.duree || 0 });
+    });
+    return out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.debut < b.debut ? -1 : a.debut > b.debut ? 1 : a.i - b.i; });
+  }
+  /* la séance rattachée à un créneau daté (séances créées depuis un créneau, ou anciennes séances du même jour) */
+  function seanceFor(cl, sl, byDate) {
+    var ss = (byDate ? (byDate[sl.date] || []) : DB.list('fs_seances').filter(function (s) { return s.class_id === cl.id && s.date_prevue === sl.date; })).filter(function (s) { return s.statut !== 'annulee'; });
+    if (!ss.length) return null;
+    var exact = ss.filter(function (s) { var k = s.data && s.data.creneau; return k && k.debut === sl.debut && (k.groupe || '') === (sl.c.groupe || '') && (k.matiere || 'maths') === (sl.c.matiere || 'maths'); });
+    if (exact.length) return exact[0];
+    var legacy = ss.filter(function (s) { return !(s.data && s.data.creneau); });
+    if (!legacy.length) return null;
+    var first = weekSlots(cl, weekStart(sl.date)).filter(function (x) { return x.date === sl.date; })[0];
+    return first && first.i === sl.i ? legacy[0] : null;
+  }
+  function seancesByDate(cl) {
+    var m = {}; DB.list('fs_seances').forEach(function (s) { if (s.class_id === cl.id && s.date_prevue) (m[s.date_prevue] = m[s.date_prevue] || []).push(s); });
+    return m;
+  }
+  /* séquences d’une classe qui ont une période prévue : [{ q, a, b }] */
+  function planned(cl) {
+    return Cls.sequences(cl.id).filter(function (q) { var p = q.data && q.data.plan; return p && /^\d{4}-\d{2}-\d{2}$/.test(p.a || '') && /^\d{4}-\d{2}-\d{2}$/.test(p.b || ''); }).map(function (q) { return { q: q, a: q.data.plan.a, b: q.data.plan.b }; });
+  }
+
   /* ── progression automatique ── */
   var STATUTS = [
     { v: 0, nom: 'Non commencé', court: '○', c: 'var(--s0)' },
@@ -1026,7 +1111,7 @@ var Plan = (function () {
     return { total: tot, vus: vus, maitrises: maitr, planifies: plan, minutes: min };
   }
 
-  return { altConfig: altConfig, setAltConfig: setAltConfig, weekType: weekType, semainePause: semainePause, slotOn: slotOn, slotsFor: slotsFor, heuresHebdo: heuresHebdo, slotsOnDate: slotsOnDate, libSemaine: libSemaine, PRESETS: PRESETS, bornes: bornes, ranges: ranges, blockedReason: blockedReason, nextSlots: nextSlots, heuresDispo: heuresDispo, semainesTravaillees: semainesTravaillees, STATUTS: STATUTS, compute: compute, get: get, planifie: planifie, chapStats: chapStats, seanceDate: seanceDate };
+  return { periods: periods, weekSlots: weekSlots, seanceFor: seanceFor, seancesByDate: seancesByDate, planned: planned, vacShort: vacShort, altConfig: altConfig, setAltConfig: setAltConfig, weekType: weekType, semainePause: semainePause, slotOn: slotOn, slotsFor: slotsFor, heuresHebdo: heuresHebdo, slotsOnDate: slotsOnDate, libSemaine: libSemaine, PRESETS: PRESETS, bornes: bornes, ranges: ranges, blockedReason: blockedReason, nextSlots: nextSlots, heuresDispo: heuresDispo, semainesTravaillees: semainesTravaillees, STATUTS: STATUTS, compute: compute, get: get, planifie: planifie, chapStats: chapStats, seanceDate: seanceDate };
 })();
 
 /* ── 50-ui.js ── */
@@ -1453,12 +1538,19 @@ function slotSeanceInit(c) {
   if (m === 'consolidation' || m === 'soutien' || m === 'aide_devoirs') o.type = 'ap';
   return o;
 }
+/* crée la séance d’un créneau daté : date, durée, matière et créneau sont repris du planning */
+function seanceFromSlot(cl, sl, extra) {
+  var c = sl.c, init = Object.assign({ date_prevue: sl.date }, slotSeanceInit(c), extra || {});
+  var s = createSeance(cl, init);
+  s.data.creneau = { debut: c.debut, duree: +c.duree || 0, matiere: matId(c), groupe: c.groupe || null, salle: c.salle || null };
+  DB.save('fs_seances', s); return s;
+}
 function lbl(list, v) { var r = list.filter(function (x) { return x[0] === v; })[0]; return r ? r[1] : v; }
 function defaultNiv(type) { return { cours: 'decouverte', activite: 'decouverte', exercices: 'entrainement', automatismes: 'entrainement', evaluation: 'evaluation', revision: 'maitrise', ap: 'entrainement' }[type] || 'entrainement'; }
 
 function emptySeanceData(cl) {
   var s = DB.settings();
-  return { objectif: '', items: [], chapitres: [], manuel: { chap: null, notions: [], exos: [] }, competences: [], comp_caps: [], comp_manual: false, prerequis: '', ancrage: (cl && cl.metier) || '',
+  return { objectif: '', items: [], chapitres: [], manuel: { chap: null, notions: [], exos: [] }, creneau: null, competences: [], comp_caps: [], comp_manual: false, prerequis: '', ancrage: (cl && cl.metier) || '',
     materiel: (s.materiel_defaut || ['casio']).slice(), materiel_libre: '', phases: [],
     groupes: [{ nom: 'Groupe 1', contenu: '' }, { nom: 'Groupe 2', contenu: '' }],
     diff: { upe2a: '', difficulte: '', rapides: '', amenagements: '' }, trace: '',
@@ -1466,7 +1558,7 @@ function emptySeanceData(cl) {
     bilan: { realise: '', notes: '', a_reprendre: '' }, pronote: { contenu: '', travail: '', temps: '', perso: '' }, notes: '' };
 }
 function emptySequenceData(cl) {
-  return { items: [], chapitres: [], competences: [], comp_caps: [], comp_manual: false, probleme: '', ancrage: (cl && cl.metier) || '', prerequis: '',
+  return { items: [], chapitres: [], plan: null, competences: [], comp_caps: [], comp_manual: false, probleme: '', ancrage: (cl && cl.metier) || '', prerequis: '',
     evaluations: [], diff: { upe2a: '', difficulte: '', rapides: '' }, bilan: '', notes: '' };
 }
 /* complète un enregistrement chargé avec les valeurs par défaut (anciennes données, import) */
@@ -1810,7 +1902,7 @@ function nextDateFor(cl, sequenceId) {
 
 /* ═══ Coque ═══ */
 var Shell = (function () {
-  var NAV = [['#/', 'Accueil', '🏠', 'Accueil'], ['#/classes', 'Classes', '👥', 'Classes'], ['#/planning', 'Planning', '🗓️', 'Planning'], ['#/progression', 'Progression', '📈', 'Suivi'], ['#/biblio', 'Bibliothèque', '📚', 'Biblio'], ['#/referentiel', 'Programmes', '📘', 'BO'], ['#/reglages', 'Réglages', '⚙️', 'Réglages']];
+  var NAV = [['#/', 'Accueil', '🏠', 'Accueil'], ['#/classes', 'Classes', '👥', 'Classes'], ['#/annee', 'Mon année', '📆', 'Année'], ['#/planning', 'Emploi du temps', '🕒', 'Horaires'], ['#/progression', 'Progression', '📈', 'Suivi'], ['#/biblio', 'Bibliothèque', '📚', 'Biblio'], ['#/referentiel', 'Programmes', '📘', 'BO'], ['#/reglages', 'Réglages', '⚙️', 'Réglages']];
   var el = {}, syncBtn;
 
   function build() {
@@ -1927,7 +2019,7 @@ Views.dashboard = function () {
       var end = hhmmAdd(x.c.debut, x.c.duree);
       tb.appendChild(h('div', { class: 'row-s' }, h('span', { class: 'tt-hr' }, x.c.debut + '–' + end), Cls.chip(x.cl), matId(x.c) !== 'maths' ? h('em', { class: 'tag' }, matShort(x.c)) : null, x.c.groupe ? h('em', { class: 'tag' }, x.c.groupe) : null, x.c.salle ? h('span', { class: 'muted small' }, x.c.salle) : null,
         ex.length ? ex.map(function (s) { return h('a', { class: 'row-t', href: '#/seance/' + s.id }, s.titre || '(sans titre)'); }) : h('span', { class: 'muted small grow' }, 'Pas de séance prévue'),
-        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = createSeance(x.cl, Object.assign({ date_prevue: t }, slotSeanceInit(x.c))); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
+        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = seanceFromSlot(x.cl, { c: x.c, date: t, debut: x.c.debut }); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
     });
     root.appendChild(tb);
   }
@@ -2210,7 +2302,10 @@ Views.sequence = function (id) {
       txt += ' · du ' + fmtDM(dates[0]) + ' au ' + fmtDM(dates[dates.length - 1]) + ' : ' + fmtDuree(hd.minutes) + ' de créneaux disponibles';
       if (hd.minutes && tot > hd.minutes) txt += ' ⚠ plus que le temps disponible';
     }
+    var pl = q.data.plan;
+    if (pl && pl.a && pl.b) txt = 'Période prévue : du ' + fmtDM(pl.a) + ' au ' + fmtDM(pl.b) + ' (' + fmtDuree(Plan.heuresDispo(cl, pl.a, pl.b).minutes) + ' de cours) · ' + txt;
     totalsEl.textContent = txt; seancesBox.appendChild(totalsEl);
+    if (pl && pl.a) seancesBox.appendChild(h('p', { class: 'small' }, h('a', { href: '#/annee/' + cl.id }, '📆 Voir cette période dans « Mon année »')));
     if (dates.length && (q.date_debut !== dates[0] || q.date_fin !== dates[dates.length - 1])) { q.date_debut = dates[0]; q.date_fin = dates[dates.length - 1]; save(); }
   }
   drawSeances();
@@ -2317,7 +2412,7 @@ Views.seance = function (id) {
   function dupBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); var n = duplicateSeance(s); UI.toast('Séance dupliquée.'); location.hash = '#/seance/' + n.id; } }, '⧉ Dupliquer'); }
   head = pageHead(s.titre || 'Nouvelle séance', cl.nom + ' · ' + lbl(K.TYPES, s.type) + (seq ? ' · ' + seq.titre : ''),
     Exp.buttons('seance', s, flush).concat([tplBtn()]).concat(Man.enabled() ? [manBtn()] : []).concat([pronoteBtn()]).concat(APP.manuels ? [] : [persoBtn()]).concat([dupBtn()]),
-    seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
+    (Annee.from && Annee.from.sid === s.id) ? ['#/annee', 'Mon emploi du temps (semaine du ' + fmtDM(Annee.from.week) + ')'] : seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
   root.appendChild(head);
 
   function refreshHead() { var t = $('h1', head); t.textContent = s.titre || 'Nouvelle séance'; }
@@ -2522,6 +2617,23 @@ var Wizard = {
       DB.save('fs_seances', s);
       location.hash = '#/seance/' + s.id;
     } }] });
+  },
+  /* « Mon année » : un toucher sur un créneau crée la séance (date, durée, matière du créneau) et ouvre directement son éditeur */
+  fromSlot: function (sl, seqId) {
+    var cl = sl.cl, seq = seqId ? DB.byId('fs_sequences', seqId) : null, init = slotSeanceInit(sl.c);
+    init.type = init.type || 'cours'; init.sequence_id = seq ? seq.id : null; init.date_prevue = sl.date; init.duree_min = Math.min(sl.duree || 55, 240); init.titre = '';
+    var s = seanceFromSlot(cl, sl, init);
+    if (seq) {
+      var done = {}; Cls.seances(cl.id).filter(function (x) { return x.statut === 'faite'; }).forEach(function (x) { (x.data.items || []).forEach(function (it) { done[it.ref] = true; }); });
+      var its = (seq.data.items || []).filter(function (it) { return !done[it.ref]; });
+      s.data.items = its.map(function (it) { var c = clone(it); c.niv = defaultNiv(s.type); return c; });
+      s.data.chapitres = []; its.forEach(function (it) { if (it.chap && s.data.chapitres.indexOf(it.chap) < 0) s.data.chapitres.push(it.chap); });
+      s.data.competences = seq.data.competences.slice(); s.data.comp_caps = (seq.data.comp_caps || []).slice(); s.data.comp_manual = seq.data.comp_manual; if (seq.data.ancrage) s.data.ancrage = seq.data.ancrage;
+    }
+    var first = (s.data.items || []).filter(function (x) { return x.chap; })[0], l = first && Ref.lookup(first.chap);
+    s.titre = seq ? (seq.titre || 'Séquence') + ' — ' + lbl(K.TYPES, s.type).toLowerCase() : (l ? l.txt + ' — ' + lbl(K.TYPES, s.type).toLowerCase() : lbl(K.TYPES, s.type));
+    s.data.phases = defaultPhases(s.type, s.duree_min);
+    DB.save('fs_seances', s); return s;
   }
 };
 
@@ -3922,7 +4034,15 @@ var Guide = (function () {
     if (prim && prim.t.indexOf('suivante') < 0 && s.statut !== 'annulee' && s.statut !== 'reportee') more.push(A('▶ Séance suivante', '', function () { goSuivante(s, cl); }));
     more.push(A(seq ? '← La séquence' : '← La classe', '', seq ? '#/sequence/' + seq.id : '#/classe/' + cl.id));
     more.push(A('📈 Progression', '', '#/progression/' + cl.id));
-    more.push(A('🗓️ Planning', '', '#/planning'));
+    more.push(A('📆 Mon année', '', '#/annee/' + cl.id));
+    if (Annee.from && Annee.from.sid === s.id) {   /* ouverte depuis « Mon année » : on y revient pour choisir le cours suivant */
+      var wk = Annee.from.week, back = A('✓ Valider et revenir à mon emploi du temps', 'Semaine du ' + fmtDM(wk) + ' : vous choisissez ensuite un autre cours.', function () {
+        if (s.statut === 'a_faire' && s.titre) { setStatut(s, 'prete'); UI.toast('Séance validée (prête).'); }
+        Store.set('annee_week', wk); Annee.from = null; location.hash = '#/annee';
+      }, true);
+      if (prim) { prim.primary = false; more.unshift(prim); }
+      return box(intro, steps, [back].concat(more));
+    }
     return box(intro, steps, [prim].concat(more));
   }
 
@@ -3941,7 +4061,7 @@ var Guide = (function () {
     else { intro = 'Toutes les séances sont faites. 🎉'; prim = A('📈 Voir la progression de la classe', '', '#/progression/' + cl.id, true); }
     var more = [];
     if (ss.length) more.push(A('＋ Ajouter une séance', '', ajout));
-    more.push(A('← La classe', '', '#/classe/' + cl.id)); more.push(A('🗓️ Planning', '', '#/planning'));
+    more.push(A('← La classe', '', '#/classe/' + cl.id)); more.push(A('📆 Mon année', '', '#/annee/' + cl.id));
     return box(intro, steps, [prim].concat(more));
   }
 
@@ -3957,7 +4077,7 @@ var Guide = (function () {
     else if (!ss.length) { intro = 'Étape 3 — ajoutez des séances dans la séquence.'; prim = A('③ Ouvrir la séquence « ' + (seqs[0].titre || 'sans titre') + ' »', '', '#/sequence/' + seqs[0].id, true); }
     else if (next) { intro = 'Prochaine séance à préparer ou à faire :'; prim = A('▶ Ouvrir « ' + (next.titre || 'sans titre') + ' »', '', '#/seance/' + next.id, true); }
     else { intro = 'Toutes les séances prévues sont faites. 🎉'; prim = A('＋ Créer la séance suivante', '', function () { Wizard.seance({ classId: c.id }); }, true); }
-    var more = [A('📈 Progression', '', '#/progression/' + c.id), A('📚 Historique', '', '#/historique/' + c.id), A('🗓️ Planning', '', '#/planning')];
+    var more = [A('📆 Mon année', 'Prévoir les semaines', '#/annee/' + c.id), A('📈 Progression', '', '#/progression/' + c.id), A('📚 Historique', '', '#/historique/' + c.id), A('🕒 Emploi du temps', '', '#/planning')];
     if (seqs.length) more.unshift(A('＋ Séquence', '', nvSeq));
     return box(intro, steps, [prim].concat(more));
   }
@@ -3971,8 +4091,8 @@ var Guide = (function () {
     var prim, intro;
     if (retard) { intro = 'Une séance prévue dans le passé n’est pas marquée comme faite.'; prim = A('⏰ Régulariser « ' + (retard.titre || 'séance') + ' »', 'La marquer comme faite met la progression à jour.', '#/seance/' + retard.id, true); }
     else if (prep) { intro = 'Prochaine séance à préparer :'; prim = A('✏️ Préparer « ' + (prep.titre || 'sans titre') + ' »', '', '#/seance/' + prep.id, true); }
-    else { intro = 'Rien en attente. Préparez la suite :'; prim = A('＋ Créer une nouvelle séance', 'En 3 questions : classe, séquence, type.', function () { Wizard.seance({}); }, true); }
-    var more = [A('📥 Modèle d’1 h', 'Séance prête à l’emploi', function () { Tpl.open({ mode: 'create' }); }), A('🗓️ Planning', '', '#/planning'), A('📈 Progression', '', '#/progression'), A('⚙️ Réglages', 'Version, apparence, sauvegarde', '#/reglages')];
+    else { intro = 'Rien en attente. Préparez la suite :'; prim = A('📆 Préparer dans « Mon année »', 'Touchez une semaine, puis l’heure du cours.', '#/annee', true); }
+    var more = [A('＋ Séance libre', 'En 3 questions : classe, séquence, type.', function () { Wizard.seance({}); }), A('📥 Modèle d’1 h', 'Séance prête à l’emploi', function () { Tpl.open({ mode: 'create' }); }), A('🕒 Emploi du temps', '', '#/planning'), A('📈 Progression', '', '#/progression'), A('⚙️ Réglages', 'Version, apparence, sauvegarde', '#/reglages')];
     if (Upd.siblingOk()) more.push(A(APP.manuels ? '📋 Version programme officiel ↗' : '📘 Ma séance (mes manuels) ↗', 'S’ouvre dans un nouvel onglet', function () { window.open(APP.frere.url, '_blank', 'noopener'); }));
     return box(intro, null, [prim].concat(more));
   }
@@ -3983,11 +4103,12 @@ var Guide = (function () {
     try {
       switch (r.name) {
         case '': return dashboard();
-        case 'classes': return Cls.actives().length ? simple('Ouvrez une classe pour y préparer des séquences et des séances.', A('🗓️ Définir mes créneaux dans le planning', 'Pour que les dates des séances se calculent seules.', '#/planning', true), [A('📈 Progression', '', '#/progression'), A('🏠 Accueil', '', '#/')]) : null;
+        case 'classes': return Cls.actives().length ? simple('Ouvrez une classe pour y préparer des séquences et des séances.', A('🕒 Définir mes créneaux dans l’emploi du temps', 'Pour que les dates des séances se calculent seules.', '#/planning', true), [A('📈 Progression', '', '#/progression'), A('🏠 Accueil', '', '#/')]) : null;
         case 'classe': return classe(r.arg);
         case 'sequence': return sequence(r.arg);
         case 'seance': return seance(r.arg);
-        case 'planning': return simple('Le planning se remplit en glissant sur la grille. Étape suivante : préparer les séances.', A('＋ Créer une séance', '', function () { Wizard.seance({}); }, true), [A('👥 Mes classes', '', '#/classes'), A('📈 Progression', '', '#/progression'), A('🏠 Accueil', '', '#/')]);
+        case 'annee': return simple('Touchez une semaine, puis l’heure du cours : la séance est créée à la bonne date.', A('📈 Voir la progression', 'Ce que vous avez déjà vu avec chaque classe.', '#/progression', true), [A('🕒 Emploi du temps', 'Modifier mes créneaux', '#/planning'), A('👥 Mes classes', '', '#/classes'), A('🏠 Accueil', '', '#/')]);
+        case 'planning': return simple('L’emploi du temps se remplit en glissant sur la grille. Étape suivante : préparer les séances semaine par semaine.', A('📆 Ouvrir « Mon année »', 'Une pastille par semaine, entre les vacances.', '#/annee', true), [A('＋ Séance libre', '', function () { Wizard.seance({}); }), A('👥 Mes classes', '', '#/classes'), A('📈 Progression', '', '#/progression'), A('🏠 Accueil', '', '#/')]);
         case 'progression': return simple('La progression se remplit quand vous cochez des objectifs dans les séances.', A('＋ Créer une séance', 'Choisissez la classe puis le chapitre.', function () { Wizard.seance({}); }, true), [A('📚 Historique', '', '#/historique'), A('🏠 Accueil', '', '#/')]);
         case 'historique': return simple('Exportez l’historique avec les boutons en haut ou en bas de page, ou poursuivez le travail.', A('🏠 Retour à l’accueil', '', '#/', true), [A('👥 Mes classes', '', '#/classes'), A('📈 Progression', '', '#/progression')]);
         case 'biblio': return simple('Vos ressources se rattachent aux séances et aux séquences.', A('🏠 Retour à l’accueil', '', '#/', true), [A('👥 Mes classes', '', '#/classes')]);
@@ -4202,6 +4323,251 @@ var Man = (function () {
   return { enabled: enabled, get: get, has: has, chapter: chapter, describe: describe, lines: lines, html: html, specs: specs, section: section, sync: sync, pg: pg, nums: nums, pdfAt: pdfAt, appAt: appAt, chapPdf: chapPdf, exoTxt: exoTxt, notionTxt: notionTxt };
 })();
 
+/* ── 72-views-annee.js ── */
+/* ═══ FICHES · « Mon année » : l’année par périodes (entre vacances), une pastille par semaine.
+   On touche une semaine : l’emploi du temps de cette semaine s’affiche. On touche un cours : l’éditeur de séance s’ouvre,
+   à la bonne date et avec la durée du créneau. Une fois la séance validée, on revient ici pour choisir le cours suivant.
+   En glissant sur plusieurs semaines (ou via « Prévoir une séquence »), on prévoit la durée d’une séquence. ═══ */
+'use strict';
+var Annee = { from: null, H: 36 };   /* from : { sid, week } tant qu’on édite une séance ouverte depuis « Mon année » */
+
+Views.annee = function (arg) {
+  var classes = Cls.actives().filter(function (c) { return c.annee_scolaire === anneeScolaire(); });
+  if (!classes.length) classes = Cls.actives();
+  var root = h('div', { class: 'page an' });
+  if (!classes.length) {
+    root.appendChild(pageHead('Mon année', 'Toutes les semaines de l’année, par période'));
+    root.appendChild(h('div', { class: 'card hero' }, h('h2', null, 'Commencez par créer une classe'), h('p', { class: 'muted' }, 'Ensuite, indiquez vos créneaux dans l’emploi du temps : ils apparaîtront ici, semaine par semaine.'), h('a', { class: 'btn primary', href: '#/classes' }, '👥 Mes classes')));
+    return root;
+  }
+  var saved = arg || Store.get('annee_class');
+  var st = { cid: classes.some(function (c) { return c.id === saved; }) ? saved : '', week: null, pick: null, focusSeq: null };   /* cid vide = toutes les classes */
+  var head = h('div'), body = h('div');
+  var drag = null, suppress = false;
+
+  function visible() { return st.cid ? classes.filter(function (c) { return c.id === st.cid; }) : classes; }
+  function weeksOf(per) { var o = []; per.forEach(function (p) { p.weeks.forEach(function (w) { o.push(w); }); }); return o; }
+  function monthDay(iso) { var d = parseISO(iso); return d.getDate() + '/' + (d.getMonth() + 1); }
+  function seqColor(q) { var n = Cls.sequences(q.class_id).map(function (x) { return x.id; }).indexOf(q.id); return K.PALETTE[(Math.max(n, 0) + 3) % K.PALETTE.length]; }
+  /* périodes : celles de la classe choisie, sinon celles de la première classe (même calendrier pour toute l’année) */
+  function periods() { return Plan.periods(visible()[0]); }
+  function chooseWeek(ws) {
+    var s = Store.get('annee_week'); if (s && ws.indexOf(s) >= 0) return s;
+    var cur = weekStart(today()); if (ws.indexOf(cur) >= 0) return cur;
+    return ws.filter(function (w) { return w >= cur; })[0] || ws[0] || cur;
+  }
+  /* créneaux de la semaine pour les classes affichées */
+  function slotsOf(w) {
+    var o = []; visible().forEach(function (c) { Plan.weekSlots(c, w).forEach(function (s) { s.cl = c; o.push(s); }); });
+    return o.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.debut < b.debut ? -1 : a.debut > b.debut ? 1 : 0; });
+  }
+  function ctxFor() {
+    var by = {}, plan = [], alt = false;
+    visible().forEach(function (c) { by[c.id] = Plan.seancesByDate(c); Plan.planned(c).forEach(function (p) { plan.push(p); }); if (Plan.altConfig(c.annee_scolaire)) alt = true; });
+    plan.sort(function (x, y) { return x.a < y.a ? -1 : x.a > y.a ? 1 : 0; });
+    return { by: by, plan: plan, alt: alt };
+  }
+  function seanceOf(sl, ctx) { return Plan.seanceFor(sl.cl, sl, ctx.by[sl.cl.id]); }
+  function planAt(date, ctx, cid) { return ctx.plan.filter(function (p) { return date >= p.a && date <= p.b && (!cid || p.q.class_id === cid); })[0]; }
+
+  /* ── séquence prévue sur plusieurs semaines ── */
+  function createSeq(c, a, b) {
+    var lo = a < b ? a : b, hi = a < b ? b : a;
+    var q = createSequence(c, { titre: 'Nouvelle séquence', data: { plan: { a: lo, b: addDays(hi, 4) } } });
+    st.focusSeq = q.id; st.week = lo; st.pick = null; Store.set('annee_week', lo); draw();
+    UI.toast('Séquence prévue sur ' + plural(weeksOf(periods()).filter(function (w) { return w >= lo && w <= hi; }).length, 'semaine') + ' : donnez-lui un nom.');
+  }
+  function makeSeq(a, b) {
+    st.pick = null;
+    if (st.cid) { createSeq(Cls.get(st.cid), a, b); return; }
+    if (classes.length === 1) { createSeq(classes[0], a, b); return; }
+    var sel = UI.select(classes.map(function (c) { return [c.id, c.nom]; }), Store.get('last_class') || classes[0].id, function () { /* lu à la validation */ });
+    UI.modal({ title: 'Pour quelle classe ?', body: h('div', { class: 'form' }, h('p', { class: 'muted' }, 'Séquence du ' + fmtDM(a < b ? a : b) + ' au ' + fmtDM(addDays(a < b ? b : a, 4)) + '.'), UI.field('Classe', sel)),
+      actions: [{ label: 'Annuler', kind: 'ghost', onClick: function () { draw(); } }, { label: 'Créer la séquence', kind: 'primary', onClick: function () { createSeq(Cls.get(sel.value), a, b); } }] });
+  }
+  function unplan(q) {
+    var vide = !((q.data.items || []).length) && !Cls.seancesDe(q.id).length && !DB.list('fs_attachments').some(function (a) { return a.parent_id === q.id; });
+    if (vide) DB.remove('fs_sequences', q.id); else { q.data.plan = null; DB.save('fs_sequences', q); }
+    UI.toast(vide ? 'Séquence retirée.' : 'Retirée du calendrier (la séquence existe toujours dans la classe).'); draw();
+  }
+
+  /* ── glisser sur plusieurs semaines (souris, stylet) ── */
+  function paintDrag() {
+    var lo = drag && (drag.a < drag.b ? drag.a : drag.b), hi = drag && (drag.a < drag.b ? drag.b : drag.a);
+    $$('.an-w', body).forEach(function (el) { var w = el.getAttribute('data-w'); el.classList.toggle('drag', !!drag && lo !== hi && w >= lo && w <= hi); });
+  }
+  function stopDrag() { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onCancel); }
+  function onMove(e) {
+    if (!drag) return;
+    var el = document.elementFromPoint(e.clientX, e.clientY), wb = el && el.closest ? el.closest('.an-w') : null;
+    if (wb) { var w = wb.getAttribute('data-w'); if (w !== drag.b) { drag.b = w; if (w !== drag.a) drag.moved = true; paintDrag(); } }
+  }
+  function onUp() { stopDrag(); var d = drag; drag = null; if (!d) return; if (d.moved && d.a !== d.b) { suppress = true; setTimeout(function () { suppress = false; }, 0); makeSeq(d.a, d.b); } else paintDrag(); }
+  function onCancel() { stopDrag(); drag = null; paintDrag(); }
+
+  /* ── une pastille = une semaine ── */
+  function weekBtn(w, ctx) {
+    var slots = slotsOf(w), done = slots.filter(function (s) { return seanceOf(s, ctx); }).length;
+    var on = w === st.week, now = w === weekStart(today());
+    var band = ctx.plan.filter(function (p) { return w >= p.a && w <= weekStart(p.b); })[0];
+    var type = ctx.alt ? Plan.weekType(w, visible()[0].annee_scolaire) : null;
+    var state = !slots.length ? '—' : done === slots.length ? '✓' : done + '/' + slots.length;
+    var c0 = st.cid ? visible()[0] : null, col = c0 ? c0.couleur : null;
+    var b = h('button', { class: 'an-w' + (on ? ' on' : '') + (now ? ' now' : '') + (slots.length && done === slots.length ? ' full' : '') + (!slots.length ? ' empty' : '') + (st.pick && st.pick.a === w ? ' picka' : ''), type: 'button', 'data-w': w, 'aria-pressed': on ? 'true' : 'false',
+      'aria-label': 'Semaine du ' + fmtDM(w) + (type ? ', semaine ' + type : '') + (now ? ', semaine en cours' : '') + ', ' + (slots.length ? done + ' séance' + (done > 1 ? 's' : '') + ' préparée' + (done > 1 ? 's' : '') + ' sur ' + slots.length : 'pas de cours'),
+      style: on ? { background: col || 'var(--primary)', borderColor: col || 'var(--primary)', color: col ? textOn(col) : 'var(--on-primary)' } : null },
+      h('span', { class: 'an-s' }, type ? 'S' + type : ' '), h('span', { class: 'an-d' }, monthDay(w)), h('span', { class: 'an-n' }, state),
+      band ? h('i', { class: 'an-bar', style: { background: seqColor(band.q) }, 'aria-hidden': 'true' }) : null);
+    b.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'touch' || e.button !== 0) return;
+      drag = { a: w, b: w, moved: false };
+      window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onCancel);
+    });
+    b.addEventListener('click', function () {
+      if (suppress) return;
+      if (st.pick) { makeSeq(st.pick.a, w); return; }
+      st.week = w; Store.set('annee_week', w); draw();
+      if (window.innerWidth < 900) { var sd = $('.an-side', body); if (sd) { try { sd.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (er) { sd.scrollIntoView(); } } }
+    });
+    return b;
+  }
+
+  function bandLine(p, ctx, ws) {
+    var q = p.q, c = Cls.get(q.class_id), n = ws.filter(function (w) { return w >= p.a && w <= weekStart(p.b); }).length, mins = Plan.heuresDispo(c, p.a, p.b).minutes, nbS = Cls.seancesDe(q.id).filter(function (s) { return s.statut !== 'annulee'; }).length;
+    var name = h('input', { class: 'inp an-name', type: 'text', maxlength: 120, value: q.titre || '', placeholder: 'Nom de la séquence', 'aria-label': 'Nom de la séquence', onchange: function (e) { q.titre = e.target.value.trim(); DB.save('fs_sequences', q); } });
+    if (st.focusSeq === q.id) { st.focusSeq = null; setTimeout(function () { try { name.focus(); name.select(); } catch (e) { /* ignoré */ } }, 60); }
+    return h('div', { class: 'an-band' }, h('i', { class: 'an-sw', style: { background: seqColor(q) }, 'aria-hidden': 'true' }), st.cid ? null : Cls.chip(c), name,
+      h('span', { class: 'muted small an-info' }, plural(n, 'semaine') + ' · prévu : ', h('strong', null, mins ? fmtDuree(mins) : '—'), nbS ? ' · ' + plural(nbS, 'séance') : ''),
+      h('span', { class: 'grow' }), h('a', { class: 'btn small', href: '#/sequence/' + q.id }, 'Ouvrir'),
+      h('button', { class: 'btn ghost small', type: 'button', title: 'Retirer cette séquence du calendrier', onclick: function () { unplan(q); } }, 'Retirer'));
+  }
+  function periodBox(per, ctx, ws) {
+    var box = h('section', { class: 'card an-per' }, h('div', { class: 'an-ph' }, h('h2', null, per.title), h('span', { class: 'muted small' }, 'du ' + fmtDM(per.debut) + ' au ' + fmtDM(per.fin) + ' · ' + plural(per.weeks.length, 'semaine'))));
+    var grid = h('div', { class: 'an-weeks', role: 'group', 'aria-label': per.title }); per.weeks.forEach(function (w) { grid.appendChild(weekBtn(w, ctx)); });
+    box.appendChild(grid);
+    ctx.plan.forEach(function (p) {
+      var inP = per.weeks.filter(function (w) { return w >= p.a && w <= weekStart(p.b); }); if (!inP.length) return;
+      var started = ws.filter(function (w) { return w >= p.a && w <= weekStart(p.b); })[0];
+      if (started === inP[0]) box.appendChild(bandLine(p, ctx, ws));
+      else box.appendChild(h('div', { class: 'an-band cont muted small' }, h('i', { class: 'an-sw', style: { background: seqColor(p.q) }, 'aria-hidden': 'true' }), 'Suite de « ' + (p.q.titre || 'séquence') + ' »'));
+    });
+    return box;
+  }
+
+  /* ── l’emploi du temps de la semaine choisie ── */
+  function lanes(items) {
+    items.sort(function (x, y) { return x.a - y.a || y.b - x.b; });
+    var cluster = [], end = -1;
+    function flush() { var n = cluster.reduce(function (m, x) { return Math.max(m, x.lane + 1); }, 1); cluster.forEach(function (x) { x.n = n; }); cluster = []; }
+    items.forEach(function (it) {
+      if (it.a >= end && cluster.length) { flush(); end = -1; }
+      var used = {}; cluster.forEach(function (x) { if (x.b > it.a) used[x.lane] = true; });
+      var l = 0; while (used[l]) l++; it.lane = l; cluster.push(it); end = Math.max(end, it.b);
+    });
+    if (cluster.length) flush();
+  }
+  function openSlot(sl, ctx) {
+    var s = seanceOf(sl, ctx);
+    Store.set('annee_week', st.week); Store.set('last_class', sl.cl.id);
+    if (!s) { var band = planAt(sl.date, ctx, sl.cl.id); s = Wizard.fromSlot(sl, band ? band.q.id : null); }
+    Annee.from = { sid: s.id, week: st.week };
+    location.hash = '#/seance/' + s.id;
+  }
+  function weekGrid(w, slots, ctx) {
+    var items = slots.map(function (x) { return { x: x, a: toMin(x.debut), b: toMin(x.debut) + x.duree }; });
+    var days = [1, 2, 3, 4, 5]; if (slots.some(function (x) { return x.c.jour === 6; })) days.push(6);
+    var deb = 8 * 60, fin = 18 * 60; items.forEach(function (it) { deb = Math.min(deb, Math.floor(it.a / 60) * 60); fin = Math.max(fin, Math.ceil(it.b / 60) * 60); });
+    deb = Math.max(0, deb); fin = Math.min(24 * 60, fin);
+    var H = Annee.H, total = (fin - deb) / 30 * H, rs0 = visible()[0], rs = Plan.ranges(rs0.id, rs0.annee_scolaire);
+    var wrap = h('div', { class: 'tt-scroll' }), g = h('div', { class: 'tt an-tt' }); g.style.setProperty('--n', String(days.length));
+    g.appendChild(h('div', { class: 'tt-corner' }));
+    days.forEach(function (j) { var d = addDays(w, j - 1), why = Plan.blockedReason(d, rs); g.appendChild(h('div', { class: 'tt-dh', title: why ? why.label : null }, TT_JOURS[j] + ' ' + parseISO(d).getDate(), why ? h('small', { class: 'an-off' }, why.label) : null)); });
+    var tc = h('div', { class: 'tt-times', style: { height: total + 'px' } });
+    for (var m = deb; m < fin; m += 60) tc.appendChild(h('span', { style: { top: (m - deb) / 30 * H + 'px' } }, fromMin(m)));
+    g.appendChild(tc);
+    days.forEach(function (j) {
+      var d = addDays(w, j - 1), off = !!Plan.blockedReason(d, rs);
+      var col = h('div', { class: 'tt-col an-col' + (off ? ' off' : ''), style: { height: total + 'px' }, role: 'group', 'aria-label': TT_JOURS[j] });
+      var its = items.filter(function (it) { return it.x.c.jour === j; }); lanes(its);
+      its.forEach(function (it) { col.appendChild(slotBlock(it, deb, ctx)); });
+      g.appendChild(col);
+    });
+    wrap.appendChild(g); return wrap;
+  }
+  function slotBlock(it, deb, ctx) {
+    var x = it.x, c = x.c, cl = x.cl, s = seanceOf(x, ctx), H = Annee.H, mat = matId(c) !== 'maths';
+    var meta = [matShort(c), c.groupe, c.salle].filter(Boolean).join(' · ');
+    var titre = s ? (s.titre || '(sans titre)') + (s.statut === 'faite' ? ' ✓' : s.statut === 'prete' ? ' · prête' : '') : '＋ Préparer';
+    var el = h('div', { class: 'tt-b an-tb' + (s ? ' has' : '') + (c.groupe ? ' grp' : ''), tabindex: 0, role: 'button',
+      'aria-label': cl.nom + ', ' + matLabel(c) + ', ' + TT_JOURS[c.jour] + ' ' + c.debut + ' à ' + fromMin(it.b) + (s ? ', ' + (s.titre || 'séance sans titre') : ', séance à préparer'),
+      style: Object.assign({ top: (it.a - deb) / 30 * H + 'px', height: Math.max(H * 0.9, (it.b - it.a) / 30 * H) - 2 + 'px', left: (it.lane / it.n * 100) + '%', width: (100 / it.n) + '%', borderColor: cl.couleur }, s ? { background: cl.couleur, color: textOn(cl.couleur) } : { color: 'var(--text)' }) },
+      h('b', { style: s ? null : { color: cl.couleur } }, cl.nom), h('span', { class: 'tt-t' }, c.debut + '–' + fromMin(it.b)), mat || c.groupe || c.salle ? h('span', { class: 'tt-m' }, meta) : null,
+      h('span', { class: 'an-bt' }, titre));
+    el.addEventListener('click', function () { openSlot(x, ctx); });
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSlot(x, ctx); } });
+    return el;
+  }
+  function sidePanel(ws, ctx) {
+    var w = st.week, side = h('section', { class: 'an-side', 'aria-label': 'Emploi du temps de la semaine' });
+    var i = ws.indexOf(w), prev = ws[i - 1], next = ws[i + 1], slots = slotsOf(w);
+    var type = ctx.alt ? Plan.weekType(w, visible()[0].annee_scolaire) : null, done = slots.filter(function (s) { return seanceOf(s, ctx); }).length;
+    function go(x) { return function () { st.week = x; Store.set('annee_week', x); draw(); }; }
+    side.appendChild(h('div', { class: 'an-sh' },
+      h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Semaine précédente', disabled: prev ? null : 'disabled', onclick: prev ? go(prev) : null }, '‹'),
+      h('div', { class: 'an-st' }, h('h2', null, 'Semaine du ' + fmtDM(w) + (type ? ' · S' + type : '')), h('div', { class: 'muted small' }, (w === weekStart(today()) ? 'En cours · ' : '') + (slots.length ? plural(done, 'séance préparée') + ' sur ' + slots.length : 'pas de cours'))),
+      h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Semaine suivante', disabled: next ? null : 'disabled', onclick: next ? go(next) : null }, '›')));
+    var inBand = ctx.plan.filter(function (p) { return w >= p.a && w <= weekStart(p.b); });
+    if (inBand.length) side.appendChild(h('div', { class: 'an-inband' }, inBand.map(function (p) { return h('a', { class: 'an-tag', href: '#/sequence/' + p.q.id, style: { borderColor: seqColor(p.q) } }, '📚 ' + (p.q.titre || 'Séquence')); })));
+    if (!visible().some(function (c) { return (c.creneaux || []).length; })) {
+      side.appendChild(h('p', { class: 'warnt' }, 'Aucun créneau n’est encore saisi.'));
+      side.appendChild(h('a', { class: 'btn primary', href: '#/planning' }, '🕒 Remplir l’emploi du temps'));
+      return side;
+    }
+    if (!slots.length) side.appendChild(h('p', { class: 'muted' }, 'Aucun cours cette semaine' + (type ? ' (semaine ' + type + ')' : '') + '.'));
+    else {
+      side.appendChild(h('p', { class: 'small muted an-leg' }, 'Touchez un cours pour ouvrir son éditeur. ', h('span', { class: 'an-lg has' }, 'plein'), ' = préparé · ', h('span', { class: 'an-lg' }, 'pointillé'), ' = à préparer'));
+      side.appendChild(weekGrid(w, slots, ctx));
+    }
+    var matched = {}; slots.forEach(function (sl) { var s = seanceOf(sl, ctx); if (s) matched[s.id] = true; });
+    var autres = DB.list('fs_seances').filter(function (s) { var c = Cls.get(s.class_id); return c && visible().indexOf(c) >= 0 && s.statut !== 'annulee' && s.date_prevue && s.date_prevue >= w && s.date_prevue <= addDays(w, 6) && !matched[s.id]; }).sort(Cls.cmpSeance);
+    if (autres.length) {
+      side.appendChild(h('h3', { class: 'man-h' }, 'Autres séances de la semaine'));
+      autres.forEach(function (s) { side.appendChild(h('a', { class: 'an-other', href: '#/seance/' + s.id, onclick: function () { Store.set('annee_week', w); Annee.from = { sid: s.id, week: w }; } }, h('span', { class: 'muted small' }, fmtDL(s.date_prevue) + ' · ' + Cls.get(s.class_id).nom), ' ', s.titre || '(sans titre)')); });
+    }
+    side.appendChild(h('div', { class: 'an-tools' },
+      h('button', { class: 'btn', type: 'button', onclick: function () { st.pick = { a: w }; draw(); } }, '📚 Prévoir une séquence à partir d’ici'),
+      h('button', { class: 'btn ghost small', type: 'button', onclick: function () { Wizard.seance({ classId: st.cid || undefined }); } }, '＋ Séance hors créneau')));
+    return side;
+  }
+
+  function draw() {
+    Store.set('annee_class', st.cid || '');
+    var per = periods(), ws = weeksOf(per); if (!st.week || ws.indexOf(st.week) < 0) st.week = chooseWeek(ws);
+    var ctx = ctxFor();
+    clear(head); clear(body);
+    head.appendChild(h('div', { class: 'chips an-cls', role: 'group', 'aria-label': 'Classe' }, [{ id: '', nom: 'Toutes', couleur: null }].concat(classes).map(function (k) {
+      var on = k.id === st.cid;
+      return h('button', { class: 'chip an-cl' + (on ? ' on' : ''), type: 'button', 'aria-pressed': on ? 'true' : 'false', style: k.couleur ? (on ? { background: k.couleur, borderColor: k.couleur, color: textOn(k.couleur) } : { borderColor: k.couleur }) : null, onclick: function () { st.cid = k.id; st.pick = null; st.week = null; draw(); } }, k.nom);
+    })));
+    if (st.pick) head.appendChild(h('div', { class: 'an-pick', role: 'status' }, h('strong', null, 'Séquence : '), 'touchez la dernière semaine (début : semaine du ' + fmtDM(st.pick.a) + '). ', h('button', { class: 'btn small', type: 'button', onclick: function () { st.pick = null; draw(); } }, 'Annuler')));
+    else head.appendChild(h('p', { class: 'an-how' }, h('b', null, '1.'), ' Touchez une semaine. ', h('b', null, '2.'), ' Touchez le cours à préparer. ', h('span', { class: 'muted' }, 'Pour une séquence : glissez sur plusieurs semaines.')));
+    var wrap = h('div', { class: 'an-wrap' }), left = h('div', { class: 'an-left' });
+    if (!ws.length) left.appendChild(h('p', { class: 'muted' }, 'Aucune semaine à afficher.'));
+    per.forEach(function (p, i) {
+      left.appendChild(periodBox(p, ctx, ws));
+      if (i < per.length - 1) left.appendChild(h('div', { class: 'an-vac' }, '— Vacances ' + (p.to ? '(' + p.to + ')' : '') + ' —'));
+    });
+    if (!Plan.ranges(visible()[0].id, visible()[0].annee_scolaire).some(function (r) { return r.type === 'vacances'; })) left.appendChild(h('p', { class: 'muted small' }, 'Aucune vacance n’est enregistrée : les semaines sont regroupées par 8. Ajoutez le calendrier scolaire dans la fiche d’une classe pour les regrouper entre les vacances.'));
+    wrap.appendChild(left); wrap.appendChild(sidePanel(ws, ctx));
+    body.appendChild(wrap);
+  }
+
+  root.appendChild(pageHead('Mon année', 'Toutes les semaines, par période entre les vacances', [h('a', { class: 'btn small', href: '#/planning' }, '🕒 Modifier mes créneaux')]));
+  root.appendChild(head); root.appendChild(body);
+  draw();
+  return root;
+};
+
 /* ── 80-update.js ── */
 /* ═══ FICHES · version affichée, bandeau « nouvelle version », mise à jour forcée ═══ */
 'use strict';
@@ -4345,6 +4711,7 @@ var Main = (function () {
       case 'classe': return Views.classe(r.arg);
       case 'sequence': return Views.sequence(r.arg);
       case 'seance': return Views.seance(r.arg);
+      case 'annee': return Views.annee(r.arg);
       case 'planning': return Views.planning();
       case 'historique': return Views.historique(r.arg);
       case 'progression': return Views.progression(r.arg);

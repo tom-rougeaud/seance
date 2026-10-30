@@ -35,7 +35,7 @@ Views.seance = function (id) {
   function dupBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); var n = duplicateSeance(s); UI.toast('Séance dupliquée.'); location.hash = '#/seance/' + n.id; } }, '⧉ Dupliquer'); }
   head = pageHead(s.titre || 'Nouvelle séance', cl.nom + ' · ' + lbl(K.TYPES, s.type) + (seq ? ' · ' + seq.titre : ''),
     Exp.buttons('seance', s, flush).concat([tplBtn()]).concat(Man.enabled() ? [manBtn()] : []).concat([pronoteBtn()]).concat(APP.manuels ? [] : [persoBtn()]).concat([dupBtn()]),
-    seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
+    (Annee.from && Annee.from.sid === s.id) ? ['#/annee', 'Mon emploi du temps (semaine du ' + fmtDM(Annee.from.week) + ')'] : seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
   root.appendChild(head);
 
   function refreshHead() { var t = $('h1', head); t.textContent = s.titre || 'Nouvelle séance'; }
@@ -240,5 +240,22 @@ var Wizard = {
       DB.save('fs_seances', s);
       location.hash = '#/seance/' + s.id;
     } }] });
+  },
+  /* « Mon année » : un toucher sur un créneau crée la séance (date, durée, matière du créneau) et ouvre directement son éditeur */
+  fromSlot: function (sl, seqId) {
+    var cl = sl.cl, seq = seqId ? DB.byId('fs_sequences', seqId) : null, init = slotSeanceInit(sl.c);
+    init.type = init.type || 'cours'; init.sequence_id = seq ? seq.id : null; init.date_prevue = sl.date; init.duree_min = Math.min(sl.duree || 55, 240); init.titre = '';
+    var s = seanceFromSlot(cl, sl, init);
+    if (seq) {
+      var done = {}; Cls.seances(cl.id).filter(function (x) { return x.statut === 'faite'; }).forEach(function (x) { (x.data.items || []).forEach(function (it) { done[it.ref] = true; }); });
+      var its = (seq.data.items || []).filter(function (it) { return !done[it.ref]; });
+      s.data.items = its.map(function (it) { var c = clone(it); c.niv = defaultNiv(s.type); return c; });
+      s.data.chapitres = []; its.forEach(function (it) { if (it.chap && s.data.chapitres.indexOf(it.chap) < 0) s.data.chapitres.push(it.chap); });
+      s.data.competences = seq.data.competences.slice(); s.data.comp_caps = (seq.data.comp_caps || []).slice(); s.data.comp_manual = seq.data.comp_manual; if (seq.data.ancrage) s.data.ancrage = seq.data.ancrage;
+    }
+    var first = (s.data.items || []).filter(function (x) { return x.chap; })[0], l = first && Ref.lookup(first.chap);
+    s.titre = seq ? (seq.titre || 'Séquence') + ' — ' + lbl(K.TYPES, s.type).toLowerCase() : (l ? l.txt + ' — ' + lbl(K.TYPES, s.type).toLowerCase() : lbl(K.TYPES, s.type));
+    s.data.phases = defaultPhases(s.type, s.duree_min);
+    DB.save('fs_seances', s); return s;
   }
 };

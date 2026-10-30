@@ -68,7 +68,15 @@ var Guide = (function () {
     if (prim && prim.t.indexOf('suivante') < 0 && s.statut !== 'annulee' && s.statut !== 'reportee') more.push(A('▶ Séance suivante', '', function () { goSuivante(s, cl); }));
     more.push(A(seq ? '← La séquence' : '← La classe', '', seq ? '#/sequence/' + seq.id : '#/classe/' + cl.id));
     more.push(A('📈 Progression', '', '#/progression/' + cl.id));
-    more.push(A('🗓️ Planning', '', '#/planning'));
+    more.push(A('📆 Mon année', '', '#/annee/' + cl.id));
+    if (Annee.from && Annee.from.sid === s.id) {   /* ouverte depuis « Mon année » : on y revient pour choisir le cours suivant */
+      var wk = Annee.from.week, back = A('✓ Valider et revenir à mon emploi du temps', 'Semaine du ' + fmtDM(wk) + ' : vous choisissez ensuite un autre cours.', function () {
+        if (s.statut === 'a_faire' && s.titre) { setStatut(s, 'prete'); UI.toast('Séance validée (prête).'); }
+        Store.set('annee_week', wk); Annee.from = null; location.hash = '#/annee';
+      }, true);
+      if (prim) { prim.primary = false; more.unshift(prim); }
+      return box(intro, steps, [back].concat(more));
+    }
     return box(intro, steps, [prim].concat(more));
   }
 
@@ -87,7 +95,7 @@ var Guide = (function () {
     else { intro = 'Toutes les séances sont faites. 🎉'; prim = A('📈 Voir la progression de la classe', '', '#/progression/' + cl.id, true); }
     var more = [];
     if (ss.length) more.push(A('＋ Ajouter une séance', '', ajout));
-    more.push(A('← La classe', '', '#/classe/' + cl.id)); more.push(A('🗓️ Planning', '', '#/planning'));
+    more.push(A('← La classe', '', '#/classe/' + cl.id)); more.push(A('📆 Mon année', '', '#/annee/' + cl.id));
     return box(intro, steps, [prim].concat(more));
   }
 
@@ -103,7 +111,7 @@ var Guide = (function () {
     else if (!ss.length) { intro = 'Étape 3 — ajoutez des séances dans la séquence.'; prim = A('③ Ouvrir la séquence « ' + (seqs[0].titre || 'sans titre') + ' »', '', '#/sequence/' + seqs[0].id, true); }
     else if (next) { intro = 'Prochaine séance à préparer ou à faire :'; prim = A('▶ Ouvrir « ' + (next.titre || 'sans titre') + ' »', '', '#/seance/' + next.id, true); }
     else { intro = 'Toutes les séances prévues sont faites. 🎉'; prim = A('＋ Créer la séance suivante', '', function () { Wizard.seance({ classId: c.id }); }, true); }
-    var more = [A('📈 Progression', '', '#/progression/' + c.id), A('📚 Historique', '', '#/historique/' + c.id), A('🗓️ Planning', '', '#/planning')];
+    var more = [A('📆 Mon année', 'Prévoir les semaines', '#/annee/' + c.id), A('📈 Progression', '', '#/progression/' + c.id), A('📚 Historique', '', '#/historique/' + c.id), A('🕒 Emploi du temps', '', '#/planning')];
     if (seqs.length) more.unshift(A('＋ Séquence', '', nvSeq));
     return box(intro, steps, [prim].concat(more));
   }
@@ -117,8 +125,8 @@ var Guide = (function () {
     var prim, intro;
     if (retard) { intro = 'Une séance prévue dans le passé n’est pas marquée comme faite.'; prim = A('⏰ Régulariser « ' + (retard.titre || 'séance') + ' »', 'La marquer comme faite met la progression à jour.', '#/seance/' + retard.id, true); }
     else if (prep) { intro = 'Prochaine séance à préparer :'; prim = A('✏️ Préparer « ' + (prep.titre || 'sans titre') + ' »', '', '#/seance/' + prep.id, true); }
-    else { intro = 'Rien en attente. Préparez la suite :'; prim = A('＋ Créer une nouvelle séance', 'En 3 questions : classe, séquence, type.', function () { Wizard.seance({}); }, true); }
-    var more = [A('📥 Modèle d’1 h', 'Séance prête à l’emploi', function () { Tpl.open({ mode: 'create' }); }), A('🗓️ Planning', '', '#/planning'), A('📈 Progression', '', '#/progression'), A('⚙️ Réglages', 'Version, apparence, sauvegarde', '#/reglages')];
+    else { intro = 'Rien en attente. Préparez la suite :'; prim = A('📆 Préparer dans « Mon année »', 'Touchez une semaine, puis l’heure du cours.', '#/annee', true); }
+    var more = [A('＋ Séance libre', 'En 3 questions : classe, séquence, type.', function () { Wizard.seance({}); }), A('📥 Modèle d’1 h', 'Séance prête à l’emploi', function () { Tpl.open({ mode: 'create' }); }), A('🕒 Emploi du temps', '', '#/planning'), A('📈 Progression', '', '#/progression'), A('⚙️ Réglages', 'Version, apparence, sauvegarde', '#/reglages')];
     if (Upd.siblingOk()) more.push(A(APP.manuels ? '📋 Version programme officiel ↗' : '📘 Ma séance (mes manuels) ↗', 'S’ouvre dans un nouvel onglet', function () { window.open(APP.frere.url, '_blank', 'noopener'); }));
     return box(intro, null, [prim].concat(more));
   }
@@ -129,11 +137,12 @@ var Guide = (function () {
     try {
       switch (r.name) {
         case '': return dashboard();
-        case 'classes': return Cls.actives().length ? simple('Ouvrez une classe pour y préparer des séquences et des séances.', A('🗓️ Définir mes créneaux dans le planning', 'Pour que les dates des séances se calculent seules.', '#/planning', true), [A('📈 Progression', '', '#/progression'), A('🏠 Accueil', '', '#/')]) : null;
+        case 'classes': return Cls.actives().length ? simple('Ouvrez une classe pour y préparer des séquences et des séances.', A('🕒 Définir mes créneaux dans l’emploi du temps', 'Pour que les dates des séances se calculent seules.', '#/planning', true), [A('📈 Progression', '', '#/progression'), A('🏠 Accueil', '', '#/')]) : null;
         case 'classe': return classe(r.arg);
         case 'sequence': return sequence(r.arg);
         case 'seance': return seance(r.arg);
-        case 'planning': return simple('Le planning se remplit en glissant sur la grille. Étape suivante : préparer les séances.', A('＋ Créer une séance', '', function () { Wizard.seance({}); }, true), [A('👥 Mes classes', '', '#/classes'), A('📈 Progression', '', '#/progression'), A('🏠 Accueil', '', '#/')]);
+        case 'annee': return simple('Touchez une semaine, puis l’heure du cours : la séance est créée à la bonne date.', A('📈 Voir la progression', 'Ce que vous avez déjà vu avec chaque classe.', '#/progression', true), [A('🕒 Emploi du temps', 'Modifier mes créneaux', '#/planning'), A('👥 Mes classes', '', '#/classes'), A('🏠 Accueil', '', '#/')]);
+        case 'planning': return simple('L’emploi du temps se remplit en glissant sur la grille. Étape suivante : préparer les séances semaine par semaine.', A('📆 Ouvrir « Mon année »', 'Une pastille par semaine, entre les vacances.', '#/annee', true), [A('＋ Séance libre', '', function () { Wizard.seance({}); }), A('👥 Mes classes', '', '#/classes'), A('📈 Progression', '', '#/progression'), A('🏠 Accueil', '', '#/')]);
         case 'progression': return simple('La progression se remplit quand vous cochez des objectifs dans les séances.', A('＋ Créer une séance', 'Choisissez la classe puis le chapitre.', function () { Wizard.seance({}); }, true), [A('📚 Historique', '', '#/historique'), A('🏠 Accueil', '', '#/')]);
         case 'historique': return simple('Exportez l’historique avec les boutons en haut ou en bas de page, ou poursuivez le travail.', A('🏠 Retour à l’accueil', '', '#/', true), [A('👥 Mes classes', '', '#/classes'), A('📈 Progression', '', '#/progression')]);
         case 'biblio': return simple('Vos ressources se rattachent aux séances et aux séquences.', A('🏠 Retour à l’accueil', '', '#/', true), [A('👥 Mes classes', '', '#/classes')]);

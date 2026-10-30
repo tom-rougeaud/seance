@@ -77,7 +77,10 @@ Views.sequence = function (id) {
       txt += ' · du ' + fmtDM(dates[0]) + ' au ' + fmtDM(dates[dates.length - 1]) + ' : ' + fmtDuree(hd.minutes) + ' de créneaux disponibles';
       if (hd.minutes && tot > hd.minutes) txt += ' ⚠ plus que le temps disponible';
     }
+    var pl = q.data.plan;
+    if (pl && pl.a && pl.b) txt = 'Période prévue : du ' + fmtDM(pl.a) + ' au ' + fmtDM(pl.b) + ' (' + fmtDuree(Plan.heuresDispo(cl, pl.a, pl.b).minutes) + ' de cours) · ' + txt;
     totalsEl.textContent = txt; seancesBox.appendChild(totalsEl);
+    if (pl && pl.a) seancesBox.appendChild(h('p', { class: 'small' }, h('a', { href: '#/annee/' + cl.id }, '📆 Voir cette période dans « Mon année »')));
     if (dates.length && (q.date_debut !== dates[0] || q.date_fin !== dates[dates.length - 1])) { q.date_debut = dates[0]; q.date_fin = dates[dates.length - 1]; save(); }
   }
   drawSeances();

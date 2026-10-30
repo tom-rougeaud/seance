@@ -2,6 +2,7 @@
 'use strict';
 var K = {
   TYPES: [['cours', 'Cours'], ['activite', 'Activité / TP'], ['exercices', 'Exercices'], ['automatismes', 'Automatismes'], ['evaluation', 'Évaluation'], ['revision', 'Révision'], ['ap', 'AP / remédiation'], ['projet', 'Projet'], ['dm', 'DM'], ['autre', 'Autre']],
+  MATIERES: [['maths', 'Maths', 'Maths'], ['co_inter', 'Co-intervention', 'Co-inter'], ['consolidation', 'Consolidation', 'Consol.'], ['soutien', 'Soutien au parcours', 'Soutien'], ['techno', 'Techno', 'Techno'], ['sciences', 'Sciences', 'Sciences'], ['aide_devoirs', 'Aide aux devoirs', 'Aide dev.'], ['rcd', 'RCD', 'RCD']],
   MODALITES: [['classe', 'Classe entière'], ['demi_groupe', 'Demi-groupe'], ['demi_groupes_paralleles', 'Deux demi-groupes en parallèle'], ['co_intervention', 'Co-intervention'], ['salle_info', 'Salle informatique'], ['autre', 'Autre']],
   STATUTS_SEANCE: [['a_faire', 'À faire'], ['prete', 'Prête'], ['faite', 'Faite'], ['reportee', 'Reportée'], ['annulee', 'Annulée']],
   STATUTS_SEQ: [['brouillon', 'Brouillon'], ['prete', 'Prête'], ['en_cours', 'En cours'], ['faite', 'Faite']],
@@ -18,6 +19,17 @@ var K = {
     ['arrondi', 'Arrondie', 'Nunito,system-ui,sans-serif'], ['lisible', 'Très lisible', '"Atkinson Hyperlegible",Verdana,sans-serif'], ['manuscrit', 'Manuscrite', '"Patrick Hand","Segoe Print",cursive']],
   TAILLES: [['1', 'Normal'], ['1.12', 'Grand'], ['1.25', 'Très grand']]
 };
+/* matière d’un créneau du planning (absente = maths) */
+function matId(c) { var m = c && c.matiere; return K.MATIERES.some(function (x) { return x[0] === m; }) ? m : 'maths'; }
+function matLabel(c) { var id = matId(c); return K.MATIERES.filter(function (x) { return x[0] === id; })[0][1]; }
+function matShort(c) { var id = matId(c); return K.MATIERES.filter(function (x) { return x[0] === id; })[0][2]; }
+/* propositions pour une séance créée depuis un créneau : type et modalité selon la matière */
+function slotSeanceInit(c) {
+  var m = matId(c), o = { duree_min: Math.min(+c.duree || 55, 240), modalite: c.groupe ? 'demi_groupe' : 'classe', groupe: c.groupe || null };
+  if (m === 'co_inter' && !c.groupe) o.modalite = 'co_intervention';
+  if (m === 'consolidation' || m === 'soutien' || m === 'aide_devoirs') o.type = 'ap';
+  return o;
+}
 function lbl(list, v) { var r = list.filter(function (x) { return x[0] === v; })[0]; return r ? r[1] : v; }
 function defaultNiv(type) { return { cours: 'decouverte', activite: 'decouverte', exercices: 'entrainement', automatismes: 'entrainement', evaluation: 'evaluation', revision: 'maitrise', ap: 'entrainement' }[type] || 'entrainement'; }
 

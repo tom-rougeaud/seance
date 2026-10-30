@@ -91,9 +91,9 @@ Views.planning = function () {
 
   function block(x, deb) {
     var cl = x.cl, c = x.c, top = (x.a - deb) / TT.SNAP * TT.H, hgt = Math.max(TT.H * 0.8, (x.b - x.a) / TT.SNAP * TT.H);
-    var el = h('div', { class: 'tt-b' + (c.groupe ? ' grp' : ''), tabindex: 0, role: 'button', 'aria-label': cl.nom + ', ' + TT_JOURS[c.jour] + ' ' + c.debut + ' à ' + fromMin(x.b),
+    var el = h('div', { class: 'tt-b' + (c.groupe ? ' grp' : ''), tabindex: 0, role: 'button', 'aria-label': cl.nom + ', ' + matLabel(c) + ', ' + TT_JOURS[c.jour] + ' ' + c.debut + ' à ' + fromMin(x.b),
       style: { top: top + 'px', height: hgt - 1 + 'px', left: (x.lane / x.n * 100) + '%', width: (100 / x.n) + '%', background: cl.couleur, color: textOn(cl.couleur) } },
-      h('b', null, cl.nom), h('span', { class: 'tt-t' }, c.debut + '–' + fromMin(x.b)), (c.groupe || c.salle || c.semaine) ? h('span', { class: 'tt-m' }, [c.groupe, c.salle, c.semaine ? 'S' + c.semaine : ''].filter(Boolean).join(' · ')) : null,
+      h('b', null, cl.nom), h('span', { class: 'tt-t' }, c.debut + '–' + fromMin(x.b)), h('span', { class: 'tt-m' }, [matShort(c), c.groupe, c.salle, c.semaine ? 'S' + c.semaine : ''].filter(Boolean).join(' · ')),
       h('i', { class: 'tt-rs', 'aria-hidden': 'true' }));
     el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); slotModal({ cl: cl, i: x.i }); } });
     var drag = null;
@@ -163,8 +163,8 @@ Views.planning = function () {
     var cls = classesOf();
     if (!cls.length) { UI.toast('Créez d’abord une classe pour l’année ' + st.annee + '.'); return; }
     var edit = o.cl && o.i !== undefined, cur = edit ? o.cl.creneaux[o.i] : null;
-    var d = edit ? { cl: o.cl, jour: cur.jour, debut: cur.debut, duree: +cur.duree, semaine: cur.semaine || 0, groupe: cur.groupe || '', salle: cur.salle || '' }
-      : { cl: Cls.get(Store.get('last_class')) && classesOf().indexOf(Cls.get(Store.get('last_class'))) >= 0 ? Cls.get(Store.get('last_class')) : cls[0], jour: o.jour || 1, debut: o.debut || '08:00', duree: o.duree || 60, semaine: st.tab === 2 ? 2 : 1, groupe: '', salle: '' };
+    var d = edit ? { cl: o.cl, jour: cur.jour, debut: cur.debut, duree: +cur.duree, semaine: cur.semaine || 0, groupe: cur.groupe || '', salle: cur.salle || '', matiere: matId(cur) }
+      : { cl: Cls.get(Store.get('last_class')) && classesOf().indexOf(Cls.get(Store.get('last_class'))) >= 0 ? Cls.get(Store.get('last_class')) : cls[0], jour: o.jour || 1, debut: o.debut || '08:00', duree: o.duree || 60, semaine: st.tab === 2 ? 2 : 1, groupe: '', salle: '', matiere: matId({ matiere: Store.get('last_mat') }) };
     var warn = h('p', { class: 'small warnt', role: 'status' }), fin = h('span', { class: 'muted small' });
     var clsSel = UI.select(cls.map(function (c) { return [c.id, c.nom]; }), d.cl.id, function (v) { d.cl = Cls.get(v); upd(); });
     var jourSel = UI.select([1, 2, 3, 4, 5, 6].map(function (j) { return [j, TT_JOURS[j]]; }), d.jour, function (v) { d.jour = +v; upd(); });
@@ -173,6 +173,7 @@ Views.planning = function () {
     var quick = h('div', { class: 'chips' }, [30, 55, 60, 110, 120].map(function (m) { return h('button', { class: 'chip', type: 'button', onclick: function () { d.duree = m; durInp.value = m; upd(); } }, fmtDuree(m)); }));
     var semSel = UI.select([[0, 'Les deux semaines'], [1, 'Semaine 1 uniquement'], [2, 'Semaine 2 uniquement']], d.semaine, function (v) { d.semaine = +v; upd(); });
     var grpSel = UI.select([['', 'Classe entière'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']], d.groupe, function (v) { d.groupe = v; upd(); });
+    var matSel = UI.select(K.MATIERES.map(function (m) { return [m[0], m[1]]; }), d.matiere, function (v) { d.matiere = v; upd(); });
     var salInp = h('input', { class: 'inp', type: 'text', maxlength: 30, value: d.salle, placeholder: 'Ex. B204 (facultatif)', oninput: function (e) { d.salle = e.target.value; } });
     function upd() {
       fin.textContent = 'Fin : ' + hhmmAdd(d.debut, d.duree) + ' (' + fmtDuree(d.duree) + ')';
@@ -193,17 +194,17 @@ Views.planning = function () {
     upd();
     var form = h('div', { class: 'form' }, UI.field('Classe', clsSel), h('div', { class: 'grid2' }, UI.field('Jour', jourSel), UI.field('Début', debInp)),
       UI.field('Durée (minutes)', h('div', null, durInp, ' ', fin), 'Glissez sur la grille pour des multiples de 30 min, ou saisissez ici une durée exacte.'), quick,
-      h('div', { class: 'grid2' }, UI.field('Semaine', semSel), UI.field('Groupe', grpSel)), UI.field('Salle', salInp), warn);
+      h('div', { class: 'grid2' }, UI.field('Semaine', semSel), UI.field('Groupe', grpSel)), UI.field('Matière', matSel, 'Maths, co-intervention, consolidation, soutien au parcours, techno, sciences, aide aux devoirs, RCD.'), UI.field('Salle', salInp), warn);
     var actions = [{ label: 'Annuler', kind: 'ghost' }];
     if (edit) actions.unshift({ label: 'Supprimer', kind: 'danger', onClick: function () { o.cl.creneaux.splice(o.i, 1); DB.save('fs_classes', o.cl); draw(); } });
     actions.push({ label: edit ? 'Enregistrer' : 'Ajouter', kind: 'primary', onClick: function () {
       if (!/^\d{2}:\d{2}$/.test(d.debut) || d.duree < 5) { UI.toast('Heure ou durée invalide.', 'err'); return false; }
-      var slot = { jour: d.jour, debut: d.debut, duree: d.duree }; if (d.semaine) slot.semaine = d.semaine; if (d.groupe) slot.groupe = d.groupe; if (d.salle.trim()) slot.salle = d.salle.trim().slice(0, 30);
+      var slot = { jour: d.jour, debut: d.debut, duree: d.duree }; if (d.semaine) slot.semaine = d.semaine; if (d.groupe) slot.groupe = d.groupe; if (d.matiere && d.matiere !== 'maths') slot.matiere = d.matiere; if (d.salle.trim()) slot.salle = d.salle.trim().slice(0, 30);
       if (edit) {
         if (d.cl.id === o.cl.id) { d.cl.creneaux[o.i] = slot; DB.save('fs_classes', d.cl); }
         else { o.cl.creneaux.splice(o.i, 1); DB.save('fs_classes', o.cl); d.cl.creneaux = (d.cl.creneaux || []).concat([slot]); DB.save('fs_classes', d.cl); }
       } else { d.cl.creneaux = (d.cl.creneaux || []).concat([slot]); DB.save('fs_classes', d.cl); Store.set('last_class', d.cl.id); }
-      Store.set('last_sem', String(d.semaine)); draw();
+      Store.set('last_sem', String(d.semaine)); Store.set('last_mat', d.matiere || 'maths'); draw();
     } });
     UI.modal({ title: edit ? 'Modifier le créneau' : 'Nouveau créneau', body: form, actions: actions });
   }
@@ -222,6 +223,13 @@ Views.planning = function () {
     });
     tb.appendChild(h('tr', { class: 'tot' }, h('td', null, 'Total enseigné'), h('td', null, fmtDuree(T.s1)), h('td', null, fmtDuree(T.s2))));
     tbl.appendChild(tb); box.appendChild(h('div', { class: 'tbl-wrap' }, tbl));
+    /* répartition par matière (affichée dès qu’un créneau n’est pas de maths) */
+    var par = {}; cls.forEach(function (cl) { var x = Plan.heuresHebdo(cl); Object.keys(x.par).forEach(function (m) { var q = par[m] || (par[m] = { s1: 0, s2: 0 }); q.s1 += x.par[m].s1; q.s2 += x.par[m].s2; }); });
+    if (Object.keys(par).some(function (m) { return m !== 'maths'; })) {
+      var t2 = h('table', { class: 'tbl tt-sum' }, h('thead', null, h('tr', null, h('th', null, 'Matière'), h('th', null, 'Semaine 1'), h('th', null, 'Semaine 2')))), b2 = h('tbody');
+      K.MATIERES.forEach(function (m) { var q = par[m[0]]; if (q) b2.appendChild(h('tr', null, h('td', null, m[1]), h('td', null, fmtDuree(q.s1)), h('td', null, fmtDuree(q.s2)))); });
+      t2.appendChild(b2); box.appendChild(h('h3', { class: 'man-h' }, 'Par matière')); box.appendChild(h('div', { class: 'tbl-wrap' }, t2));
+    }
     box.appendChild(h('p', { class: 'muted small' }, 'Les créneaux « les deux semaines » comptent dans chaque colonne. Les demi-groupes sont comptés à part pour chaque classe, et dans le total enseigné.'));
     return box;
   }

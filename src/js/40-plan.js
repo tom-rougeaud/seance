@@ -52,16 +52,22 @@ var Plan = (function () {
     var t = weekType(iso, annee);
     return t === null ? true : c.semaine === t;
   }
-  function slotsFor(cl, groupe) {
+  /* par défaut, seuls les créneaux de maths (et de co-intervention) servent à proposer des dates de séances ;
+     un créneau sans matière est un créneau de maths */
+  function mathsLike(c) { var m = c.matiere; return !m || m === 'maths' || m === 'co_inter' || !K.MATIERES.some(function (x) { return x[0] === m; }); }
+  function slotsFor(cl, groupe, matiere) {
     var cr = (cl.creneaux || []).filter(function (c) { return c.jour >= 1 && c.jour <= 6; });
+    if (matiere) cr = cr.filter(function (c) { return (c.matiere || 'maths') === matiere; });
+    else { var mm = cr.filter(mathsLike); if (mm.length) cr = mm; }
     if (groupe === undefined) { var plein = cr.filter(function (c) { return !c.groupe; }); return plein.length ? plein : cr; }
     return cr.filter(function (c) { return !c.groupe || c.groupe === groupe; });
   }
   /* minutes par semaine type : { s1, s2, g1, g2 (créneaux en demi-groupe) } */
   function heuresHebdo(cl) {
-    var o = { s1: 0, s2: 0, g1: 0, g2: 0, gs1: 0, gs2: 0 };
+    var o = { s1: 0, s2: 0, g1: 0, g2: 0, gs1: 0, gs2: 0, par: {} };
     (cl.creneaux || []).forEach(function (c) {
-      var m = +c.duree || 0, gr = !!c.groupe;
+      var m = +c.duree || 0, gr = !!c.groupe, mt = c.matiere || 'maths', pm = o.par[mt] || (o.par[mt] = { s1: 0, s2: 0 });
+      if (!c.semaine || c.semaine === 1) pm.s1 += m; if (!c.semaine || c.semaine === 2) pm.s2 += m;
       if (!c.semaine || c.semaine === 1) { if (gr) o.gs1 += m; else o.s1 += m; }
       if (!c.semaine || c.semaine === 2) { if (gr) o.gs2 += m; else o.s2 += m; }
     });
@@ -81,7 +87,7 @@ var Plan = (function () {
   /* prochains créneaux de cours : [{date, debut, duree}] */
   function nextSlots(cl, afterISO, n, opts) {
     opts = opts || {};
-    var cr = slotsFor(cl, opts.groupe);
+    var cr = slotsFor(cl, opts.groupe, opts.matiere);
     if (!cr.length) return [];
     var rs = ranges(cl.id, cl.annee_scolaire), out = [], d = afterISO, guard = 0;
     var lim = bornes(cl.annee_scolaire).fin;

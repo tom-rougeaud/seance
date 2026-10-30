@@ -353,7 +353,7 @@ null
 /* ── 00-util.js ── */
 /* ═══ FICHES · utilitaires ═══ */
 'use strict';
-var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202610300855","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
+var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202610300946","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
 
 /* ── stockage local sécurisé (try/catch + repli en mémoire) ── */
 var Mem = {};
@@ -899,16 +899,22 @@ var Plan = (function () {
     var t = weekType(iso, annee);
     return t === null ? true : c.semaine === t;
   }
-  function slotsFor(cl, groupe) {
+  /* par défaut, seuls les créneaux de maths (et de co-intervention) servent à proposer des dates de séances ;
+     un créneau sans matière est un créneau de maths */
+  function mathsLike(c) { var m = c.matiere; return !m || m === 'maths' || m === 'co_inter' || !K.MATIERES.some(function (x) { return x[0] === m; }); }
+  function slotsFor(cl, groupe, matiere) {
     var cr = (cl.creneaux || []).filter(function (c) { return c.jour >= 1 && c.jour <= 6; });
+    if (matiere) cr = cr.filter(function (c) { return (c.matiere || 'maths') === matiere; });
+    else { var mm = cr.filter(mathsLike); if (mm.length) cr = mm; }
     if (groupe === undefined) { var plein = cr.filter(function (c) { return !c.groupe; }); return plein.length ? plein : cr; }
     return cr.filter(function (c) { return !c.groupe || c.groupe === groupe; });
   }
   /* minutes par semaine type : { s1, s2, g1, g2 (créneaux en demi-groupe) } */
   function heuresHebdo(cl) {
-    var o = { s1: 0, s2: 0, g1: 0, g2: 0, gs1: 0, gs2: 0 };
+    var o = { s1: 0, s2: 0, g1: 0, g2: 0, gs1: 0, gs2: 0, par: {} };
     (cl.creneaux || []).forEach(function (c) {
-      var m = +c.duree || 0, gr = !!c.groupe;
+      var m = +c.duree || 0, gr = !!c.groupe, mt = c.matiere || 'maths', pm = o.par[mt] || (o.par[mt] = { s1: 0, s2: 0 });
+      if (!c.semaine || c.semaine === 1) pm.s1 += m; if (!c.semaine || c.semaine === 2) pm.s2 += m;
       if (!c.semaine || c.semaine === 1) { if (gr) o.gs1 += m; else o.s1 += m; }
       if (!c.semaine || c.semaine === 2) { if (gr) o.gs2 += m; else o.s2 += m; }
     });
@@ -928,7 +934,7 @@ var Plan = (function () {
   /* prochains créneaux de cours : [{date, debut, duree}] */
   function nextSlots(cl, afterISO, n, opts) {
     opts = opts || {};
-    var cr = slotsFor(cl, opts.groupe);
+    var cr = slotsFor(cl, opts.groupe, opts.matiere);
     if (!cr.length) return [];
     var rs = ranges(cl.id, cl.annee_scolaire), out = [], d = afterISO, guard = 0;
     var lim = bornes(cl.annee_scolaire).fin;
@@ -1419,6 +1425,7 @@ var Manuels = (function () {
 'use strict';
 var K = {
   TYPES: [['cours', 'Cours'], ['activite', 'Activité / TP'], ['exercices', 'Exercices'], ['automatismes', 'Automatismes'], ['evaluation', 'Évaluation'], ['revision', 'Révision'], ['ap', 'AP / remédiation'], ['projet', 'Projet'], ['dm', 'DM'], ['autre', 'Autre']],
+  MATIERES: [['maths', 'Maths', 'Maths'], ['co_inter', 'Co-intervention', 'Co-inter'], ['consolidation', 'Consolidation', 'Consol.'], ['soutien', 'Soutien au parcours', 'Soutien'], ['techno', 'Techno', 'Techno'], ['sciences', 'Sciences', 'Sciences'], ['aide_devoirs', 'Aide aux devoirs', 'Aide dev.'], ['rcd', 'RCD', 'RCD']],
   MODALITES: [['classe', 'Classe entière'], ['demi_groupe', 'Demi-groupe'], ['demi_groupes_paralleles', 'Deux demi-groupes en parallèle'], ['co_intervention', 'Co-intervention'], ['salle_info', 'Salle informatique'], ['autre', 'Autre']],
   STATUTS_SEANCE: [['a_faire', 'À faire'], ['prete', 'Prête'], ['faite', 'Faite'], ['reportee', 'Reportée'], ['annulee', 'Annulée']],
   STATUTS_SEQ: [['brouillon', 'Brouillon'], ['prete', 'Prête'], ['en_cours', 'En cours'], ['faite', 'Faite']],
@@ -1435,6 +1442,17 @@ var K = {
     ['arrondi', 'Arrondie', 'Nunito,system-ui,sans-serif'], ['lisible', 'Très lisible', '"Atkinson Hyperlegible",Verdana,sans-serif'], ['manuscrit', 'Manuscrite', '"Patrick Hand","Segoe Print",cursive']],
   TAILLES: [['1', 'Normal'], ['1.12', 'Grand'], ['1.25', 'Très grand']]
 };
+/* matière d’un créneau du planning (absente = maths) */
+function matId(c) { var m = c && c.matiere; return K.MATIERES.some(function (x) { return x[0] === m; }) ? m : 'maths'; }
+function matLabel(c) { var id = matId(c); return K.MATIERES.filter(function (x) { return x[0] === id; })[0][1]; }
+function matShort(c) { var id = matId(c); return K.MATIERES.filter(function (x) { return x[0] === id; })[0][2]; }
+/* propositions pour une séance créée depuis un créneau : type et modalité selon la matière */
+function slotSeanceInit(c) {
+  var m = matId(c), o = { duree_min: Math.min(+c.duree || 55, 240), modalite: c.groupe ? 'demi_groupe' : 'classe', groupe: c.groupe || null };
+  if (m === 'co_inter' && !c.groupe) o.modalite = 'co_intervention';
+  if (m === 'consolidation' || m === 'soutien' || m === 'aide_devoirs') o.type = 'ap';
+  return o;
+}
 function lbl(list, v) { var r = list.filter(function (x) { return x[0] === v; })[0]; return r ? r[1] : v; }
 function defaultNiv(type) { return { cours: 'decouverte', activite: 'decouverte', exercices: 'entrainement', automatismes: 'entrainement', evaluation: 'evaluation', revision: 'maitrise', ap: 'entrainement' }[type] || 'entrainement'; }
 
@@ -1907,9 +1925,9 @@ Views.dashboard = function () {
     tdSlots.forEach(function (x) {
       var ex = DB.list('fs_seances').filter(function (s) { return s.class_id === x.cl.id && s.date_prevue === t && s.statut !== 'annulee'; });
       var end = hhmmAdd(x.c.debut, x.c.duree);
-      tb.appendChild(h('div', { class: 'row-s' }, h('span', { class: 'tt-hr' }, x.c.debut + '–' + end), Cls.chip(x.cl), x.c.groupe ? h('em', { class: 'tag' }, x.c.groupe) : null, x.c.salle ? h('span', { class: 'muted small' }, x.c.salle) : null,
+      tb.appendChild(h('div', { class: 'row-s' }, h('span', { class: 'tt-hr' }, x.c.debut + '–' + end), Cls.chip(x.cl), matId(x.c) !== 'maths' ? h('em', { class: 'tag' }, matShort(x.c)) : null, x.c.groupe ? h('em', { class: 'tag' }, x.c.groupe) : null, x.c.salle ? h('span', { class: 'muted small' }, x.c.salle) : null,
         ex.length ? ex.map(function (s) { return h('a', { class: 'row-t', href: '#/seance/' + s.id }, s.titre || '(sans titre)'); }) : h('span', { class: 'muted small grow' }, 'Pas de séance prévue'),
-        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = createSeance(x.cl, { date_prevue: t, duree_min: Math.min(x.c.duree, 240), modalite: x.c.groupe ? 'demi_groupe' : 'classe', groupe: x.c.groupe || null }); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
+        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = createSeance(x.cl, Object.assign({ date_prevue: t }, slotSeanceInit(x.c))); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
     });
     root.appendChild(tb);
   }
@@ -2001,6 +2019,7 @@ function classModal(cl) {
         h('input', { class: 'inp sm num', type: 'number', min: 15, max: 480, step: 5, value: c.duree, onchange: function (e) { c.duree = +e.target.value || 55; drawSum(); } }), h('span', { class: 'muted small' }, 'min'),
         UI.select([[0, 'Toutes les semaines'], [1, 'Semaine 1'], [2, 'Semaine 2']], c.semaine || 0, function (v) { if (+v) c.semaine = +v; else delete c.semaine; drawSum(); }, 'sm'),
         UI.select([['', 'Classe entière'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']], c.groupe || '', function (v) { if (v) c.groupe = v; else delete c.groupe; drawSum(); }, 'sm'),
+        UI.select(K.MATIERES.map(function (m) { return [m[0], m[1]]; }), matId(c), function (v) { if (v === 'maths') delete c.matiere; else c.matiere = v; }, 'sm'),
         h('button', { class: 'icon-btn sm', type: 'button', onclick: function () { d.creneaux.splice(i, 1); drawCren(); } }, '✕')));
     });
     cren.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { d.creneaux.push({ jour: 1, debut: '08:00', duree: 110, semaine: 1 }); drawCren(); } }, '＋ Ajouter un créneau hebdomadaire'));
@@ -2093,7 +2112,7 @@ function calendarCard(c) {
   if (Plan.PRESETS[c.annee_scolaire] && !DB.list('fs_calendrier').some(function (r) { return r.annee_scolaire === c.annee_scolaire && !r.class_id; })) {
     btns.appendChild(h('button', { class: 'btn small', type: 'button', onclick: function () { importPreset(c.annee_scolaire); draw(); UI.toast('Calendrier zone A importé : vérifiez-le avec celui de votre établissement.'); } }, '📅 Importer le calendrier zone A ' + c.annee_scolaire));
   }
-  var cr = (c.creneaux || []).length ? 'Créneaux : ' + c.creneaux.map(function (x) { return jourNom(x.jour) + ' ' + x.debut + ' (' + fmtDuree(x.duree) + ')' + (x.semaine ? ' S' + x.semaine : '') + (x.groupe ? ' ' + x.groupe : ''); }).join(' · ') + ' — ' + hrsLabel(Plan.heuresHebdo(c)) : 'Aucun créneau hebdomadaire : ajoutez-en dans « Modifier » pour obtenir des dates suggérées.';
+  var cr = (c.creneaux || []).length ? 'Créneaux : ' + c.creneaux.map(function (x) { return jourNom(x.jour) + ' ' + x.debut + ' (' + fmtDuree(x.duree) + ')' + (x.semaine ? ' S' + x.semaine : '') + (x.groupe ? ' ' + x.groupe : '') + (matId(x) !== 'maths' ? ' · ' + matLabel(x) : ''); }).join(' · ') + ' — ' + hrsLabel(Plan.heuresHebdo(c)) : 'Aucun créneau hebdomadaire : ajoutez-en dans « Modifier » pour obtenir des dates suggérées.';
   box.appendChild(info); box.appendChild(h('p', { class: 'small' }, cr)); box.appendChild(list); box.appendChild(btns);
   return box;
 }
@@ -3055,7 +3074,7 @@ var Exp = (function () {
   var CLEAN = {
     fs_classes: function (r) {
       if (!isStr(r.nom, 80) || !r.nom.trim() || ENUM.niveau.indexOf(r.niveau_id) < 0 || ENUM.grp.indexOf(r.groupement === undefined ? null : r.groupement) < 0 || !/^\d{4}-\d{4}$/.test(r.annee_scolaire || '')) return null;
-      var cr = Array.isArray(r.creneaux) ? r.creneaux.filter(function (c) { return c && isInt(c.jour, 1, 6) && /^\d{2}:\d{2}$/.test(c.debut || '') && isInt(+c.duree, 5, 480); }).map(function (c) { var o = { jour: c.jour, debut: c.debut, duree: +c.duree }; if (c.semaine === 1 || c.semaine === 2) o.semaine = c.semaine; if (c.groupe === 'G1' || c.groupe === 'G2') o.groupe = c.groupe; if (typeof c.salle === 'string' && c.salle.trim()) o.salle = c.salle.trim().slice(0, 30); return o; }) : [];
+      var cr = Array.isArray(r.creneaux) ? r.creneaux.filter(function (c) { return c && isInt(c.jour, 1, 6) && /^\d{2}:\d{2}$/.test(c.debut || '') && isInt(+c.duree, 5, 480); }).map(function (c) { var o = { jour: c.jour, debut: c.debut, duree: +c.duree }; if (c.semaine === 1 || c.semaine === 2) o.semaine = c.semaine; if (c.groupe === 'G1' || c.groupe === 'G2') o.groupe = c.groupe; if (K.MATIERES.some(function (m) { return m[0] === c.matiere && m[0] !== 'maths'; })) o.matiere = c.matiere; if (typeof c.salle === 'string' && c.salle.trim()) o.salle = c.salle.trim().slice(0, 30); return o; }) : [];
       return { id: r.id, nom: r.nom.trim(), niveau_id: r.niveau_id, groupement: r.groupement || null, avec_pc: r.avec_pc !== false, poursuite: !!r.poursuite, metier: str(r.metier, 200), annee_scolaire: r.annee_scolaire, couleur: /^#[0-9a-f]{6}$/i.test(r.couleur || '') ? r.couleur : K.PALETTE[0], creneaux: cr, notes: str(r.notes), archive: !!r.archive, ordre: isInt(r.ordre, 0, 9999) ? r.ordre : 0 };
     },
     fs_sequences: function (r, ctx) {
@@ -3241,9 +3260,9 @@ Views.planning = function () {
 
   function block(x, deb) {
     var cl = x.cl, c = x.c, top = (x.a - deb) / TT.SNAP * TT.H, hgt = Math.max(TT.H * 0.8, (x.b - x.a) / TT.SNAP * TT.H);
-    var el = h('div', { class: 'tt-b' + (c.groupe ? ' grp' : ''), tabindex: 0, role: 'button', 'aria-label': cl.nom + ', ' + TT_JOURS[c.jour] + ' ' + c.debut + ' à ' + fromMin(x.b),
+    var el = h('div', { class: 'tt-b' + (c.groupe ? ' grp' : ''), tabindex: 0, role: 'button', 'aria-label': cl.nom + ', ' + matLabel(c) + ', ' + TT_JOURS[c.jour] + ' ' + c.debut + ' à ' + fromMin(x.b),
       style: { top: top + 'px', height: hgt - 1 + 'px', left: (x.lane / x.n * 100) + '%', width: (100 / x.n) + '%', background: cl.couleur, color: textOn(cl.couleur) } },
-      h('b', null, cl.nom), h('span', { class: 'tt-t' }, c.debut + '–' + fromMin(x.b)), (c.groupe || c.salle || c.semaine) ? h('span', { class: 'tt-m' }, [c.groupe, c.salle, c.semaine ? 'S' + c.semaine : ''].filter(Boolean).join(' · ')) : null,
+      h('b', null, cl.nom), h('span', { class: 'tt-t' }, c.debut + '–' + fromMin(x.b)), h('span', { class: 'tt-m' }, [matShort(c), c.groupe, c.salle, c.semaine ? 'S' + c.semaine : ''].filter(Boolean).join(' · ')),
       h('i', { class: 'tt-rs', 'aria-hidden': 'true' }));
     el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); slotModal({ cl: cl, i: x.i }); } });
     var drag = null;
@@ -3313,8 +3332,8 @@ Views.planning = function () {
     var cls = classesOf();
     if (!cls.length) { UI.toast('Créez d’abord une classe pour l’année ' + st.annee + '.'); return; }
     var edit = o.cl && o.i !== undefined, cur = edit ? o.cl.creneaux[o.i] : null;
-    var d = edit ? { cl: o.cl, jour: cur.jour, debut: cur.debut, duree: +cur.duree, semaine: cur.semaine || 0, groupe: cur.groupe || '', salle: cur.salle || '' }
-      : { cl: Cls.get(Store.get('last_class')) && classesOf().indexOf(Cls.get(Store.get('last_class'))) >= 0 ? Cls.get(Store.get('last_class')) : cls[0], jour: o.jour || 1, debut: o.debut || '08:00', duree: o.duree || 60, semaine: st.tab === 2 ? 2 : 1, groupe: '', salle: '' };
+    var d = edit ? { cl: o.cl, jour: cur.jour, debut: cur.debut, duree: +cur.duree, semaine: cur.semaine || 0, groupe: cur.groupe || '', salle: cur.salle || '', matiere: matId(cur) }
+      : { cl: Cls.get(Store.get('last_class')) && classesOf().indexOf(Cls.get(Store.get('last_class'))) >= 0 ? Cls.get(Store.get('last_class')) : cls[0], jour: o.jour || 1, debut: o.debut || '08:00', duree: o.duree || 60, semaine: st.tab === 2 ? 2 : 1, groupe: '', salle: '', matiere: matId({ matiere: Store.get('last_mat') }) };
     var warn = h('p', { class: 'small warnt', role: 'status' }), fin = h('span', { class: 'muted small' });
     var clsSel = UI.select(cls.map(function (c) { return [c.id, c.nom]; }), d.cl.id, function (v) { d.cl = Cls.get(v); upd(); });
     var jourSel = UI.select([1, 2, 3, 4, 5, 6].map(function (j) { return [j, TT_JOURS[j]]; }), d.jour, function (v) { d.jour = +v; upd(); });
@@ -3323,6 +3342,7 @@ Views.planning = function () {
     var quick = h('div', { class: 'chips' }, [30, 55, 60, 110, 120].map(function (m) { return h('button', { class: 'chip', type: 'button', onclick: function () { d.duree = m; durInp.value = m; upd(); } }, fmtDuree(m)); }));
     var semSel = UI.select([[0, 'Les deux semaines'], [1, 'Semaine 1 uniquement'], [2, 'Semaine 2 uniquement']], d.semaine, function (v) { d.semaine = +v; upd(); });
     var grpSel = UI.select([['', 'Classe entière'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']], d.groupe, function (v) { d.groupe = v; upd(); });
+    var matSel = UI.select(K.MATIERES.map(function (m) { return [m[0], m[1]]; }), d.matiere, function (v) { d.matiere = v; upd(); });
     var salInp = h('input', { class: 'inp', type: 'text', maxlength: 30, value: d.salle, placeholder: 'Ex. B204 (facultatif)', oninput: function (e) { d.salle = e.target.value; } });
     function upd() {
       fin.textContent = 'Fin : ' + hhmmAdd(d.debut, d.duree) + ' (' + fmtDuree(d.duree) + ')';
@@ -3343,17 +3363,17 @@ Views.planning = function () {
     upd();
     var form = h('div', { class: 'form' }, UI.field('Classe', clsSel), h('div', { class: 'grid2' }, UI.field('Jour', jourSel), UI.field('Début', debInp)),
       UI.field('Durée (minutes)', h('div', null, durInp, ' ', fin), 'Glissez sur la grille pour des multiples de 30 min, ou saisissez ici une durée exacte.'), quick,
-      h('div', { class: 'grid2' }, UI.field('Semaine', semSel), UI.field('Groupe', grpSel)), UI.field('Salle', salInp), warn);
+      h('div', { class: 'grid2' }, UI.field('Semaine', semSel), UI.field('Groupe', grpSel)), UI.field('Matière', matSel, 'Maths, co-intervention, consolidation, soutien au parcours, techno, sciences, aide aux devoirs, RCD.'), UI.field('Salle', salInp), warn);
     var actions = [{ label: 'Annuler', kind: 'ghost' }];
     if (edit) actions.unshift({ label: 'Supprimer', kind: 'danger', onClick: function () { o.cl.creneaux.splice(o.i, 1); DB.save('fs_classes', o.cl); draw(); } });
     actions.push({ label: edit ? 'Enregistrer' : 'Ajouter', kind: 'primary', onClick: function () {
       if (!/^\d{2}:\d{2}$/.test(d.debut) || d.duree < 5) { UI.toast('Heure ou durée invalide.', 'err'); return false; }
-      var slot = { jour: d.jour, debut: d.debut, duree: d.duree }; if (d.semaine) slot.semaine = d.semaine; if (d.groupe) slot.groupe = d.groupe; if (d.salle.trim()) slot.salle = d.salle.trim().slice(0, 30);
+      var slot = { jour: d.jour, debut: d.debut, duree: d.duree }; if (d.semaine) slot.semaine = d.semaine; if (d.groupe) slot.groupe = d.groupe; if (d.matiere && d.matiere !== 'maths') slot.matiere = d.matiere; if (d.salle.trim()) slot.salle = d.salle.trim().slice(0, 30);
       if (edit) {
         if (d.cl.id === o.cl.id) { d.cl.creneaux[o.i] = slot; DB.save('fs_classes', d.cl); }
         else { o.cl.creneaux.splice(o.i, 1); DB.save('fs_classes', o.cl); d.cl.creneaux = (d.cl.creneaux || []).concat([slot]); DB.save('fs_classes', d.cl); }
       } else { d.cl.creneaux = (d.cl.creneaux || []).concat([slot]); DB.save('fs_classes', d.cl); Store.set('last_class', d.cl.id); }
-      Store.set('last_sem', String(d.semaine)); draw();
+      Store.set('last_sem', String(d.semaine)); Store.set('last_mat', d.matiere || 'maths'); draw();
     } });
     UI.modal({ title: edit ? 'Modifier le créneau' : 'Nouveau créneau', body: form, actions: actions });
   }
@@ -3372,6 +3392,13 @@ Views.planning = function () {
     });
     tb.appendChild(h('tr', { class: 'tot' }, h('td', null, 'Total enseigné'), h('td', null, fmtDuree(T.s1)), h('td', null, fmtDuree(T.s2))));
     tbl.appendChild(tb); box.appendChild(h('div', { class: 'tbl-wrap' }, tbl));
+    /* répartition par matière (affichée dès qu’un créneau n’est pas de maths) */
+    var par = {}; cls.forEach(function (cl) { var x = Plan.heuresHebdo(cl); Object.keys(x.par).forEach(function (m) { var q = par[m] || (par[m] = { s1: 0, s2: 0 }); q.s1 += x.par[m].s1; q.s2 += x.par[m].s2; }); });
+    if (Object.keys(par).some(function (m) { return m !== 'maths'; })) {
+      var t2 = h('table', { class: 'tbl tt-sum' }, h('thead', null, h('tr', null, h('th', null, 'Matière'), h('th', null, 'Semaine 1'), h('th', null, 'Semaine 2')))), b2 = h('tbody');
+      K.MATIERES.forEach(function (m) { var q = par[m[0]]; if (q) b2.appendChild(h('tr', null, h('td', null, m[1]), h('td', null, fmtDuree(q.s1)), h('td', null, fmtDuree(q.s2)))); });
+      t2.appendChild(b2); box.appendChild(h('h3', { class: 'man-h' }, 'Par matière')); box.appendChild(h('div', { class: 'tbl-wrap' }, t2));
+    }
     box.appendChild(h('p', { class: 'muted small' }, 'Les créneaux « les deux semaines » comptent dans chaque colonne. Les demi-groupes sont comptés à part pour chaque classe, et dans le total enseigné.'));
     return box;
   }

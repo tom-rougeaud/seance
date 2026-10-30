@@ -118,7 +118,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   console.log('# Modification des créneaux depuis la classe');
   await page.evaluate(() => { location.hash = '#/classe/' + DB.list('fs_classes')[0].id; }); await page.waitForSelector('.page-head h1');
   await page.click('text=✎ Modifier'); await page.waitForSelector('.modal .cren-row');
-  ok(await page.locator('.modal .cren-row').first().locator('select').count() === 3, 'chaque créneau : jour, semaine, groupe');
+  ok(await page.locator('.modal .cren-row').first().locator('select').count() === 4, 'chaque créneau : jour, semaine, groupe, matière');
   ok(/S1 : 3 h · S2 : 2 h 55/.test(await page.locator('.hrs-sum').innerText()), 'résumé des heures S1/S2 dans la fenêtre : ' + await page.locator('.hrs-sum').innerText());
   await page.click('.modal-foot .btn.ghost');
 

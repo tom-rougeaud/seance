@@ -145,9 +145,9 @@ Views.dashboard = function () {
     tdSlots.forEach(function (x) {
       var ex = DB.list('fs_seances').filter(function (s) { return s.class_id === x.cl.id && s.date_prevue === t && s.statut !== 'annulee'; });
       var end = hhmmAdd(x.c.debut, x.c.duree);
-      tb.appendChild(h('div', { class: 'row-s' }, h('span', { class: 'tt-hr' }, x.c.debut + '–' + end), Cls.chip(x.cl), x.c.groupe ? h('em', { class: 'tag' }, x.c.groupe) : null, x.c.salle ? h('span', { class: 'muted small' }, x.c.salle) : null,
+      tb.appendChild(h('div', { class: 'row-s' }, h('span', { class: 'tt-hr' }, x.c.debut + '–' + end), Cls.chip(x.cl), matId(x.c) !== 'maths' ? h('em', { class: 'tag' }, matShort(x.c)) : null, x.c.groupe ? h('em', { class: 'tag' }, x.c.groupe) : null, x.c.salle ? h('span', { class: 'muted small' }, x.c.salle) : null,
         ex.length ? ex.map(function (s) { return h('a', { class: 'row-t', href: '#/seance/' + s.id }, s.titre || '(sans titre)'); }) : h('span', { class: 'muted small grow' }, 'Pas de séance prévue'),
-        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = createSeance(x.cl, { date_prevue: t, duree_min: Math.min(x.c.duree, 240), modalite: x.c.groupe ? 'demi_groupe' : 'classe', groupe: x.c.groupe || null }); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
+        ex.length ? null : h('button', { class: 'btn small', type: 'button', onclick: function () { var s = createSeance(x.cl, Object.assign({ date_prevue: t }, slotSeanceInit(x.c))); location.hash = '#/seance/' + s.id; } }, '＋ Préparer')));
     });
     root.appendChild(tb);
   }
@@ -239,6 +239,7 @@ function classModal(cl) {
         h('input', { class: 'inp sm num', type: 'number', min: 15, max: 480, step: 5, value: c.duree, onchange: function (e) { c.duree = +e.target.value || 55; drawSum(); } }), h('span', { class: 'muted small' }, 'min'),
         UI.select([[0, 'Toutes les semaines'], [1, 'Semaine 1'], [2, 'Semaine 2']], c.semaine || 0, function (v) { if (+v) c.semaine = +v; else delete c.semaine; drawSum(); }, 'sm'),
         UI.select([['', 'Classe entière'], ['G1', 'Groupe 1'], ['G2', 'Groupe 2']], c.groupe || '', function (v) { if (v) c.groupe = v; else delete c.groupe; drawSum(); }, 'sm'),
+        UI.select(K.MATIERES.map(function (m) { return [m[0], m[1]]; }), matId(c), function (v) { if (v === 'maths') delete c.matiere; else c.matiere = v; }, 'sm'),
         h('button', { class: 'icon-btn sm', type: 'button', onclick: function () { d.creneaux.splice(i, 1); drawCren(); } }, '✕')));
     });
     cren.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { d.creneaux.push({ jour: 1, debut: '08:00', duree: 110, semaine: 1 }); drawCren(); } }, '＋ Ajouter un créneau hebdomadaire'));
@@ -331,7 +332,7 @@ function calendarCard(c) {
   if (Plan.PRESETS[c.annee_scolaire] && !DB.list('fs_calendrier').some(function (r) { return r.annee_scolaire === c.annee_scolaire && !r.class_id; })) {
     btns.appendChild(h('button', { class: 'btn small', type: 'button', onclick: function () { importPreset(c.annee_scolaire); draw(); UI.toast('Calendrier zone A importé : vérifiez-le avec celui de votre établissement.'); } }, '📅 Importer le calendrier zone A ' + c.annee_scolaire));
   }
-  var cr = (c.creneaux || []).length ? 'Créneaux : ' + c.creneaux.map(function (x) { return jourNom(x.jour) + ' ' + x.debut + ' (' + fmtDuree(x.duree) + ')' + (x.semaine ? ' S' + x.semaine : '') + (x.groupe ? ' ' + x.groupe : ''); }).join(' · ') + ' — ' + hrsLabel(Plan.heuresHebdo(c)) : 'Aucun créneau hebdomadaire : ajoutez-en dans « Modifier » pour obtenir des dates suggérées.';
+  var cr = (c.creneaux || []).length ? 'Créneaux : ' + c.creneaux.map(function (x) { return jourNom(x.jour) + ' ' + x.debut + ' (' + fmtDuree(x.duree) + ')' + (x.semaine ? ' S' + x.semaine : '') + (x.groupe ? ' ' + x.groupe : '') + (matId(x) !== 'maths' ? ' · ' + matLabel(x) : ''); }).join(' · ') + ' — ' + hrsLabel(Plan.heuresHebdo(c)) : 'Aucun créneau hebdomadaire : ajoutez-en dans « Modifier » pour obtenir des dates suggérées.';
   box.appendChild(info); box.appendChild(h('p', { class: 'small' }, cr)); box.appendChild(list); box.appendChild(btns);
   return box;
 }

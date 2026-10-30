@@ -4,7 +4,8 @@ var Guide = (function () {
   function goSection(start) {
     var t = $$('#view details.sec').filter(function (x) { var e = $('.sec-t', x); return e && e.textContent.indexOf(start) >= 0; })[0];
     if (!t) { UI.toast('Cette partie n’est pas affichée pour ce type de séance.'); return; }
-    t.open = true; try { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { t.scrollIntoView(); }
+    for (var a = t; a && a !== document.body; a = a.parentElement) if (a.tagName === 'DETAILS') a.open = true;
+    try { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { t.scrollIntoView(); }
     var f = $('textarea, input.inp', t); if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (e) { /* ignoré */ } }, 350);
   }
   function A(t, why, go, primary) { return { t: t, why: why || '', go: go, primary: !!primary }; }

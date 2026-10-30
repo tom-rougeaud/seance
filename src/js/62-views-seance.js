@@ -27,16 +27,37 @@ Views.seance = function (id) {
   var dyn = h('div'); var head;
 
   var flush = function () { save.now(); };
-  function pronoteBtn() { return h('button', { class: 'btn', type: 'button', title: 'Rédiger et copier la synthèse pour le cahier de textes Pronote', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Pronote') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '📋 Pronote'); }
-  function tplBtn() { return h('button', { class: 'btn', type: 'button', title: 'Pré-remplir cette séance avec une proposition d’1 h tirée du programme, ou avec un de vos modèles', onclick: function () { save.now(); Tpl.open({ mode: 'load', seance: s, cl: cl }); } }, '📥 Charger un modèle'); }
-  function modelBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Tpl.saveAsModel(s, cl); } }, '💾 Enregistrer comme modèle'); }
-  function persoBtn() { return h('button', { class: 'btn', type: 'button', title: 'Mémo personnel appuyé sur mes manuels (pas pour Pronote)', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Mémo perso') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '🔒 Mémo manuels'); }
-  function manBtn() { return h('button', { class: 'btn', type: 'button', title: 'Aller à la section Manuel (chapitre, pages, exercices)', onclick: function () { Guide.goSection('Manuel'); } }, '📘 Manuel'); }
+  function goTo(txt) { Guide.goSection(txt); }
+  function pronoteBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Rédiger et copier la synthèse pour le cahier de textes Pronote', onclick: function () { goTo('Pronote'); } }, '📋 Pronote'); }
+  function tplBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Pré-remplir cette séance avec une proposition d’1 h tirée du programme, ou avec un de vos modèles', onclick: function () { save.now(); Tpl.open({ mode: 'load', seance: s, cl: cl }); } }, '📥 Charger un modèle'); }
+  function modelBtn() { return h('button', { class: 'btn c5', type: 'button', title: 'Garder cette séance comme modèle réutilisable', onclick: function () { save.now(); Tpl.saveAsModel(s, cl); } }, '💾 Enregistrer comme modèle'); }
+  function persoBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Mémo personnel appuyé sur mes manuels (pas pour Pronote)', onclick: function () { goTo('Mémo perso'); } }, '🔒 Mémo manuels'); }
+  function manBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Aller à la section Manuel (chapitre, pages, exercices)', onclick: function () { goTo('Manuel'); } }, '📘 Manuel'); }
+  function progBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Cocher les objectifs et notions du programme', onclick: function () { goTo('Programme'); } }, '☑ Programme'); }
+  function resBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'PDF, liens, vidéos, pages de vos manuels', onclick: function () { goTo('Ressources'); } }, '📎 Ressources'); }
   function dupBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); var n = duplicateSeance(s); UI.toast('Séance dupliquée.'); location.hash = '#/seance/' + n.id; } }, '⧉ Dupliquer'); }
   head = pageHead(s.titre || 'Nouvelle séance', cl.nom + ' · ' + lbl(K.TYPES, s.type) + (seq ? ' · ' + seq.titre : ''),
-    Exp.buttons('seance', s, flush).concat([tplBtn()]).concat(Man.enabled() ? [manBtn()] : []).concat([pronoteBtn()]).concat(APP.manuels ? [] : [persoBtn()]).concat([dupBtn()]),
+    Exp.buttons('seance', s, flush),
     (Annee.from && Annee.from.sid === s.id) ? ['#/annee', 'Mon emploi du temps (semaine du ' + fmtDM(Annee.from.week) + ')'] : seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
   root.appendChild(head);
+
+  /* barre d’actions rapides, en couleurs : un toucher et on est dans la bonne partie de la fiche */
+  root.appendChild(h('nav', { class: 'qbar', 'aria-label': 'Aller directement à…' }, h('span', { class: 'qbar-l' }, 'Aller à'),
+    tplBtn('c1'), Man.enabled() ? manBtn('c2') : progBtn('c2'), resBtn('c3'), pronoteBtn('c4'), APP.manuels ? null : persoBtn('c5')));
+  var startBox = h('div'), startHidden = false;
+  function drawStart() {
+    clear(startBox);
+    var vide = !(d.items || []).length && !((d.manuel && d.manuel.notions) || []).length && !(d.manuel && (d.manuel.exos || []).length) && !String(d.objectif || '').trim();
+    if (!vide || startHidden || s.statut === 'faite') return;
+    function tile(c, t, sub, fn) { return h('button', { class: 'tile-btn ' + c, type: 'button', onclick: fn }, h('strong', null, t), h('span', null, sub)); }
+    startBox.appendChild(h('section', { class: 'card start-card' }, h('h2', null, '🚀 Par où commencer ?'),
+      h('p', { class: 'muted small' }, 'Choisissez un point de départ. Tout reste modifiable ensuite.'),
+      h('div', { class: 'start-grid' },
+        tile('c1', '📥 Partir d’un modèle d’1 h', Man.enabled() ? 'Une séance prête par notion du manuel, ou un de vos modèles' : 'Une proposition prête à l’emploi tirée du programme, ou un de vos modèles', function () { save.now(); Tpl.open({ mode: 'load', seance: s, cl: cl }); }),
+        Man.enabled() ? tile('c2', '📘 Choisir dans le manuel', 'Chapitre, notions et exercices à cocher', function () { goTo('Manuel'); }) : tile('c2', '☑ Cocher dans le programme', 'Objectifs et notions du BO', function () { goTo('Programme'); }),
+        tile('c4', '✏️ Page blanche', 'Je remplis moi-même', function () { startHidden = true; drawStart(); goTo('Déroulé'); }))));
+  }
+  drawStart(); root.appendChild(startBox);
 
   function refreshHead() { var t = $('h1', head); t.textContent = s.titre || 'Nouvelle séance'; }
 
@@ -95,38 +116,40 @@ Views.seance = function (id) {
   var objField = Ed.area('Objectif de la séance (en une phrase)', d, 'objectif', save, 'À la fin de la séance, l’élève sait…', 2);
   var panel = Ed.itemsPanel({ rec: s, cl: cl, changed: save, withNiv: true, kinds: ['o', 'k', 'a'], onCount: function (n) { countEl.textContent = String(n); } });
   if (Man.enabled()) root.appendChild(Man.section(s, cl, save));
-  var secP = UI.section('sea-prog', 'Programme : objectifs, notions, compétences', [objField, panel], { open: true });
+  var secP = UI.section('sea-prog', 'Programme : objectifs, notions, compétences', [objField, panel], { open: !Man.enabled() });
   $('summary', secP).appendChild(countEl); root.appendChild(secP);
 
   /* ── contenu dépendant du type (déroulé, matériel, évaluation, DM) ── */
   root.appendChild(dyn);
   function drawDyn() {
     clear(dyn);
-    dyn.appendChild(UI.section('sea-pre', 'Prérequis et ancrage', [h('div', { class: 'grid2' }, Ed.area('Prérequis', d, 'prerequis', save, 'Ce qui doit être acquis', 2), Ed.area('Ancrage métier / contexte', d, 'ancrage', save, 'Situation professionnelle ou de la vie courante', 2))], { open: false }));
-    /* matériel */
+    /* 1 · préparer : déroulé, évaluation, ressources, devoir maison */
+    dyn.appendChild(deroule());
+    if (s.type === 'evaluation') dyn.appendChild(UI.section('sea-eval', 'Évaluation : critères et barème', [Ed.area('Critères de réussite / compétences évaluées', d.eval, 'criteres', save, 'Ex. S’approprier : repère la bonne donnée (1 pt)…', 4), Ed.area('Barème', d.eval, 'bareme', save, 'Ex. Ex.1 : 4 pts ; Ex.2 : 6 pts…', 3)], { open: true }));
+    dyn.appendChild(UI.section('sea-res', 'Ressources (PDF, liens, vidéos, pages de mes manuels)', [Res.block('seance', s, function () { /* rien */ })], { open: true }));
+    dyn.appendChild(dmSection());
+    /* 2 · le reste, replié : on l’ouvre seulement si besoin */
     var mat = h('div', { class: 'chips' });
     K.MATERIEL.forEach(function (m) {
       var on = d.materiel.indexOf(m[0]) >= 0;
       mat.appendChild(h('button', { class: 'chip' + (on ? ' on' : ''), type: 'button', 'aria-pressed': on ? 'true' : 'false', onclick: function () { var i = d.materiel.indexOf(m[0]); if (i >= 0) d.materiel.splice(i, 1); else d.materiel.push(m[0]); save(); drawDyn(); } }, m[1]));
     });
-    dyn.appendChild(UI.section('sea-mat', 'Matériel', [mat, Ed.line('Autre matériel', d, 'materiel_libre', save, 'Ex. dés, ficelle, thermomètre…')], { open: false }));
-    /* déroulé */
-    dyn.appendChild(deroule());
-    /* évaluation */
-    if (s.type === 'evaluation') dyn.appendChild(UI.section('sea-eval', 'Évaluation : critères et barème', [Ed.area('Critères de réussite / compétences évaluées', d.eval, 'criteres', save, 'Ex. S’approprier : repère la bonne donnée (1 pt)…', 4), Ed.area('Barème', d.eval, 'bareme', save, 'Ex. Ex.1 : 4 pts ; Ex.2 : 6 pts…', 3)], { open: true }));
-    /* DM */
-    dyn.appendChild(dmSection());
-    dyn.appendChild(UI.section('sea-diff', 'Différenciation', [Ed.diffBlock(d, save, true)], { open: false }));
-    dyn.appendChild(UI.section('sea-trace', 'Trace écrite / ce que les élèves notent', [Ed.area('Trace écrite', d, 'trace', save, 'Définitions, méthode, exemple…', 5)], { open: false }));
-    dyn.appendChild(UI.section('sea-res', 'Ressources (PDF, liens, vidéos)', [Res.block('seance', s, function () { /* rien */ })], { open: true }));
+    var plus = h('details', { class: 'more' }, h('summary', null, h('strong', null, '⚙️ Plus d’options'), h('span', { class: 'muted small' }, 'prérequis, matériel, différenciation, trace écrite')),
+      h('div', { class: 'more-b' },
+        UI.section('sea-pre', 'Prérequis et ancrage', [h('div', { class: 'grid2' }, Ed.area('Prérequis', d, 'prerequis', save, 'Ce qui doit être acquis', 2), Ed.area('Ancrage métier / contexte', d, 'ancrage', save, 'Situation professionnelle ou de la vie courante', 2))], { open: false }),
+        UI.section('sea-mat', 'Matériel', [mat, Ed.line('Autre matériel', d, 'materiel_libre', save, 'Ex. dés, ficelle, thermomètre…')], { open: false }),
+        UI.section('sea-diff', 'Différenciation', [Ed.diffBlock(d, save, true)], { open: false }),
+        UI.section('sea-trace', 'Trace écrite / ce que les élèves notent', [Ed.area('Trace écrite', d, 'trace', save, 'Définitions, méthode, exemple…', 5)], { open: false })));
+    dyn.appendChild(plus);
+    /* 3 · après la séance */
     dyn.appendChild(bilan());
     dyn.appendChild(Pronote.section(s, cl, d, save));
     if (!APP.manuels) dyn.appendChild(Pronote.perso(s, cl, d, save));
-    dyn.appendChild(Ed.actionBar(Exp.buttons('seance', s, flush).concat([tplBtn(), modelBtn(), pronoteBtn()].concat(APP.manuels ? [] : [persoBtn()]).concat([dupBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
+    dyn.appendChild(Ed.actionBar(Exp.buttons('seance', s, flush).concat([modelBtn(), dupBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
       UI.ask('Supprimer la séance « ' + (s.titre || 'sans titre') + ' » ?', { ok: 'Supprimer', danger: true }).then(function (ok) {
         if (ok) { var back = s.sequence_id ? '#/sequence/' + s.sequence_id : '#/classe/' + cl.id; DB.list('fs_seances').forEach(function (x) { if (x.jumelle_id === s.id) { x.jumelle_id = null; DB.save('fs_seances', x); } }); DB.remove('fs_seances', s.id); location.hash = back; }
       });
-    } }, 'Supprimer la séance')]))));
+    } }, 'Supprimer la séance')])));
   }
 
   function deroule() {
@@ -144,13 +167,17 @@ Views.seance = function (id) {
       });
       if (!d.phases.length) box.appendChild(h('p', { class: 'muted' }, 'Aucune phase. Ajoutez-en ou partez d’un modèle selon le type de séance.'));
       else { box.appendChild(list); UI.sortable(list, { item: '.sort-item', handle: '.grip', onSort: function (ids) { var old = d.phases.slice(); d.phases = ids.map(function (i) { return old[+i]; }); save(); draw(); } }); }
-      box.appendChild(h('div', { class: 'row-gap' },
-        h('button', { class: 'btn small', type: 'button', onclick: function () { d.phases.push({ phase: 'exercices', duree: 15, orga: 'individuel', contenu: '' }); save(); draw(); } }, '＋ Phase'),
-        h('button', { class: 'btn small', type: 'button', onclick: function () {
+      var DUR = { accroche: 10, recherche: 15, cours: 15, exercices: 15, automatismes: 10, bilan: 10, evaluation: 45, autre: 10 };
+      box.appendChild(h('div', { class: 'row-gap phase-add' },
+        h('button', { class: 'btn small c1', type: 'button', title: 'Remplir le déroulé avec le modèle de ce type de séance', onclick: function () {
           var m = DEROULES[s.type]; if (!m) { UI.toast('Pas de modèle pour ce type.'); return; }
           var go = function () { d.phases = defaultPhases(s.type, s.duree_min); save(); draw(); };
           if (d.phases.length) UI.ask('Remplacer le déroulé actuel par le modèle « ' + lbl(K.TYPES, s.type) + ' » ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
-        } }, '✨ Modèle « ' + lbl(K.TYPES, s.type) + ' »')));
+        } }, '✨ Modèle « ' + lbl(K.TYPES, s.type) + ' »'),
+        h('span', { class: 'muted small' }, 'Ajouter :'),
+        K.PHASES.filter(function (x) { return x[0] !== 'autre'; }).map(function (x) {
+          return h('button', { class: 'chip', type: 'button', title: 'Ajouter une phase « ' + x[1] + ' »', onclick: function () { d.phases.push({ phase: x[0], duree: DUR[x[0]] || 10, orga: x[0] === 'exercices' ? 'individuel' : x[0] === 'recherche' ? 'binomes' : 'collectif', contenu: '' }); save(); draw(); } }, '＋ ' + x[1].split(' /')[0]);
+        })));
       box.appendChild(tot); sum();
     }
     draw();

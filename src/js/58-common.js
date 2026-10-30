@@ -181,7 +181,7 @@ var Res = (function () {
         h('button', { class: 'btn small', type: 'button', onclick: function () {
           UI.promptText('Ajouter des liens', { multiline: true, help: 'Un lien par ligne. Variante : « Titre | https://… ». Les vidéos YouTube sont converties en lien sans cookies.', ok: 'Ajouter' }).then(function (v) { if (v) handle([], v.split(/\r?\n/).map(function (l) { return l; })); });
         } }, '🔗 Liens…'),
-        h('button', { class: 'btn small', type: 'button', onclick: function () { pickFromLibrary(parentType, rec, function () { render(); if (onChange) onChange(); }); } }, '📚 Ma bibliothèque')));
+        h('button', { class: 'btn small', type: 'button', onclick: function () { pickFromLibrary(parentType, rec, function () { render(); if (onChange) onChange(); }); } }, (typeof Man !== 'undefined' && Man.hasLibrary() ? '📚 Bibliothèque et manuels' : '📚 Ma bibliothèque'))));
     fileInp.addEventListener('change', function () { handle(Array.prototype.slice.call(fileInp.files), []); fileInp.value = ''; });
     UI.dropzone(dz, function (d) { handle(d.files, d.urls); });
     dz.addEventListener('paste', function (e) { var t = (e.clipboardData || window.clipboardData).getData('text'); if (/https?:\/\//.test(t)) { e.preventDefault(); handle([], t.split(/\r?\n/)); } });
@@ -205,21 +205,33 @@ var Res = (function () {
   }
 
   function pickFromLibrary(parentType, rec, done) {
-    var sel = {}; var q = '';
+    var sel = {}, q = '', cl = rec && rec.class_id && Cls.get(rec.class_id);
+    var useMan = typeof Man !== 'undefined' && Man.hasLibrary();
     var list = h('div', { class: 'lib-pick' });
-    var search = h('input', { class: 'inp', type: 'search', placeholder: 'Rechercher…' });
+    var search = h('input', { class: 'inp', type: 'search', placeholder: useMan ? 'Rechercher un chapitre, une notion, un exercice, une ressource…' : 'Rechercher…' });
+    var count = h('span', { class: 'muted small' }, '');
+    var pk = useMan ? Man.picker({ open: cl && cl.niveau_id, onChange: function () { upd(); } }) : null;
+    function upd() { var n = Object.keys(sel).filter(function (k) { return sel[k]; }).length + (pk ? pk.count() : 0); count.textContent = n ? n + ' sélectionné' + (n > 1 ? 's' : '') : 'Cochez ce que vous voulez joindre à la fiche.'; }
     function draw() {
       clear(list);
       var rs = DB.list('fs_ressources').filter(function (r) { return !q || Ref.norm(r.titre + ' ' + (r.tags || []).join(' ')).indexOf(Ref.norm(q)) >= 0; }).sort(function (a, b) { return cmpStr(a.titre, b.titre); });
-      if (!rs.length) list.appendChild(h('p', { class: 'muted' }, 'Bibliothèque vide : ajoutez d’abord des ressources.'));
+      if (!rs.length) list.appendChild(h('p', { class: 'muted' }, q ? 'Aucune ressource ne correspond.' : 'Aucune ressource enregistrée : ajoutez d’abord des fichiers ou des liens.'));
       rs.forEach(function (r) {
-        var cb = h('input', { type: 'checkbox', checked: !!sel[r.id] }); cb.addEventListener('change', function () { sel[r.id] = cb.checked; });
+        var cb = h('input', { type: 'checkbox', checked: !!sel[r.id] }); cb.addEventListener('change', function () { sel[r.id] = cb.checked; upd(); });
         list.appendChild(h('label', { class: 'res-row' }, cb, h('span', { class: 'res-ic' }, icon(r.type)), h('div', { class: 'res-main' }, r.titre, h('div', { class: 'muted small' }, r.url ? hostOf(r.url) : fmtSize(r.taille)))));
       });
     }
-    search.addEventListener('input', debounce(function () { q = search.value; draw(); }, 150));
-    draw();
-    UI.modal({ title: 'Ajouter depuis ma bibliothèque', body: h('div', null, search, list), actions: [{ label: 'Annuler', kind: 'ghost' }, { label: 'Ajouter', kind: 'primary', onClick: function () { Object.keys(sel).forEach(function (id) { if (sel[id]) attach(parentType, rec.id, id, 'eleve'); }); done(); } }] });
+    search.addEventListener('input', debounce(function () { q = search.value; if (pk) pk.setFilter(q); draw(); }, 150));
+    draw(); upd();
+    var body = h('div', null, search, count, pk ? h('details', { class: 'mb-top', open: true }, h('summary', null, h('strong', null, '📘 Mes manuels'), h('span', { class: 'muted small' }, 'chapitres, notions, exercices : il suffit de cocher')), pk.el) : null,
+      pk ? h('details', { class: 'mb-top', open: !!DB.list('fs_ressources').length && !pk }, h('summary', null, h('strong', null, '📁 Mes fichiers et liens'), h('span', { class: 'muted small' }, DB.list('fs_ressources').length + ' ressource(s)')), list) : list);
+    UI.modal({ title: useMan ? 'Ajouter depuis ma bibliothèque et mes manuels' : 'Ajouter depuis ma bibliothèque', body: body, actions: [{ label: 'Annuler', kind: 'ghost' }, { label: 'Ajouter à la fiche', kind: 'primary', onClick: function () {
+      var n = 0;
+      Object.keys(sel).forEach(function (id) { if (sel[id]) { attach(parentType, rec.id, id, 'eleve'); n++; } });
+      if (pk) Man.toLibrary(pk.entries()).forEach(function (x) { attach(parentType, rec.id, x.res.id, x.usage); n++; });
+      if (n) UI.toast(plural(n, 'ressource ajoutée', 'ressources ajoutées') + ' à la fiche.');
+      done();
+    } }] });
   }
   return { detectType: detectType, icon: icon, usedBytes: usedBytes, QUOTA: QUOTA, addLinks: addLinks, upload: upload, open: open, attach: attach, of: of, usageCount: usageCount, destroy: destroy, block: block, pickFromLibrary: pickFromLibrary };
 })();

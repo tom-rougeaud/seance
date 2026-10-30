@@ -75,7 +75,7 @@ async function login(page) { await page.goto(BASE); await page.waitForSelector('
   console.log('# Boutons d’export en bas des fiches');
   await page.goto(BASE + '#/seance/' + ids.a); await page.waitForSelector('h1');
   ok(await page.locator('button:has-text("🌐 HTML")').count() === 2 && await page.locator('button:has-text("🖨 Imprimer / PDF")').count() === 2, 'séance : boutons d’export en haut ET en bas');
-  ok(await page.locator('button:has-text("📥 Charger un modèle")').count() === 2, 'séance : « Charger un modèle » en haut et en bas');
+  ok(await page.locator('.qbar button:has-text("📥 Charger un modèle")').count() === 1, 'séance : « Charger un modèle » dans la barre d’actions colorée');
   const q = await page.evaluate((id) => { const cl = Cls.get(id); const q = createSequence(cl, { titre: 'Séquence test' }); return q.id; }, ids.cl);
   await page.goto(BASE + '#/sequence/' + q); await page.waitForSelector('h1');
   ok(await page.locator('button:has-text("🌐 HTML")').count() === 2, 'séquence : boutons d’export en haut ET en bas');

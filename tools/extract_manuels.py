@@ -8,11 +8,15 @@ MAN = {
  'bp2': dict(nom='Maths et MCV · 2de', court='Manuel 2de', pdf='mcv/2de/pdf/maths-et-mcv-2de.pdf', web='mcv/2de/', chdir='mcv/2de/pdf/chapitres/maths-et-mcv-2de-chapitre-%d.pdf'),
  'bp1': dict(nom='Maths et MCV · 1re', court='Manuel 1re', pdf='mcv/1ere/pdf/maths-et-mcv-1re.pdf', web='mcv/1ere/', chdir='mcv/1ere/pdf/chapitres/maths-et-mcv-1re-chapitre-%d.pdf'),
  'bpt': dict(nom='Maths et MCV · Terminale', court='Manuel Tle', pdf='mcv/terminale/pdf/maths-et-mcv-tle.pdf', web='mcv/terminale/', chdir='mcv/terminale/pdf/chapitres/maths-et-mcv-tle-chapitre-%d.pdf'),
+ 'cap': dict(nom='Maths · CAP', court='Manuel CAP', pdf='cap/pdf/maths-cap.pdf', web='cap/', chdir='cap/pdf/chapitres/maths-cap-chapitre-%d.pdf'),
  'pm':  dict(nom='3ème Série Pro', court='Manuel 3e', pdf='3eme/pdf/maths-3e-serie-pro.pdf', web='3eme/', chdir='3eme/pdf/chapitres/maths-3e-serie-pro-chapitre-%d.pdf'),
 }
 def clean(l): return re.sub(r'\s{2,}', '  ', l.strip())
-out = {}
+JSON = os.path.join(os.path.dirname(__file__), '..', 'src', 'data', 'manuels.json')
+ONLY = sys.argv[1:] or list(MAN.keys())
+out = json.load(open(JSON, encoding='utf8')) if os.path.exists(JSON) and sys.argv[1:] else {}
 for key, m in MAN.items():
+    if key not in ONLY: continue
     txt = subprocess.run(['pdftotext', '-layout', os.path.join(SRC, m['pdf']), '-'], capture_output=True, text=True).stdout
     pages = txt.split('\f')
     if not pages[-1].strip(): pages.pop()
@@ -116,8 +120,11 @@ for key, m in MAN.items():
             info = subprocess.run(['pdfinfo', cp], capture_output=True, text=True).stdout
             npg = int(re.search(r'Pages:\s+(\d+)', info).group(1)); ch['fin'] = ch['page'] + npg - 1; ch['npages'] = npg
     out[key] = dict(id=key, nom=m['nom'], court=m['court'], pdf=BASE + m['pdf'].replace('mcv/', 'mcv/', 1), web=BASE + m['web'], chap_pdf=BASE + m['chdir'], pages=len(P), chapitres=chaps, reponses=rep_page, glossaire=glo_page)
-json.dump(out, open(os.path.join(os.path.dirname(__file__), '..', 'src', 'data', 'manuels.json'), 'w', encoding='utf8'), ensure_ascii=False, indent=1)
+order = [k for k in ('bp2', 'bp1', 'bpt', 'cap', 'pm') if k in out]
+out = {k: out[k] for k in order}
+json.dump(out, open(JSON, 'w', encoding='utf8'), ensure_ascii=False, indent=1)
 for k, v in out.items():
+    if k not in ONLY: continue
     print('==', k, v['nom'], v['pages'], 'p.', 'réponses', v['reponses'], 'glossaire', v['glossaire'])
     for c in v['chapitres']:
         print('  ch', c['n'], c['titre'][:40], 'p', c['page'], '-', c['fin'], '| dép', c['depart'], '| notions', [(n['n'], n['page']) for n in c['notions']], '| àtoi', c['atoi'] and c['atoi']['page'], '| exos', [(e['n'], e['type'][0], e['notion'], e['page']) for e in c['exos']], '| éval', c['evalu'] and c['evalu']['page'], '| sf', c['saisfaire'], '| rép', c['reponses'])

@@ -24,6 +24,19 @@ Views.biblio = function () {
   UI.dropzone(dz, function (x) { handle(x.files, x.urls); });
   dz.addEventListener('paste', function (e) { var t = (e.clipboardData || window.clipboardData).getData('text'); if (/https?:\/\//.test(t)) { e.preventDefault(); handle([], t.split(/\r?\n/)); } });
   root.appendChild(dz); root.appendChild(fileInp);
+  if (Man.hasLibrary()) {
+    var pk, addBtn = h('button', { class: 'btn primary', type: 'button', disabled: true, onclick: function () {
+      var xs = Man.toLibrary(pk.entries()), nv = xs.filter(function (x) { return x.neuf; }).length;
+      UI.toast(nv ? plural(nv, 'lien ajouté', 'liens ajoutés') + ' à votre bibliothèque' + (xs.length > nv ? ' (' + (xs.length - nv) + ' déjà présent' + (xs.length - nv > 1 ? 's' : '') + ')' : '') + '.' : 'Ces liens étaient déjà dans votre bibliothèque.');
+      pk.reset(); draw();
+    } }, '＋ Ajouter à ma bibliothèque');
+    var mq = h('input', { class: 'inp', type: 'search', placeholder: 'Rechercher un chapitre, une notion, un exercice…' });
+    pk = Man.picker({ onChange: function (n) { addBtn.disabled = !n; addBtn.textContent = n ? '＋ Ajouter ma sélection (' + n + ') à la bibliothèque' : '＋ Ajouter à ma bibliothèque'; } });
+    mq.addEventListener('input', debounce(function () { pk.setFilter(mq.value); }, 150));
+    root.appendChild(UI.section('lib-man', '📘 Mes manuels : tous les chapitres, notions et exercices', [
+      h('p', { class: 'muted small' }, 'Dépliez un niveau, puis un chapitre, et cochez les liens voulus (PDF à la bonne page, appli, réponses). Ils rejoignent votre bibliothèque, sans doublon, et sont proposés dans toutes les fiches via « Bibliothèque et manuels ».'),
+      mq, pk.el, h('div', { class: 'row-gap' }, addBtn)], { open: false }));
+  }
   var search = h('input', { class: 'inp', type: 'search', placeholder: 'Rechercher un titre, une étiquette…' });
   search.addEventListener('input', debounce(function () { q = search.value; draw(); }, 150));
   var typeSel = UI.select([['', 'Tous les types'], ['pdf', 'PDF'], ['lien', 'Liens'], ['video', 'Vidéos'], ['image', 'Images'], ['fichier', 'Autres fichiers'], ['casier', 'Casier']], '', function (v) { type = v; draw(); }, 'sm');

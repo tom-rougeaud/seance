@@ -185,5 +185,87 @@ var Man = (function () {
     $('summary', sec).appendChild(badge);
     return sec;
   }
-  return { enabled: enabled, get: get, has: has, chapter: chapter, describe: describe, lines: lines, html: html, specs: specs, section: section, sync: sync, pg: pg, nums: nums, pdfAt: pdfAt, appAt: appAt, chapPdf: chapPdf, exoTxt: exoTxt, notionTxt: notionTxt };
+
+  /* ── bibliothèque : tous les liens des manuels (chapitres, notions, exercices) en accordéon : on coche, on ajoute ── */
+  var LEVELS = ['bp2', 'bp1', 'bpt', 'cap', 'pm'];
+  function clean(t) { return String(t || '').replace(/[\u{1F300}-\u{1FAFF}☀-➿️]/gu, '').replace(/\s{2,}/g, ' — ').replace(/^[\s—]+/, '').trim(); }
+  function catalog(man, ch) {
+    var pre = man.court + ' · Ch. ' + ch.n + ' — ';
+    function it(key, lab, sub, url, titre, usage, kind) { return { key: man.id + '.' + ch.n + '.' + key, lab: lab, sub: sub || '', url: url, titre: pre + titre, usage: usage || 'eleve', kind: kind || '' }; }
+    var chap = [
+      it('pdf', 'PDF du chapitre', pg([ch.page, ch.fin]), chapPdf(man, ch), ch.titre + ' (PDF du chapitre)'),
+      it('man', 'Manuel complet, début du chapitre', pg(ch.page), pdfAt(man, ch.page), ch.titre + ' (manuel ' + pg(ch.page) + ')'),
+      it('app', 'Appli : la leçon', '', appAt(man, ch, 'lecon'), ch.titre + ' (appli · leçon)'),
+      it('app-e', 'Appli : s’entraîner', '', appAt(man, ch, 'entrainement'), ch.titre + ' (appli · s’entraîner)'),
+      it('app-p', 'Appli : problèmes', '', appAt(man, ch, 'problemes'), ch.titre + ' (appli · problèmes)')
+    ];
+    if (ch.atoi) chap.push(it('atoi', 'À toi' + (ch.atoi.titre ? ' : ' + clean(ch.atoi.titre) : ''), pg(ch.atoi.page), pdfAt(man, ch.atoi.page), 'À toi (' + pg(ch.atoi.page) + ')'));
+    if (ch.evalu) chap.push(it('eval', 'S’évaluer' + (ch.evalu.titre ? ' : ' + clean(ch.evalu.titre) : ''), pg(ch.evalu.page), pdfAt(man, ch.evalu.page), 'S’évaluer (' + pg(ch.evalu.page) + ')', 'evaluation'));
+    chap.push(it('rep', 'Réponses du manuel', pg(man.reponses), pdfAt(man, man.reponses), 'Réponses (' + pg(man.reponses) + ')', 'prof'));
+    var nots = ch.notions.map(function (n) { return it('n' + n.n, 'Notion ' + n.n + ' : ' + n.titre, pg(n.pages), pdfAt(man, n.pages[0]), 'Notion ' + n.n + ' : ' + n.titre + ' (' + pg(n.pages) + ')'); });
+    var exs = ch.exos.map(function (x) { var t = clean(x.titre); return it('e' + x.n, 'Ex. ' + x.n + ' — ' + t, pg(x.page), pdfAt(man, x.page), 'Ex. ' + x.n + ' : ' + t + ' (' + pg(x.page) + ')', x.type === 'defi' ? 'projete' : 'eleve', x.type); });
+    return [{ g: 'Le chapitre', items: chap }, { g: 'Notions', items: nots }, { g: 'Exercices', items: exs }];
+  }
+  function levels() { return LEVELS.map(function (id) { return get(id); }).filter(Boolean); }
+  function hasLibrary() { return enabled() && levels().length > 0; }
+
+  /* picker({ open: niveau à déplier, onChange(n) }) → { el, count(), entries(), setFilter(q), reset() } */
+  function picker(opt) {
+    opt = opt || {};
+    var sel = {}, rows = [], heads = [], root = h('div', { class: 'mb' });
+    var have = {}; DB.list('fs_ressources').forEach(function (r) { if (r.url) have[r.url] = 1; });
+    function n() { return Object.keys(sel).filter(function (k) { return sel[k]; }).length; }
+    function refresh() {
+      rows.forEach(function (c) { c.el.classList.toggle('on', !!sel[c.it.key]); });
+      root.querySelectorAll('details.mb-ch').forEach(function (d) { var k = +d.getAttribute('data-n'); d.querySelector('.mb-n').textContent = k ? k + ' ✓' : ''; var m = d.querySelector('.mb-all'); var tot = d.querySelectorAll('.mb-row').length; m.checked = k > 0 && k === tot; m.indeterminate = k > 0 && k < tot; });
+      root.querySelectorAll('details.mb-lvl').forEach(function (d) { var k = d.querySelectorAll('.mb-row.on').length; d.querySelector('.mb-ln').textContent = k ? k + ' ✓' : ''; });
+      if (opt.onChange) opt.onChange(n());
+    }
+    function setRow(c, on) { if (on) sel[c.it.key] = c; else delete sel[c.it.key]; c.cb.checked = on; }
+    levels().forEach(function (man) {
+      var lvl = h('details', { class: 'mb-lvl', open: man.id === opt.open ? true : null }, h('summary', null, h('strong', null, '📘 ' + man.nom), h('span', { class: 'muted small' }, man.chapitres.length + ' chapitres'), h('span', { class: 'badge mb-ln' }, '')));
+      var body = h('div', { class: 'mb-body' });
+      man.chapitres.forEach(function (ch) {
+        var all = h('input', { type: 'checkbox', class: 'mb-all', title: 'Tout cocher / décocher dans ce chapitre' });
+        var cd = h('details', { class: 'mb-ch' }, h('summary', null, all, h('span', { class: 'mb-ct' }, 'Ch. ' + ch.n + ' · ' + ch.titre), h('span', { class: 'muted small' }, pg([ch.page, ch.fin])), h('span', { class: 'badge mb-n' }, '')));
+        var mine = [];
+        catalog(man, ch).forEach(function (g) {
+          var h4 = h('h4', { class: 'mb-g' }, g.g), grp = { h4: h4, rows: [] }; heads.push(grp);
+          cd.appendChild(h4);
+          g.items.forEach(function (it) {
+            var cb = h('input', { type: 'checkbox' }), c = { it: it, man: man, ch: ch, cb: cb };
+            c.el = h('label', { class: 'mb-row' + (it.kind ? ' k-' + it.kind : '') }, cb, h('span', { class: 'mb-t' }, it.lab), it.sub ? h('em', { class: 'tag' }, it.sub) : null, have[it.url] ? h('em', { class: 'tag ok', title: 'Déjà dans votre bibliothèque' }, '✓ déjà ajouté') : null,
+              h('a', { class: 'mb-open', href: it.url, target: '_blank', rel: 'noopener noreferrer', title: 'Aperçu dans un nouvel onglet', onclick: function (e) { e.stopPropagation(); } }, '↗'));
+            c.txt = Manuels.norm(man.nom + ' ' + ch.titre + ' ' + it.lab + ' ' + it.sub + ' ' + g.g);
+            cb.addEventListener('change', function () { setRow(c, cb.checked); cd.setAttribute('data-n', mine.filter(function (x) { return sel[x.it.key]; }).length); refresh(); });
+            mine.push(c); rows.push(c); grp.rows.push(c); cd.appendChild(c.el);
+          });
+        });
+        cd.setAttribute('data-n', 0);
+        all.addEventListener('click', function (e) { e.stopPropagation(); }); all.addEventListener('change', function () { mine.forEach(function (c) { setRow(c, all.checked); }); cd.setAttribute('data-n', all.checked ? mine.length : 0); if (all.checked) cd.open = true; refresh(); });
+        cd._rows = mine; body.appendChild(cd);
+      });
+      lvl.appendChild(body); root.appendChild(lvl);
+    });
+    function setFilter(q) {
+      q = Manuels.norm(q).trim();
+      rows.forEach(function (c) { c.el.hidden = !!q && c.txt.indexOf(q) < 0; });
+      heads.forEach(function (g) { g.h4.hidden = g.rows.every(function (c) { return c.el.hidden; }); });
+      root.querySelectorAll('details.mb-ch').forEach(function (d) { var vis = d._rows.some(function (c) { return !c.el.hidden; }); d.hidden = !vis; if (q && vis) d.open = true; });
+      root.querySelectorAll('details.mb-lvl').forEach(function (d) { var vis = !q || Array.prototype.some.call(d.querySelectorAll('details.mb-ch'), function (c) { return !c.hidden; }); d.hidden = !vis; if (q && vis) d.open = true; });
+    }
+    refresh();
+    return { el: root, count: n, entries: function () { return Object.keys(sel).map(function (k) { return sel[k]; }); }, setFilter: setFilter,
+      reset: function () { rows.forEach(function (c) { setRow(c, false); }); root.querySelectorAll('details.mb-ch').forEach(function (d) { d.setAttribute('data-n', 0); }); refresh(); } };
+  }
+  /* crée (sans doublon, sur l’adresse) les ressources de la bibliothèque correspondant aux liens cochés ; renvoie [{ res, usage, neuf }] */
+  function toLibrary(entries) {
+    var by = {}; DB.list('fs_ressources').forEach(function (r) { if (r.url) by[r.url] = r; });
+    return entries.map(function (c) {
+      var r = by[c.it.url], neuf = false;
+      if (!r) { r = DB.create('fs_ressources', { type: Res.detectType(c.it.url), titre: c.it.titre, url: c.it.url, storage_path: null, mime: null, taille: 0, tags: [c.man.court, 'Ch. ' + c.ch.n].slice(0, 12), note: '' }); by[c.it.url] = r; neuf = true; }
+      return { res: r, usage: c.it.usage, neuf: neuf };
+    });
+  }
+  return { enabled: enabled, get: get, has: has, chapter: chapter, describe: describe, lines: lines, html: html, specs: specs, section: section, sync: sync, pg: pg, nums: nums, pdfAt: pdfAt, appAt: appAt, chapPdf: chapPdf, exoTxt: exoTxt, notionTxt: notionTxt, picker: picker, toLibrary: toLibrary, hasLibrary: hasLibrary, catalog: catalog };
 })();

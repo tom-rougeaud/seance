@@ -23,7 +23,7 @@ async function login(page) { await page.goto(BASE); await page.waitForSelector('
   console.log('# Manuels : identifiants du BO valides et correspondance');
   const chk = await page.evaluate(() => {
     const out = { bad: [], noMatch: [], levels: {} };
-    ['pm', 'bp2', 'bp1', 'bpt'].forEach((n) => {
+    ['pm', 'bp2', 'bp1', 'bpt', 'cap'].forEach((n) => {
       const man = Manuels.get(n), e = Ref.effective(n), ids = e.chapitres.map((c) => c.id);
       let mapped = 0;
       man.chap.forEach((c) => c.refs.forEach((r) => { if (ids.indexOf(r) < 0) out.bad.push(n + ':' + r); }));
@@ -40,7 +40,7 @@ async function login(page) { await page.goto(BASE); await page.waitForSelector('
   ok(chk.bad.length === 0, 'toutes les références de chapitres existent dans le BO (' + chk.bad.join(',') + ')');
   console.log('     chapitres sans manuel :', chk.noMatch.join(', '));
   ok(chk.levels.bp2.mapped === 6 && chk.levels.bp1.mapped === 8 && chk.levels.bpt.mapped >= 7 && chk.levels.pm.mapped >= 12, 'chapitres du BO reliés à un chapitre de manuel : ' + JSON.stringify(Object.fromEntries(Object.entries(chk.levels).map(([k, v]) => [k, v.mapped + '/' + v.chapBO]))));
-  ok(chk.cap === false, 'CAP : pas de manuel (version 2 non proposée)');
+  ok(chk.cap === true && chk.levels.cap.mapped >= 7, 'CAP : manuel relié au programme (' + chk.levels.cap.mapped + '/' + chk.levels.cap.chapBO + ' chapitres du BO)');
 
   console.log('# Texte Pronote');
   const ids = await page.evaluate(() => {
@@ -57,31 +57,31 @@ async function login(page) { await page.goto(BASE); await page.waitForSelector('
   });
   const d1 = await page.evaluate((id) => { const s = DB.byId('fs_seances', id), cl = Cls.get(s.class_id); return { v1: Pronote.draft(s, cl, 'passe', 1), v2: Pronote.draft(s, cl, 'passe', 2), f2: Pronote.draft(s, cl, 'futur', 2) }; }, ids.s);
   console.log('     V1 » ' + d1.v1.contenu + '\n     V2 » ' + d1.v2.contenu + '\n     V2 travail » ' + d1.v2.travail + '\n     V2 futur » ' + d1.f2.contenu);
-  ok(!/accroche|exercices d’entraînement|La séance a comporté|Déroulé/i.test(d1.v1.contenu) && /Nous avons travaillé : /.test(d1.v1.contenu), 'V1 : ce qui a été traité, aucune étape du déroulé');
-  ok(d1.v2.contenu !== d1.v1.contenu && !/indicateurs de position/.test(d1.v2.contenu) && /^Séance de cours : « Moyenne et médiane »/.test(d1.v2.contenu), 'V2 distincte de V1 : s’appuie sur le manuel, pas sur les phrases du BO');
+  ok(!/accroche|exercices d’entraînement|La séance a comporté|Déroulé/i.test(d1.v1.contenu) && /^Objectif : /.test(d1.v1.contenu) && /\nNotions? abordées? : /.test(d1.v1.contenu), 'V1 : lignes Objectif / Notion abordée, aucune étape du déroulé');
+  ok(d1.v2.contenu !== d1.v1.contenu && !/indicateurs de position/.test(d1.v2.contenu) && /^Objectif : Moyenne et médiane/.test(d1.v2.contenu), 'V2 distincte de V1 : s’appuie sur le manuel, pas sur les phrases du BO');
   ok(d1.v1.manuel === false && !/manuel/.test(d1.v1.contenu), 'V1 : sans renvoi au manuel');
-  ok(d1.v2.manuel && /manuel « Maths et MCV · 2de » : chapitre 2 « Statistique à une variable »/.test(d1.v2.contenu) && /« La moyenne »/.test(d1.v2.contenu) && /https:\/\/tom-rougeaud\.github\.io\/mcv\/2de\//.test(d1.v2.contenu), 'V2 : renvoi au manuel 2de, chapitre 2 et notions reconnues, lien de l’appli');
-  ok(/^Revoir /.test(d1.v2.travail) && /chapitre 2/.test(d1.v2.travail), 'V2 : travail à faire proposé (revoir la notion dans le manuel)');
-  ok(/^Au programme : cours « Moyenne et médiane »/.test(d1.f2.contenu) && /Nous allons travailler avec le manuel/.test(d1.f2.contenu), 'V2 au futur');
+  ok(d1.v2.manuel && /Manuel : Maths et MCV · 2de, chapitre 2 « Statistique à une variable »/.test(d1.v2.contenu) && /La moyenne/.test(d1.v2.contenu) && /https:\/\/tom-rougeaud\.github\.io\/mcv\/2de\//.test(d1.v2.contenu), 'V2 : renvoi au manuel 2de, chapitre 2 et notions reconnues, lien de l’appli');
+  ok(/^Revoir : /.test(d1.v2.travail) && /chapitre 2/.test(d1.v2.travail), 'V2 : travail à faire proposé (revoir la notion dans le manuel)');
+  ok(/Notions? à aborder : /.test(d1.f2.contenu) && !/abordées?/.test(d1.f2.contenu), 'V2 au futur (« à aborder »)');
   ok(!/[\u{1F300}-\u{1FAFF}☀-➿]/u.test(d1.v2.contenu), 'aucun émoji');
   const capv2 = await page.evaluate((id) => { const s = DB.byId('fs_seances', id); return Pronote.draft(s, Cls.get(s.class_id), 'passe', 2); }, ids.s2);
-  ok(capv2.manuel === false && !/manuel/.test(capv2.contenu), 'CAP : version 2 retombe sur la version 1');
+  ok(capv2.manuel === true && /Manuel : Maths · CAP, chapitre 1/.test(capv2.contenu) && /cap\//.test(capv2.contenu), 'CAP : version 2 s’appuie sur le manuel CAP');
 
   console.log('# Interface : Pronote (public) et mémo perso (manuels)');
   await page.goto(BASE + '#/seance/' + ids.s); await page.waitForSelector('.page-head h1');
   ok(await page.locator('button:has-text("✨ Rédiger la synthèse")').count() === 1 && await page.locator('button:has-text("Version 2")').count() === 0, 'section Pronote : un seul bouton (aucune trace des manuels)');
   await page.click('text=📋 Pronote'); await sleep(400);
   await page.click('text=✨ Rédiger la synthèse'); await sleep(400);
-  const t1 = await page.locator('textarea[placeholder^="Quelques phrases"]').inputValue();
-  ok(/Nous avons travaillé : /.test(t1) && !/manuel|Appli :/.test(t1), 'texte Pronote : ce qui a été fait, sans manuel ni lien');
+  const t1 = await page.locator('textarea[placeholder^="Objectif"]').inputValue();
+  ok(/^Objectif : /.test(t1) && !/manuel|Appli :/i.test(t1), 'texte Pronote : ce qui a été fait, sans manuel ni lien');
   ok(!/^Revoir/.test(await page.locator('textarea[placeholder^="Travail à faire"]').inputValue()), 'travail à faire Pronote : pas de renvoi au manuel');
-  ok(await page.locator('button:has-text("🔒 Mémo manuels")').count() === 2, 'boutons « Mémo manuels » en haut et en bas de la séance');
+  ok(await page.locator('button:has-text("🔒 Mémo manuels")').count() === 1, 'bouton « Mémo manuels » dans la barre d’actions de la séance');
   await page.locator('button:has-text("🔒 Mémo manuels")').first().click(); await sleep(300);
   ok(await page.locator('details.sec:has-text("Mémo perso")[open]').count() === 1, 'le bouton ouvre le mémo perso');
   await page.click('text=✨ Rédiger le mémo avec mes manuels'); await sleep(500);
   const memo = await page.locator('textarea[placeholder^="Mémo pour moi"]').inputValue();
   console.log('     mémo » ' + memo);
-  ok(/manuel « Maths et MCV · 2de »/.test(memo) && /« La moyenne »/.test(memo) && /tom-rougeaud\.github\.io\/mcv\/2de\//.test(memo) && /À revoir \/ à faire : Revoir /.test(memo), 'mémo perso : chapitre, notions, appli, à revoir');
+  ok(/Manuel : Maths et MCV · 2de/.test(memo) && /La moyenne/.test(memo) && /tom-rougeaud\.github\.io\/mcv\/2de\//.test(memo) && /À revoir \/ à faire : Revoir /.test(memo), 'mémo perso : chapitre, notions, appli, à revoir');
   await page.click('text=📋 Copier le mémo'); await sleep(200);
   ok((await page.evaluate(() => navigator.clipboard.readText())) === memo, 'mémo copiable');
   await sleep(2800);
@@ -91,7 +91,7 @@ async function login(page) { await page.goto(BASE); await page.waitForSelector('
   ok(!exp.includes('Mémo perso') && !exp.includes('mcv/2de'), 'le mémo perso n’apparaît dans aucun export de fiche');
   await page.screenshot({ path: SHOTS + '/40-memo-perso.png' });
   await page.goto(BASE + '#/seance/' + ids.s2); await page.waitForSelector('.page-head h1'); await page.locator('button:has-text("🔒 Mémo manuels")').first().click(); await sleep(300);
-  ok(await page.locator('button:has-text("Rédiger le mémo")').count() === 0 && /Pas de manuel pour ce niveau/.test(await page.locator('details.sec:has-text("Mémo perso")').innerText()), 'CAP : pas de génération, mémo libre');
+  ok(await page.locator('button:has-text("Rédiger le mémo")').count() === 1, 'CAP : le mémo avec mes manuels est proposé');
 
   console.log('# Alternance sans saut de semaine');
   const wk = await page.evaluate(() => {

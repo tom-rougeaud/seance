@@ -365,6 +365,46 @@ body.printing .guide-wrap{display:none!important}
 .an-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--line)}
 @media (max-width:900px){.an-wrap{grid-template-columns:1fr}.an-weeks{grid-template-columns:repeat(auto-fill,minmax(56px,1fr))}.an-name{width:100%}.an-tt{min-width:0}.an-tb{font-size:.62rem;padding:.1rem .2rem}.an-tb b{font-size:.68rem}.an-tb .an-bt{font-size:.62rem}}
 
+/* ═══ Boutons en couleurs (palette calme) · barre d’actions · « Par où commencer ? » · plus d’options ═══ */
+:root{--k1:#2B4C7E;--k2:#3F7A5C;--k3:#9A5F2A;--k4:#6A4C7C;--k5:#2F6F7E;--k-on:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--k1:#8FB0DD;--k2:#8CC3A1;--k3:#DDB07A;--k4:#C0A3D6;--k5:#7EC0CE;--k-on:#10162A}}
+:root[data-theme="dark"]{--k1:#8FB0DD;--k2:#8CC3A1;--k3:#DDB07A;--k4:#C0A3D6;--k5:#7EC0CE;--k-on:#10162A}
+.c1{--kc:var(--k1)}.c2{--kc:var(--k2)}.c3{--kc:var(--k3)}.c4{--kc:var(--k4)}.c5{--kc:var(--k5)}
+.btn.c1,.btn.c2,.btn.c3,.btn.c4,.btn.c5{background:var(--kc);border-color:var(--kc);color:var(--k-on);font-weight:600}
+.btn.c1:hover,.btn.c2:hover,.btn.c3:hover,.btn.c4:hover,.btn.c5:hover{background:var(--kc);filter:brightness(.9)}
+.chip.c1,.chip.c2,.chip.c3,.chip.c4,.chip.c5{border-color:var(--kc);color:var(--kc)}
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:.2rem 0 .9rem}
+.qbar-l{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:.2rem}
+.qbar .btn{min-height:42px}
+.start-card{border:2px dashed var(--line)}
+.start-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-top:.5rem}
+.tile-btn{display:flex;flex-direction:column;align-items:flex-start;gap:.25rem;text-align:left;padding:.85rem 1rem;border-radius:var(--r);border:2px solid var(--kc);background:color-mix(in srgb,var(--kc) 9%,var(--surface));color:var(--text);cursor:pointer;font:inherit;min-height:84px}
+.tile-btn strong{color:var(--kc);font-size:1.02rem}.tile-btn span{font-size:.85rem;color:var(--muted)}
+.tile-btn:hover{background:color-mix(in srgb,var(--kc) 17%,var(--surface))}
+.phase-add{align-items:center}
+.more{border:1px dashed var(--line);border-radius:var(--r);margin:.9rem 0;padding:.2rem .7rem;background:transparent}
+.more>summary{cursor:pointer;padding:.55rem 0;display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}
+.more-b{padding:.3rem 0 .6rem}.more-b .sec{box-shadow:none}
+@media (max-width:700px){.start-grid{grid-template-columns:1fr}}
+
+/* ═══ Bibliothèque des manuels (accordéons) ═══ */
+.mb{display:flex;flex-direction:column;gap:.5rem;margin:.6rem 0}
+.mb-lvl,.mb-top{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.mb-lvl>summary,.mb-top>summary{cursor:pointer;padding:.65rem .8rem;display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}
+.mb-body{padding:0 .5rem .5rem;display:flex;flex-direction:column;gap:.35rem}
+.mb-ch{border:1px solid var(--line);border-radius:var(--rs);background:var(--surface2)}
+.mb-ch>summary{cursor:pointer;padding:.5rem .6rem;display:flex;gap:.55rem;align-items:center;flex-wrap:wrap}
+.mb-ch>summary input{width:18px;height:18px}
+.mb-ct{font-weight:600}.mb-n,.mb-ln{margin-left:auto}
+.mb-g{margin:.5rem .8rem .15rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.mb-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.4rem .8rem;border-top:1px solid var(--line);cursor:pointer;min-height:40px}
+.mb-g[hidden],.mb-row[hidden],.mb-ch[hidden],.mb-lvl[hidden]{display:none}
+.mb-row.on{background:color-mix(in srgb,var(--k2) 14%,var(--surface2))}
+.mb-row input{width:18px;height:18px;flex:none}.mb-t{flex:1 1 220px}
+.mb-open{margin-left:auto;text-decoration:none;font-size:.9rem;padding:.1rem .45rem;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
+.mb-row .tag.ok{color:var(--ok);border-color:var(--ok)}
+.mb-top{margin:.5rem 0}.mb-top>.mb,.mb-top>.lib-pick{padding:0 .6rem .6rem}
+
 </style>
 </head>
 <body>
@@ -382,7 +422,7 @@ null
 /* ── 00-util.js ── */
 /* ═══ FICHES · utilitaires ═══ */
 'use strict';
-var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202610302028","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
+var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202610302104","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
 
 /* ── stockage local sécurisé (try/catch + repli en mémoire) ── */
 var Mem = {};
@@ -1468,6 +1508,17 @@ var Manuels = (function () {
       N(5, 'Statistique à deux variables', ['bpt.stat2'], [['Nuage de points et choix d’un modèle', 'nuage|modele|choisir'], ['Le coefficient de détermination R²', 'determination|r2|qualite'], ['Le changement de variable z = log(y)', 'changement de variable|log'], ['Les changements de variable z = 1/x et z = qˣ', 'changement de variable|inverse'], ['Interpoler et extrapoler', 'interpol|extrapol|prevoir|estim']]),
       N(6, 'Probabilités', ['bpt.proba'], [['L’arbre pondéré', 'arbre|pondere'], ['La probabilité d’un chemin', 'chemin|produit'], ['La probabilité conditionnelle', 'condition|sachant'], ['La formule des probabilités totales', 'totale'], ['Évènements indépendants', 'independan']]),
       N(7, 'Exponentielle et logarithme népérien', ['bpt.lnexp'], [['Le nombre e et la fonction exponentielle', 'nombre e|exponentielle'], ['Dérivée de eˣ et croissance continue', 'deriv|croissance'], ['Le logarithme népérien', 'neperien|\\bln\\b'], ['Résoudre eˣ = a et ln(x) = a', 'resoudre|equation']])] },
+    cap: { nom: 'Maths · CAP', url: BASE + 'cap/', chap: [
+      N(1, 'Statistique à une variable', ['cap.stat1'], [['Effectifs, effectif total et classes', 'effectif|classe|regroup|recueill|organis'], ['Fréquences', 'frequence'], ['Diagrammes en bâtons et circulaires', 'diagramme|baton|circulaire|represent'], ['La moyenne', 'moyenne|moyen']]),
+      N(2, 'Probabilités', ['cap.proba'], [['Expérience aléatoire, issues et événements', 'experience|issue|evenement'], ['Fluctuation et stabilisation des fréquences', 'fluctuation|stabilisation|simulation|echantillon'], ['La probabilité d’un événement', 'probabilite|calculer des probabilites'], ['Événement contraire et deux épreuves', 'contraire|impossible|certain|epreuve']]),
+      N(3, 'Proportionnalité', ['cap.prop'], [['Reconnaître une situation de proportionnalité', 'proportionnel|reconnaitre|proportionnalite'], ['Le coefficient de proportionnalité', 'coefficient'], ['La quatrième proportionnelle', 'quatrieme|tableau'], ['Vitesse moyenne et proportionnalité', 'vitesse|debit|probleme']]),
+      N(4, 'Pourcentages et échelles', ['cap.prop', 'cap.calc'], [['Calculer un pourcentage d’une quantité', 'pourcentage'], ['Hausse, baisse et coefficient multiplicateur', 'coefficient|multiplicateur|hausse|baisse'], ['Calculer un taux d’évolution', 'taux|evolution|valeur initiale|valeur finale'], ['Les échelles', 'echelle']]),
+      N(5, 'Équations et formules', ['cap.eq1'], [['Calculer avec une formule', 'formule'], ['Résoudre x + a = b et a × x = b', 'equation|resoudre'], ['Résoudre a × x + b = c', 'ax ?\\+ ?b|premier degre|equation'], ['Isoler une grandeur dans une formule', 'isoler|modelis|probleme']]),
+      N(6, 'Fonctions et graphiques', ['cap.fonc'], [['Lire un tableau de valeurs', 'tableau de valeurs|notion de fonction'], ['Lire les coordonnées d’un point', 'coordonnee|reperage|repere|placer'], ['Lire une image et un antécédent sur une courbe', 'image|antecedent|courbe|representation graphique'], ['Lire les variations d’une fonction', 'variation|croissan|decroissan|intervalle']]),
+      N(7, 'Fonctions linéaires et affines', ['cap.fonc'], [['La fonction linéaire f(x) = a × x', 'lineaire|proportionnalite'], ['Tracer la droite d’une fonction linéaire', 'droite|construire|representation|tracer'], ['La fonction affine f(x) = a × x + b', 'affine'], ['Comparer deux formules', 'comparer|passer d.un mode']]),
+      N(8, 'Calculs commerciaux', ['cap.calc'], [['Prix HT, TVA et prix TTC', 'tva|ttc|taxe|prix|\\bht\\b'], ['Remise commerciale et facture', 'remise|rabais|ristourne|reduction|facture|devis|bon de commande'], ['Marge et taux de marge', 'marge|cout|taux'], ['Intérêts simples et valeur acquise', 'interet|valeur acquise|capital|placement']]),
+      N(9, 'Périmètres, aires et volumes', ['cap.geo'], [['Le périmètre', 'perimetre'], ['L’aire', 'aire'], ['Le volume d’un solide', 'volume|solide'], ['Les conversions d’unités', 'conversion|convertir|unite']]),
+      N(10, 'Pythagore, Thalès et trigonométrie', ['cap.geo'], [['Le théorème de Pythagore : l’hypoténuse', 'pythagore|longueur d.un segment'], ['Pythagore : un côté et la réciproque', 'reciproque|pythagore'], ['Le théorème de Thalès', 'thales'], ['Sinus, cosinus et tangente', 'sinus|cosinus|tangente|trigonom|angle']])] },
     pm: { nom: '3ème Série Pro', url: BASE + '3eme/', chap: [
       N(1, 'Nombres entiers et arithmétique', ['pm.A3'], [['Multiples, diviseurs et critères de divisibilité', 'multiple|diviseur|divisib|critere'], ['Nombres premiers', 'premier'], ['Décomposer en produit de facteurs premiers', 'decompos|produit de facteurs'], ['Rendre une fraction irréductible', 'irreductible|fraction|pgcd']]),
       N(2, 'Fractions, puissances et écriture scientifique', ['pm.A1', 'pm.A2'], [['Additionner et soustraire des fractions', 'fraction|addition|soustra'], ['Prendre une fraction d’une quantité', 'fraction'], ['Puissances de 10 et préfixes', 'puissance|prefixe'], ['L’écriture scientifique', 'scientifique']]),
@@ -1689,7 +1740,7 @@ var Res = (function () {
         h('button', { class: 'btn small', type: 'button', onclick: function () {
           UI.promptText('Ajouter des liens', { multiline: true, help: 'Un lien par ligne. Variante : « Titre | https://… ». Les vidéos YouTube sont converties en lien sans cookies.', ok: 'Ajouter' }).then(function (v) { if (v) handle([], v.split(/\r?\n/).map(function (l) { return l; })); });
         } }, '🔗 Liens…'),
-        h('button', { class: 'btn small', type: 'button', onclick: function () { pickFromLibrary(parentType, rec, function () { render(); if (onChange) onChange(); }); } }, '📚 Ma bibliothèque')));
+        h('button', { class: 'btn small', type: 'button', onclick: function () { pickFromLibrary(parentType, rec, function () { render(); if (onChange) onChange(); }); } }, (typeof Man !== 'undefined' && Man.hasLibrary() ? '📚 Bibliothèque et manuels' : '📚 Ma bibliothèque'))));
     fileInp.addEventListener('change', function () { handle(Array.prototype.slice.call(fileInp.files), []); fileInp.value = ''; });
     UI.dropzone(dz, function (d) { handle(d.files, d.urls); });
     dz.addEventListener('paste', function (e) { var t = (e.clipboardData || window.clipboardData).getData('text'); if (/https?:\/\//.test(t)) { e.preventDefault(); handle([], t.split(/\r?\n/)); } });
@@ -1713,21 +1764,33 @@ var Res = (function () {
   }
 
   function pickFromLibrary(parentType, rec, done) {
-    var sel = {}; var q = '';
+    var sel = {}, q = '', cl = rec && rec.class_id && Cls.get(rec.class_id);
+    var useMan = typeof Man !== 'undefined' && Man.hasLibrary();
     var list = h('div', { class: 'lib-pick' });
-    var search = h('input', { class: 'inp', type: 'search', placeholder: 'Rechercher…' });
+    var search = h('input', { class: 'inp', type: 'search', placeholder: useMan ? 'Rechercher un chapitre, une notion, un exercice, une ressource…' : 'Rechercher…' });
+    var count = h('span', { class: 'muted small' }, '');
+    var pk = useMan ? Man.picker({ open: cl && cl.niveau_id, onChange: function () { upd(); } }) : null;
+    function upd() { var n = Object.keys(sel).filter(function (k) { return sel[k]; }).length + (pk ? pk.count() : 0); count.textContent = n ? n + ' sélectionné' + (n > 1 ? 's' : '') : 'Cochez ce que vous voulez joindre à la fiche.'; }
     function draw() {
       clear(list);
       var rs = DB.list('fs_ressources').filter(function (r) { return !q || Ref.norm(r.titre + ' ' + (r.tags || []).join(' ')).indexOf(Ref.norm(q)) >= 0; }).sort(function (a, b) { return cmpStr(a.titre, b.titre); });
-      if (!rs.length) list.appendChild(h('p', { class: 'muted' }, 'Bibliothèque vide : ajoutez d’abord des ressources.'));
+      if (!rs.length) list.appendChild(h('p', { class: 'muted' }, q ? 'Aucune ressource ne correspond.' : 'Aucune ressource enregistrée : ajoutez d’abord des fichiers ou des liens.'));
       rs.forEach(function (r) {
-        var cb = h('input', { type: 'checkbox', checked: !!sel[r.id] }); cb.addEventListener('change', function () { sel[r.id] = cb.checked; });
+        var cb = h('input', { type: 'checkbox', checked: !!sel[r.id] }); cb.addEventListener('change', function () { sel[r.id] = cb.checked; upd(); });
         list.appendChild(h('label', { class: 'res-row' }, cb, h('span', { class: 'res-ic' }, icon(r.type)), h('div', { class: 'res-main' }, r.titre, h('div', { class: 'muted small' }, r.url ? hostOf(r.url) : fmtSize(r.taille)))));
       });
     }
-    search.addEventListener('input', debounce(function () { q = search.value; draw(); }, 150));
-    draw();
-    UI.modal({ title: 'Ajouter depuis ma bibliothèque', body: h('div', null, search, list), actions: [{ label: 'Annuler', kind: 'ghost' }, { label: 'Ajouter', kind: 'primary', onClick: function () { Object.keys(sel).forEach(function (id) { if (sel[id]) attach(parentType, rec.id, id, 'eleve'); }); done(); } }] });
+    search.addEventListener('input', debounce(function () { q = search.value; if (pk) pk.setFilter(q); draw(); }, 150));
+    draw(); upd();
+    var body = h('div', null, search, count, pk ? h('details', { class: 'mb-top', open: true }, h('summary', null, h('strong', null, '📘 Mes manuels'), h('span', { class: 'muted small' }, 'chapitres, notions, exercices : il suffit de cocher')), pk.el) : null,
+      pk ? h('details', { class: 'mb-top', open: !!DB.list('fs_ressources').length && !pk }, h('summary', null, h('strong', null, '📁 Mes fichiers et liens'), h('span', { class: 'muted small' }, DB.list('fs_ressources').length + ' ressource(s)')), list) : list);
+    UI.modal({ title: useMan ? 'Ajouter depuis ma bibliothèque et mes manuels' : 'Ajouter depuis ma bibliothèque', body: body, actions: [{ label: 'Annuler', kind: 'ghost' }, { label: 'Ajouter à la fiche', kind: 'primary', onClick: function () {
+      var n = 0;
+      Object.keys(sel).forEach(function (id) { if (sel[id]) { attach(parentType, rec.id, id, 'eleve'); n++; } });
+      if (pk) Man.toLibrary(pk.entries()).forEach(function (x) { attach(parentType, rec.id, x.res.id, x.usage); n++; });
+      if (n) UI.toast(plural(n, 'ressource ajoutée', 'ressources ajoutées') + ' à la fiche.');
+      done();
+    } }] });
   }
   return { detectType: detectType, icon: icon, usedBytes: usedBytes, QUOTA: QUOTA, addLinks: addLinks, upload: upload, open: open, attach: attach, of: of, usageCount: usageCount, destroy: destroy, block: block, pickFromLibrary: pickFromLibrary };
 })();
@@ -2404,16 +2467,37 @@ Views.seance = function (id) {
   var dyn = h('div'); var head;
 
   var flush = function () { save.now(); };
-  function pronoteBtn() { return h('button', { class: 'btn', type: 'button', title: 'Rédiger et copier la synthèse pour le cahier de textes Pronote', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Pronote') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '📋 Pronote'); }
-  function tplBtn() { return h('button', { class: 'btn', type: 'button', title: 'Pré-remplir cette séance avec une proposition d’1 h tirée du programme, ou avec un de vos modèles', onclick: function () { save.now(); Tpl.open({ mode: 'load', seance: s, cl: cl }); } }, '📥 Charger un modèle'); }
-  function modelBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); Tpl.saveAsModel(s, cl); } }, '💾 Enregistrer comme modèle'); }
-  function persoBtn() { return h('button', { class: 'btn', type: 'button', title: 'Mémo personnel appuyé sur mes manuels (pas pour Pronote)', onclick: function () { var t = $$('#view details.sec').filter(function (x) { return $('.sec-t', x).textContent.indexOf('Mémo perso') >= 0; })[0]; if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } }, '🔒 Mémo manuels'); }
-  function manBtn() { return h('button', { class: 'btn', type: 'button', title: 'Aller à la section Manuel (chapitre, pages, exercices)', onclick: function () { Guide.goSection('Manuel'); } }, '📘 Manuel'); }
+  function goTo(txt) { Guide.goSection(txt); }
+  function pronoteBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Rédiger et copier la synthèse pour le cahier de textes Pronote', onclick: function () { goTo('Pronote'); } }, '📋 Pronote'); }
+  function tplBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Pré-remplir cette séance avec une proposition d’1 h tirée du programme, ou avec un de vos modèles', onclick: function () { save.now(); Tpl.open({ mode: 'load', seance: s, cl: cl }); } }, '📥 Charger un modèle'); }
+  function modelBtn() { return h('button', { class: 'btn c5', type: 'button', title: 'Garder cette séance comme modèle réutilisable', onclick: function () { save.now(); Tpl.saveAsModel(s, cl); } }, '💾 Enregistrer comme modèle'); }
+  function persoBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Mémo personnel appuyé sur mes manuels (pas pour Pronote)', onclick: function () { goTo('Mémo perso'); } }, '🔒 Mémo manuels'); }
+  function manBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Aller à la section Manuel (chapitre, pages, exercices)', onclick: function () { goTo('Manuel'); } }, '📘 Manuel'); }
+  function progBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'Cocher les objectifs et notions du programme', onclick: function () { goTo('Programme'); } }, '☑ Programme'); }
+  function resBtn(c) { return h('button', { class: 'btn ' + (c || ''), type: 'button', title: 'PDF, liens, vidéos, pages de vos manuels', onclick: function () { goTo('Ressources'); } }, '📎 Ressources'); }
   function dupBtn() { return h('button', { class: 'btn', type: 'button', onclick: function () { save.now(); var n = duplicateSeance(s); UI.toast('Séance dupliquée.'); location.hash = '#/seance/' + n.id; } }, '⧉ Dupliquer'); }
   head = pageHead(s.titre || 'Nouvelle séance', cl.nom + ' · ' + lbl(K.TYPES, s.type) + (seq ? ' · ' + seq.titre : ''),
-    Exp.buttons('seance', s, flush).concat([tplBtn()]).concat(Man.enabled() ? [manBtn()] : []).concat([pronoteBtn()]).concat(APP.manuels ? [] : [persoBtn()]).concat([dupBtn()]),
+    Exp.buttons('seance', s, flush),
     (Annee.from && Annee.from.sid === s.id) ? ['#/annee', 'Mon emploi du temps (semaine du ' + fmtDM(Annee.from.week) + ')'] : seq ? ['#/sequence/' + seq.id, seq.titre || 'Séquence'] : ['#/classe/' + cl.id, cl.nom]);
   root.appendChild(head);
+
+  /* barre d’actions rapides, en couleurs : un toucher et on est dans la bonne partie de la fiche */
+  root.appendChild(h('nav', { class: 'qbar', 'aria-label': 'Aller directement à…' }, h('span', { class: 'qbar-l' }, 'Aller à'),
+    tplBtn('c1'), Man.enabled() ? manBtn('c2') : progBtn('c2'), resBtn('c3'), pronoteBtn('c4'), APP.manuels ? null : persoBtn('c5')));
+  var startBox = h('div'), startHidden = false;
+  function drawStart() {
+    clear(startBox);
+    var vide = !(d.items || []).length && !((d.manuel && d.manuel.notions) || []).length && !(d.manuel && (d.manuel.exos || []).length) && !String(d.objectif || '').trim();
+    if (!vide || startHidden || s.statut === 'faite') return;
+    function tile(c, t, sub, fn) { return h('button', { class: 'tile-btn ' + c, type: 'button', onclick: fn }, h('strong', null, t), h('span', null, sub)); }
+    startBox.appendChild(h('section', { class: 'card start-card' }, h('h2', null, '🚀 Par où commencer ?'),
+      h('p', { class: 'muted small' }, 'Choisissez un point de départ. Tout reste modifiable ensuite.'),
+      h('div', { class: 'start-grid' },
+        tile('c1', '📥 Partir d’un modèle d’1 h', Man.enabled() ? 'Une séance prête par notion du manuel, ou un de vos modèles' : 'Une proposition prête à l’emploi tirée du programme, ou un de vos modèles', function () { save.now(); Tpl.open({ mode: 'load', seance: s, cl: cl }); }),
+        Man.enabled() ? tile('c2', '📘 Choisir dans le manuel', 'Chapitre, notions et exercices à cocher', function () { goTo('Manuel'); }) : tile('c2', '☑ Cocher dans le programme', 'Objectifs et notions du BO', function () { goTo('Programme'); }),
+        tile('c4', '✏️ Page blanche', 'Je remplis moi-même', function () { startHidden = true; drawStart(); goTo('Déroulé'); }))));
+  }
+  drawStart(); root.appendChild(startBox);
 
   function refreshHead() { var t = $('h1', head); t.textContent = s.titre || 'Nouvelle séance'; }
 
@@ -2472,38 +2556,40 @@ Views.seance = function (id) {
   var objField = Ed.area('Objectif de la séance (en une phrase)', d, 'objectif', save, 'À la fin de la séance, l’élève sait…', 2);
   var panel = Ed.itemsPanel({ rec: s, cl: cl, changed: save, withNiv: true, kinds: ['o', 'k', 'a'], onCount: function (n) { countEl.textContent = String(n); } });
   if (Man.enabled()) root.appendChild(Man.section(s, cl, save));
-  var secP = UI.section('sea-prog', 'Programme : objectifs, notions, compétences', [objField, panel], { open: true });
+  var secP = UI.section('sea-prog', 'Programme : objectifs, notions, compétences', [objField, panel], { open: !Man.enabled() });
   $('summary', secP).appendChild(countEl); root.appendChild(secP);
 
   /* ── contenu dépendant du type (déroulé, matériel, évaluation, DM) ── */
   root.appendChild(dyn);
   function drawDyn() {
     clear(dyn);
-    dyn.appendChild(UI.section('sea-pre', 'Prérequis et ancrage', [h('div', { class: 'grid2' }, Ed.area('Prérequis', d, 'prerequis', save, 'Ce qui doit être acquis', 2), Ed.area('Ancrage métier / contexte', d, 'ancrage', save, 'Situation professionnelle ou de la vie courante', 2))], { open: false }));
-    /* matériel */
+    /* 1 · préparer : déroulé, évaluation, ressources, devoir maison */
+    dyn.appendChild(deroule());
+    if (s.type === 'evaluation') dyn.appendChild(UI.section('sea-eval', 'Évaluation : critères et barème', [Ed.area('Critères de réussite / compétences évaluées', d.eval, 'criteres', save, 'Ex. S’approprier : repère la bonne donnée (1 pt)…', 4), Ed.area('Barème', d.eval, 'bareme', save, 'Ex. Ex.1 : 4 pts ; Ex.2 : 6 pts…', 3)], { open: true }));
+    dyn.appendChild(UI.section('sea-res', 'Ressources (PDF, liens, vidéos, pages de mes manuels)', [Res.block('seance', s, function () { /* rien */ })], { open: true }));
+    dyn.appendChild(dmSection());
+    /* 2 · le reste, replié : on l’ouvre seulement si besoin */
     var mat = h('div', { class: 'chips' });
     K.MATERIEL.forEach(function (m) {
       var on = d.materiel.indexOf(m[0]) >= 0;
       mat.appendChild(h('button', { class: 'chip' + (on ? ' on' : ''), type: 'button', 'aria-pressed': on ? 'true' : 'false', onclick: function () { var i = d.materiel.indexOf(m[0]); if (i >= 0) d.materiel.splice(i, 1); else d.materiel.push(m[0]); save(); drawDyn(); } }, m[1]));
     });
-    dyn.appendChild(UI.section('sea-mat', 'Matériel', [mat, Ed.line('Autre matériel', d, 'materiel_libre', save, 'Ex. dés, ficelle, thermomètre…')], { open: false }));
-    /* déroulé */
-    dyn.appendChild(deroule());
-    /* évaluation */
-    if (s.type === 'evaluation') dyn.appendChild(UI.section('sea-eval', 'Évaluation : critères et barème', [Ed.area('Critères de réussite / compétences évaluées', d.eval, 'criteres', save, 'Ex. S’approprier : repère la bonne donnée (1 pt)…', 4), Ed.area('Barème', d.eval, 'bareme', save, 'Ex. Ex.1 : 4 pts ; Ex.2 : 6 pts…', 3)], { open: true }));
-    /* DM */
-    dyn.appendChild(dmSection());
-    dyn.appendChild(UI.section('sea-diff', 'Différenciation', [Ed.diffBlock(d, save, true)], { open: false }));
-    dyn.appendChild(UI.section('sea-trace', 'Trace écrite / ce que les élèves notent', [Ed.area('Trace écrite', d, 'trace', save, 'Définitions, méthode, exemple…', 5)], { open: false }));
-    dyn.appendChild(UI.section('sea-res', 'Ressources (PDF, liens, vidéos)', [Res.block('seance', s, function () { /* rien */ })], { open: true }));
+    var plus = h('details', { class: 'more' }, h('summary', null, h('strong', null, '⚙️ Plus d’options'), h('span', { class: 'muted small' }, 'prérequis, matériel, différenciation, trace écrite')),
+      h('div', { class: 'more-b' },
+        UI.section('sea-pre', 'Prérequis et ancrage', [h('div', { class: 'grid2' }, Ed.area('Prérequis', d, 'prerequis', save, 'Ce qui doit être acquis', 2), Ed.area('Ancrage métier / contexte', d, 'ancrage', save, 'Situation professionnelle ou de la vie courante', 2))], { open: false }),
+        UI.section('sea-mat', 'Matériel', [mat, Ed.line('Autre matériel', d, 'materiel_libre', save, 'Ex. dés, ficelle, thermomètre…')], { open: false }),
+        UI.section('sea-diff', 'Différenciation', [Ed.diffBlock(d, save, true)], { open: false }),
+        UI.section('sea-trace', 'Trace écrite / ce que les élèves notent', [Ed.area('Trace écrite', d, 'trace', save, 'Définitions, méthode, exemple…', 5)], { open: false })));
+    dyn.appendChild(plus);
+    /* 3 · après la séance */
     dyn.appendChild(bilan());
     dyn.appendChild(Pronote.section(s, cl, d, save));
     if (!APP.manuels) dyn.appendChild(Pronote.perso(s, cl, d, save));
-    dyn.appendChild(Ed.actionBar(Exp.buttons('seance', s, flush).concat([tplBtn(), modelBtn(), pronoteBtn()].concat(APP.manuels ? [] : [persoBtn()]).concat([dupBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
+    dyn.appendChild(Ed.actionBar(Exp.buttons('seance', s, flush).concat([modelBtn(), dupBtn(), h('span', { class: 'grow' }), h('button', { class: 'btn danger', type: 'button', onclick: function () {
       UI.ask('Supprimer la séance « ' + (s.titre || 'sans titre') + ' » ?', { ok: 'Supprimer', danger: true }).then(function (ok) {
         if (ok) { var back = s.sequence_id ? '#/sequence/' + s.sequence_id : '#/classe/' + cl.id; DB.list('fs_seances').forEach(function (x) { if (x.jumelle_id === s.id) { x.jumelle_id = null; DB.save('fs_seances', x); } }); DB.remove('fs_seances', s.id); location.hash = back; }
       });
-    } }, 'Supprimer la séance')]))));
+    } }, 'Supprimer la séance')])));
   }
 
   function deroule() {
@@ -2521,13 +2607,17 @@ Views.seance = function (id) {
       });
       if (!d.phases.length) box.appendChild(h('p', { class: 'muted' }, 'Aucune phase. Ajoutez-en ou partez d’un modèle selon le type de séance.'));
       else { box.appendChild(list); UI.sortable(list, { item: '.sort-item', handle: '.grip', onSort: function (ids) { var old = d.phases.slice(); d.phases = ids.map(function (i) { return old[+i]; }); save(); draw(); } }); }
-      box.appendChild(h('div', { class: 'row-gap' },
-        h('button', { class: 'btn small', type: 'button', onclick: function () { d.phases.push({ phase: 'exercices', duree: 15, orga: 'individuel', contenu: '' }); save(); draw(); } }, '＋ Phase'),
-        h('button', { class: 'btn small', type: 'button', onclick: function () {
+      var DUR = { accroche: 10, recherche: 15, cours: 15, exercices: 15, automatismes: 10, bilan: 10, evaluation: 45, autre: 10 };
+      box.appendChild(h('div', { class: 'row-gap phase-add' },
+        h('button', { class: 'btn small c1', type: 'button', title: 'Remplir le déroulé avec le modèle de ce type de séance', onclick: function () {
           var m = DEROULES[s.type]; if (!m) { UI.toast('Pas de modèle pour ce type.'); return; }
           var go = function () { d.phases = defaultPhases(s.type, s.duree_min); save(); draw(); };
           if (d.phases.length) UI.ask('Remplacer le déroulé actuel par le modèle « ' + lbl(K.TYPES, s.type) + ' » ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
-        } }, '✨ Modèle « ' + lbl(K.TYPES, s.type) + ' »')));
+        } }, '✨ Modèle « ' + lbl(K.TYPES, s.type) + ' »'),
+        h('span', { class: 'muted small' }, 'Ajouter :'),
+        K.PHASES.filter(function (x) { return x[0] !== 'autre'; }).map(function (x) {
+          return h('button', { class: 'chip', type: 'button', title: 'Ajouter une phase « ' + x[1] + ' »', onclick: function () { d.phases.push({ phase: x[0], duree: DUR[x[0]] || 10, orga: x[0] === 'exercices' ? 'individuel' : x[0] === 'recherche' ? 'binomes' : 'collectif', contenu: '' }); save(); draw(); } }, '＋ ' + x[1].split(' /')[0]);
+        })));
       box.appendChild(tot); sum();
     }
     draw();
@@ -2806,6 +2896,19 @@ Views.biblio = function () {
   UI.dropzone(dz, function (x) { handle(x.files, x.urls); });
   dz.addEventListener('paste', function (e) { var t = (e.clipboardData || window.clipboardData).getData('text'); if (/https?:\/\//.test(t)) { e.preventDefault(); handle([], t.split(/\r?\n/)); } });
   root.appendChild(dz); root.appendChild(fileInp);
+  if (Man.hasLibrary()) {
+    var pk, addBtn = h('button', { class: 'btn primary', type: 'button', disabled: true, onclick: function () {
+      var xs = Man.toLibrary(pk.entries()), nv = xs.filter(function (x) { return x.neuf; }).length;
+      UI.toast(nv ? plural(nv, 'lien ajouté', 'liens ajoutés') + ' à votre bibliothèque' + (xs.length > nv ? ' (' + (xs.length - nv) + ' déjà présent' + (xs.length - nv > 1 ? 's' : '') + ')' : '') + '.' : 'Ces liens étaient déjà dans votre bibliothèque.');
+      pk.reset(); draw();
+    } }, '＋ Ajouter à ma bibliothèque');
+    var mq = h('input', { class: 'inp', type: 'search', placeholder: 'Rechercher un chapitre, une notion, un exercice…' });
+    pk = Man.picker({ onChange: function (n) { addBtn.disabled = !n; addBtn.textContent = n ? '＋ Ajouter ma sélection (' + n + ') à la bibliothèque' : '＋ Ajouter à ma bibliothèque'; } });
+    mq.addEventListener('input', debounce(function () { pk.setFilter(mq.value); }, 150));
+    root.appendChild(UI.section('lib-man', '📘 Mes manuels : tous les chapitres, notions et exercices', [
+      h('p', { class: 'muted small' }, 'Dépliez un niveau, puis un chapitre, et cochez les liens voulus (PDF à la bonne page, appli, réponses). Ils rejoignent votre bibliothèque, sans doublon, et sont proposés dans toutes les fiches via « Bibliothèque et manuels ».'),
+      mq, pk.el, h('div', { class: 'row-gap' }, addBtn)], { open: false }));
+  }
   var search = h('input', { class: 'inp', type: 'search', placeholder: 'Rechercher un titre, une étiquette…' });
   search.addEventListener('input', debounce(function () { q = search.value; draw(); }, 150));
   var typeSel = UI.select([['', 'Tous les types'], ['pdf', 'PDF'], ['lien', 'Liens'], ['video', 'Vidéos'], ['image', 'Images'], ['fichier', 'Autres fichiers'], ['casier', 'Casier']], '', function (v) { type = v; draw(); }, 'sm');
@@ -3556,58 +3659,79 @@ var Pronote = (function () {
   function liste(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' et ' + a[a.length - 1]; }
   function unique(a) { return a.filter(function (x, i) { return x && a.indexOf(x) === i; }); }
 
-  /* retourne { contenu, travail, manuel } ; temps : 'passe' | 'futur' ; version : 1 (ce qui a été fait) | 2 (avec renvoi au manuel)
-     Le texte dit CE QUI A ÉTÉ TRAITÉ (savoir-faire, notions), jamais le déroulé de la séance. */
+  var ENTETE = { evaluation: 'Évaluation', revision: 'Révision', dm: 'Devoir maison' };
+  /* « À la fin de la séance, l’élève sait : calculer… » → « calculer… » */
+  function objectifCourt(t) { t = fin(t).replace(/^à la fin de (la|cette) séance,?\s*(l[’']élève|les élèves|l[’']apprenant)\s*(sait|savent|est capable de|sont capables de)\s*:?\s*/i, '').replace(/^(l[’']élève|les élèves)\s+(sait|savent)\s*:?\s*/i, ''); return court(t, 110); }
+  /* texte officiel du BO → forme brève : « Calculer la moyenne d’une série statistique, mentalement dans… » → « Calculer la moyenne d’une série statistique » */
+  function bref(t) { t = fin(t); var m = t.split(/,\s|;\s|\s:\s|\s\(|\s(?=mentalement|à l[’']aide|avec une|sur papier|dans quelques)/)[0]; return court(m.length >= 22 ? m : t, 100); }
+  function sansDoublon(a, ref) { var r = Manuels.norm(ref); return a.filter(function (x) { return Manuels.norm(x) !== r; }); }
+
+  /* retourne { contenu, travail, manuel } ; temps : 'passe' | 'futur' ; version : 1 (BO) | 2 (mémo perso, avec mes manuels) | 3 (Ma séance)
+     Le texte est une liste de lignes courtes et sans répétition (Objectif · Notion abordée · Exercice traité…) :
+     il dit CE QUI A ÉTÉ TRAITÉ (savoir-faire, notions), jamais le déroulé de la séance. */
   function draft(s, cl, temps, version) {
     var d = s.data, past = temps !== 'futur', L = [];
     var md = (version === 3 && typeof Man !== 'undefined') ? Man.describe(s, cl) : null; if (md && !md.notions.length && !md.exos.length) md = null;
-    var ou = OUV[s.type] || OUV.autre;
-    var mod = s.modalite === 'demi_groupe' ? ' en demi-groupe' + (s.groupe ? ' (groupe ' + s.groupe.slice(1) + ')' : '') : '';
-    var chaps = unique((d.chapitres || []).map(function (id) { var l = Ref.lookup(id); return l && l.txt; })).slice(0, 2);
-    var theme = chaps.length ? liste(chaps.map(function (c) { return '« ' + fin(c) + ' »'; })) : '';
     var titre = fin(s.titre);
-    var chp = theme ? ' sur ' + theme : '';
-    if (titre) {
-      var ch2 = !md && theme && theme.indexOf(titre) < 0 ? ' (chapitre ' + theme + ')' : '';
-      L.push(past ? ou[0] + mod + ' : « ' + titre + ' »' + ch2 + '.' : 'Au programme' + mod + ' : ' + ou[1] + ' « ' + titre + ' »' + ch2 + '.');
-    } else L.push(past ? ou[0] + mod + (md ? '' : chp) + '.' : 'Au programme' + mod + ' : ' + ou[1] + (md ? '' : chp) + '.');
-    var its = unique((d.items || []).filter(function (i) { return i.k !== 'a'; }).map(function (i) { return court(i.txt, 95); }));
     var man = version === 2 ? Manuels.get(cl && cl.niveau_id) : null, mt = man ? Manuels.match(cl.niveau_id, d, s.titre) : null, manuel = !!(mt && mt.length);
+    var its = unique((d.items || []).filter(function (i) { return i.k !== 'a'; }));
+    var chaps = unique((d.chapitres || []).map(function (id) { var l = Ref.lookup(id); return l && fin(l.txt); })).slice(0, 2);
+    var en = ENTETE[s.type];
+    if (s.modalite === 'demi_groupe') L.push('Demi-groupe' + (s.groupe ? ' : groupe ' + s.groupe.slice(1) : ''));
+
+    /* 1. Objectif */
+    var obj = fin(d.objectif) ? objectifCourt(d.objectif) : '';
+    if (!obj) { var o1 = its.filter(function (i) { return i.k === 'o'; })[0]; if (o1) obj = bref(o1.txt); }
+    if (!obj && titre) obj = titre;
+    if (en) L.push(en + (titre && Manuels.norm(titre) !== Manuels.norm(obj) ? ' : ' + titre : ''));
+    if (obj) L.push('Objectif : ' + (obj === titre ? obj : minus(obj)));
+
+    /* 2. Notion(s) abordée(s) et 3. exercice(s) traité(s) */
+    var notions = [], exos = [], suite = [];
     if (md) {
-      /* version « mes manuels » : ce qui a été traité, avec les pages et les exercices du manuel */
-      var bits = [];
-      if (md.notions.length) bits.push((md.notions.length > 1 ? 'notions ' : 'notion ') + liste(md.notions.map(function (n) { return '« ' + n.titre + ' » (' + Man.pg(n.pages[0]) + ')'; })));
-      L.push((past ? 'Nous avons travaillé avec le manuel « ' : 'Nous allons travailler avec le manuel « ') + md.man.nom + ' », chapitre ' + md.ch.n + ' « ' + md.ch.titre + ' »' + (bits.length ? ' : ' + bits.join(' ; ') : '') + '.');
-      if (md.exos.length) L.push((past ? 'Exercices traités : ' : 'Exercices : ') + liste(md.exos.map(function (x) { return 'n° ' + x.n + ' (' + Man.pg(x.page) + ')'; })) + '.');
+      notions = md.notions.map(function (n) { return n.titre + ' (' + Man.pg(n.pages[0]) + ')'; });
+      if (!notions.length) notions = ['chapitre ' + md.ch.n + ' « ' + md.ch.titre + ' »'];
+      exos = md.exos.map(function (x) { return 'n° ' + x.n + ' (' + Man.pg(x.page) + ')'; });
+      suite.push((md.man.court || 'Manuel') + ' : chapitre ' + md.ch.n + ' « ' + md.ch.titre + ' »');
     } else if (manuel) {
-      /* version 2 : le texte s’appuie sur les chapitres et notions du manuel, pas sur les phrases du BO */
-      var parts = mt.map(function (x) { return 'chapitre ' + x.chap.n + ' « ' + x.chap.t + ' »' + (x.notions.length ? ', ' + (x.notions.length > 1 ? 'notions ' : 'notion ') + liste(x.notions.map(function (t) { return '« ' + t + ' »'; })) : ''); });
-      L.push((past ? 'Nous avons travaillé avec le manuel « ' : 'Nous allons travailler avec le manuel « ') + man.nom + ' » : ' + parts.join(' ; ') + '.');
-    } else if (its.length) L.push((past ? 'Nous avons travaillé : ' : 'Nous allons travailler : ') + its.slice(0, 4).map(minus).join(' ; ') + (its.length > 4 ? ' ; …' : '') + '.');
-    else if (d.objectif && fin(d.objectif)) L.push('Objectif : ' + minus(fin(d.objectif)) + '.');
+      mt.forEach(function (x) { if (x.notions.length) x.notions.forEach(function (t) { notions.push(t); }); else notions.push('chapitre ' + x.chap.n + ' « ' + x.chap.t + ' »'); });
+      suite.push('Manuel : ' + man.nom + ', chapitre ' + mt.map(function (x) { return x.chap.n + ' « ' + x.chap.t + ' »'; }).join(' ; '));
+    } else {
+      notions = unique(its.filter(function (i) { return i.k === 'k'; }).map(function (i) { return bref(i.txt); }));
+      if (!notions.length) notions = unique(its.filter(function (i) { return i.k === 'o'; }).map(function (i) { return bref(i.txt); }));
+      if (!notions.length) notions = chaps;
+      var ph = (d.phases || []).filter(function (x) { return x.phase === 'exercices' && fin(x.contenu); })[0];
+      if (ph) exos = [court(ph.contenu, 120)];
+    }
+    notions = sansDoublon(notions, obj).slice(0, 4);
+    if (notions.length) L.push((notions.length > 1 ? (past ? 'Notions abordées' : 'Notions à aborder') : (past ? 'Notion abordée' : 'Notion à aborder')) + ' : ' + notions.join(' ; '));
+    if (exos.length) L.push((exos.length > 1 || /,| et /.test(exos[0]) ? (past ? 'Exercices traités' : 'Exercices à traiter') : (past ? 'Exercice traité' : 'Exercice à traiter')) + ' : ' + exos.join(', '));
+    suite.forEach(function (x) { L.push(x); });
+
     var au = unique((d.items || []).filter(function (i) { return i.k === 'a'; }).map(function (i) { return court(i.txt, 70); }));
-    if (au.length) L.push('Automatismes : ' + minus(au.slice(0, 2).join(' ; ')) + '.');
+    if (au.length) L.push('Automatismes : ' + minus(au.slice(0, 2).join(' ; ')));
     var b = d.bilan || {};
-    if (past && fin(b.realise)) L.push(fin(b.realise).replace(/^./, function (c) { return c.toUpperCase(); }) + '.');
-    if (past && fin(b.a_reprendre)) L.push('À reprendre : ' + minus(fin(b.a_reprendre)) + '.');
-    var tr = '';
+    if (past && fin(b.realise)) L.push('Bilan : ' + minus(fin(b.realise)));
+    if (past && fin(b.a_reprendre)) L.push('À reprendre : ' + minus(fin(b.a_reprendre)));
+    if (!L.length) L.push((OUV[s.type] || OUV.autre)[0]);
+
+    /* travail à faire */
+    var T = [];
     if (d.dm && d.dm.actif) {
-      tr = fin(d.dm.titre) || 'Devoir maison';
+      var tr = fin(d.dm.titre) || 'Devoir maison';
       if (d.dm.pour && d.dm.pour !== 'classe') tr += ' (' + lbl(K.DM_POUR, d.dm.pour).toLowerCase() + ')';
       if (fin(d.dm.consigne)) tr += ' : ' + fin(d.dm.consigne).replace(/\s*\n+\s*/g, ' ; ').slice(0, 400);
       if (d.dm.rendu) tr += ' — à rendre pour le ' + fmtD(d.dm.rendu);
-      tr += '.';
+      T.push(tr);
     }
     if (md) {
       L.push('Appli : ' + Man.appAt(md.man, md.ch, md.notions.length ? 'lecon' : ''));
-      var rev = (past ? 'Revoir ' : 'Lire ') + (md.notions.length ? (md.notions.length > 1 ? 'les notions ' : 'la notion ') + liste(md.notions.map(function (n) { return '« ' + n.titre + ' » (' + Man.pg(n.pages[0]) + ')'; })) : 'le chapitre ' + md.ch.n) + ' dans le manuel.';
-      tr = tr ? tr + ' Pour réviser : ' + minus(rev) : rev;
+      T.push((past ? 'Revoir : ' : 'Lire : ') + (md.notions.length ? md.notions.map(function (n) { return n.titre + ' (' + Man.pg(n.pages[0]) + ')'; }).join(' ; ') : 'chapitre ' + md.ch.n));
     } else if (manuel) {
       L.push('Appli : ' + man.url);
-      var rev = (past ? 'Revoir ' : 'Lire ') + (mt[0].notions.length ? (mt[0].notions.length > 1 ? 'les notions ' : 'la notion ') + liste(mt[0].notions.map(function (t) { return '« ' + t + ' »'; })) : 'le chapitre ' + mt[0].chap.n) + ' dans le manuel (chapitre ' + mt[0].chap.n + '), puis faire les exercices de la notion.';
-      tr = tr ? tr + ' Pour réviser : ' + minus(rev) : rev;
+      T.push((past ? 'Revoir : ' : 'Lire : ') + (mt[0].notions.length ? mt[0].notions.join(' ; ') : 'chapitre ' + mt[0].chap.n) + ' (manuel, chapitre ' + mt[0].chap.n + ')');
     }
-    return { contenu: L.join(' '), travail: tr, manuel: manuel };
+    return { contenu: L.join('\n'), travail: T.join('\n'), manuel: manuel };
   }
 
   function section(s, cl, d, save) {
@@ -3617,7 +3741,7 @@ var Pronote = (function () {
 
     var ta1, ta2, cnt = h('span', { class: 'muted small' });
     function upd() { cnt.textContent = (p.contenu || '').length + ' caractères'; }
-    ta1 = UI.textarea(function () { return p.contenu; }, function (v) { p.contenu = v; save(); upd(); }, 'Quelques phrases : ce qui a été fait pendant la séance…', 4);
+    ta1 = UI.textarea(function () { return p.contenu; }, function (v) { p.contenu = v; save(); upd(); }, 'Objectif : …\nNotion abordée : …\nExercice traité : …', 5);
     ta2 = UI.textarea(function () { return p.travail; }, function (v) { p.travail = v; save(); }, 'Travail à faire pour la prochaine séance (facultatif)', 2);
     function setVal(ta, v) { ta.value = v; ta.dispatchEvent(new Event('input', { bubbles: true })); }
     function gen() {
@@ -3627,7 +3751,7 @@ var Pronote = (function () {
     }
     function cp(txt, msg) { if (!txt.trim()) { UI.toast('Rien à copier : rédigez d’abord la synthèse.', 'err'); return; } copyText(txt).then(function (ok) { UI.toast(ok ? msg : 'Copie impossible : sélectionnez le texte et copiez-le à la main.', ok ? '' : 'err'); }); }
     var box = h('div', null,
-      h('p', { class: 'muted small' }, 'Texte brut, sans mise en forme ni émojis : il se colle proprement dans le cahier de textes de Pronote. Relisez-le avant de le coller.'),
+      h('p', { class: 'muted small' }, 'Quelques lignes courtes (objectif, notion, exercice), sans mise en forme ni émojis : elles se collent proprement dans le cahier de textes de Pronote. Relisez avant de coller.'),
       h('div', { class: 'row-gap' }, UI.field('Rédaction', UI.select([['passe', 'Au passé (séance faite)'], ['futur', 'Au futur (séance à venir)']], tps(), function (v) { p.temps = v; save(); }, 'sm')),
         h('button', { class: 'btn primary', type: 'button', title: 'Ce qui a été traité, d’après les éléments du programme cochés', onclick: gen }, '✨ Rédiger la synthèse')),
       UI.field('Contenu de la séance', ta1), cnt,
@@ -3655,10 +3779,10 @@ var Pronote = (function () {
       if ((p.perso || '').trim() && (p.perso || '').trim() !== txt) UI.ask('Remplacer le mémo actuel par une nouvelle rédaction automatique ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
     }
     var box = h('div', null,
-      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Série Pro ») : chapitre, notions et lien de l’appli.'),
+      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Série Pro », « Maths · CAP ») : chapitre, notions et lien de l’appli.'),
       hasMan ? h('div', { class: 'row-gap' }, h('button', { class: 'btn primary', type: 'button', onclick: gen }, '✨ Rédiger le mémo avec mes manuels'),
         h('button', { class: 'btn', type: 'button', onclick: function () { if (!(p.perso || '').trim()) { UI.toast('Rien à copier : rédigez d’abord le mémo.', 'err'); return; } copyText(p.perso).then(function (ok) { UI.toast(ok ? 'Mémo copié.' : 'Copie impossible : sélectionnez le texte et copiez-le à la main.', ok ? '' : 'err'); }); } }, '📋 Copier le mémo'))
-        : h('p', { class: 'muted small' }, 'Pas de manuel pour ce niveau (CAP) : le mémo reste libre, vous pouvez le saisir à la main.'),
+        : h('p', { class: 'muted small' }, 'Pas de manuel pour ce niveau : le mémo reste libre, vous pouvez le saisir à la main.'),
       ta);
     return UI.section('sea-perso', '🔒 Mémo perso (avec mes manuels)', [box], { open: !!(p.perso || '').trim() });
   }
@@ -3970,7 +4094,8 @@ var Guide = (function () {
   function goSection(start) {
     var t = $$('#view details.sec').filter(function (x) { var e = $('.sec-t', x); return e && e.textContent.indexOf(start) >= 0; })[0];
     if (!t) { UI.toast('Cette partie n’est pas affichée pour ce type de séance.'); return; }
-    t.open = true; try { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { t.scrollIntoView(); }
+    for (var a = t; a && a !== document.body; a = a.parentElement) if (a.tagName === 'DETAILS') a.open = true;
+    try { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { t.scrollIntoView(); }
     var f = $('textarea, input.inp', t); if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (e) { /* ignoré */ } }, 350);
   }
   function A(t, why, go, primary) { return { t: t, why: why || '', go: go, primary: !!primary }; }
@@ -4320,7 +4445,89 @@ var Man = (function () {
     $('summary', sec).appendChild(badge);
     return sec;
   }
-  return { enabled: enabled, get: get, has: has, chapter: chapter, describe: describe, lines: lines, html: html, specs: specs, section: section, sync: sync, pg: pg, nums: nums, pdfAt: pdfAt, appAt: appAt, chapPdf: chapPdf, exoTxt: exoTxt, notionTxt: notionTxt };
+
+  /* ── bibliothèque : tous les liens des manuels (chapitres, notions, exercices) en accordéon : on coche, on ajoute ── */
+  var LEVELS = ['bp2', 'bp1', 'bpt', 'cap', 'pm'];
+  function clean(t) { return String(t || '').replace(/[\u{1F300}-\u{1FAFF}☀-➿️]/gu, '').replace(/\s{2,}/g, ' — ').replace(/^[\s—]+/, '').trim(); }
+  function catalog(man, ch) {
+    var pre = man.court + ' · Ch. ' + ch.n + ' — ';
+    function it(key, lab, sub, url, titre, usage, kind) { return { key: man.id + '.' + ch.n + '.' + key, lab: lab, sub: sub || '', url: url, titre: pre + titre, usage: usage || 'eleve', kind: kind || '' }; }
+    var chap = [
+      it('pdf', 'PDF du chapitre', pg([ch.page, ch.fin]), chapPdf(man, ch), ch.titre + ' (PDF du chapitre)'),
+      it('man', 'Manuel complet, début du chapitre', pg(ch.page), pdfAt(man, ch.page), ch.titre + ' (manuel ' + pg(ch.page) + ')'),
+      it('app', 'Appli : la leçon', '', appAt(man, ch, 'lecon'), ch.titre + ' (appli · leçon)'),
+      it('app-e', 'Appli : s’entraîner', '', appAt(man, ch, 'entrainement'), ch.titre + ' (appli · s’entraîner)'),
+      it('app-p', 'Appli : problèmes', '', appAt(man, ch, 'problemes'), ch.titre + ' (appli · problèmes)')
+    ];
+    if (ch.atoi) chap.push(it('atoi', 'À toi' + (ch.atoi.titre ? ' : ' + clean(ch.atoi.titre) : ''), pg(ch.atoi.page), pdfAt(man, ch.atoi.page), 'À toi (' + pg(ch.atoi.page) + ')'));
+    if (ch.evalu) chap.push(it('eval', 'S’évaluer' + (ch.evalu.titre ? ' : ' + clean(ch.evalu.titre) : ''), pg(ch.evalu.page), pdfAt(man, ch.evalu.page), 'S’évaluer (' + pg(ch.evalu.page) + ')', 'evaluation'));
+    chap.push(it('rep', 'Réponses du manuel', pg(man.reponses), pdfAt(man, man.reponses), 'Réponses (' + pg(man.reponses) + ')', 'prof'));
+    var nots = ch.notions.map(function (n) { return it('n' + n.n, 'Notion ' + n.n + ' : ' + n.titre, pg(n.pages), pdfAt(man, n.pages[0]), 'Notion ' + n.n + ' : ' + n.titre + ' (' + pg(n.pages) + ')'); });
+    var exs = ch.exos.map(function (x) { var t = clean(x.titre); return it('e' + x.n, 'Ex. ' + x.n + ' — ' + t, pg(x.page), pdfAt(man, x.page), 'Ex. ' + x.n + ' : ' + t + ' (' + pg(x.page) + ')', x.type === 'defi' ? 'projete' : 'eleve', x.type); });
+    return [{ g: 'Le chapitre', items: chap }, { g: 'Notions', items: nots }, { g: 'Exercices', items: exs }];
+  }
+  function levels() { return LEVELS.map(function (id) { return get(id); }).filter(Boolean); }
+  function hasLibrary() { return enabled() && levels().length > 0; }
+
+  /* picker({ open: niveau à déplier, onChange(n) }) → { el, count(), entries(), setFilter(q), reset() } */
+  function picker(opt) {
+    opt = opt || {};
+    var sel = {}, rows = [], heads = [], root = h('div', { class: 'mb' });
+    var have = {}; DB.list('fs_ressources').forEach(function (r) { if (r.url) have[r.url] = 1; });
+    function n() { return Object.keys(sel).filter(function (k) { return sel[k]; }).length; }
+    function refresh() {
+      rows.forEach(function (c) { c.el.classList.toggle('on', !!sel[c.it.key]); });
+      root.querySelectorAll('details.mb-ch').forEach(function (d) { var k = +d.getAttribute('data-n'); d.querySelector('.mb-n').textContent = k ? k + ' ✓' : ''; var m = d.querySelector('.mb-all'); var tot = d.querySelectorAll('.mb-row').length; m.checked = k > 0 && k === tot; m.indeterminate = k > 0 && k < tot; });
+      root.querySelectorAll('details.mb-lvl').forEach(function (d) { var k = d.querySelectorAll('.mb-row.on').length; d.querySelector('.mb-ln').textContent = k ? k + ' ✓' : ''; });
+      if (opt.onChange) opt.onChange(n());
+    }
+    function setRow(c, on) { if (on) sel[c.it.key] = c; else delete sel[c.it.key]; c.cb.checked = on; }
+    levels().forEach(function (man) {
+      var lvl = h('details', { class: 'mb-lvl', open: man.id === opt.open ? true : null }, h('summary', null, h('strong', null, '📘 ' + man.nom), h('span', { class: 'muted small' }, man.chapitres.length + ' chapitres'), h('span', { class: 'badge mb-ln' }, '')));
+      var body = h('div', { class: 'mb-body' });
+      man.chapitres.forEach(function (ch) {
+        var all = h('input', { type: 'checkbox', class: 'mb-all', title: 'Tout cocher / décocher dans ce chapitre' });
+        var cd = h('details', { class: 'mb-ch' }, h('summary', null, all, h('span', { class: 'mb-ct' }, 'Ch. ' + ch.n + ' · ' + ch.titre), h('span', { class: 'muted small' }, pg([ch.page, ch.fin])), h('span', { class: 'badge mb-n' }, '')));
+        var mine = [];
+        catalog(man, ch).forEach(function (g) {
+          var h4 = h('h4', { class: 'mb-g' }, g.g), grp = { h4: h4, rows: [] }; heads.push(grp);
+          cd.appendChild(h4);
+          g.items.forEach(function (it) {
+            var cb = h('input', { type: 'checkbox' }), c = { it: it, man: man, ch: ch, cb: cb };
+            c.el = h('label', { class: 'mb-row' + (it.kind ? ' k-' + it.kind : '') }, cb, h('span', { class: 'mb-t' }, it.lab), it.sub ? h('em', { class: 'tag' }, it.sub) : null, have[it.url] ? h('em', { class: 'tag ok', title: 'Déjà dans votre bibliothèque' }, '✓ déjà ajouté') : null,
+              h('a', { class: 'mb-open', href: it.url, target: '_blank', rel: 'noopener noreferrer', title: 'Aperçu dans un nouvel onglet', onclick: function (e) { e.stopPropagation(); } }, '↗'));
+            c.txt = Manuels.norm(man.nom + ' ' + ch.titre + ' ' + it.lab + ' ' + it.sub + ' ' + g.g);
+            cb.addEventListener('change', function () { setRow(c, cb.checked); cd.setAttribute('data-n', mine.filter(function (x) { return sel[x.it.key]; }).length); refresh(); });
+            mine.push(c); rows.push(c); grp.rows.push(c); cd.appendChild(c.el);
+          });
+        });
+        cd.setAttribute('data-n', 0);
+        all.addEventListener('click', function (e) { e.stopPropagation(); }); all.addEventListener('change', function () { mine.forEach(function (c) { setRow(c, all.checked); }); cd.setAttribute('data-n', all.checked ? mine.length : 0); if (all.checked) cd.open = true; refresh(); });
+        cd._rows = mine; body.appendChild(cd);
+      });
+      lvl.appendChild(body); root.appendChild(lvl);
+    });
+    function setFilter(q) {
+      q = Manuels.norm(q).trim();
+      rows.forEach(function (c) { c.el.hidden = !!q && c.txt.indexOf(q) < 0; });
+      heads.forEach(function (g) { g.h4.hidden = g.rows.every(function (c) { return c.el.hidden; }); });
+      root.querySelectorAll('details.mb-ch').forEach(function (d) { var vis = d._rows.some(function (c) { return !c.el.hidden; }); d.hidden = !vis; if (q && vis) d.open = true; });
+      root.querySelectorAll('details.mb-lvl').forEach(function (d) { var vis = !q || Array.prototype.some.call(d.querySelectorAll('details.mb-ch'), function (c) { return !c.hidden; }); d.hidden = !vis; if (q && vis) d.open = true; });
+    }
+    refresh();
+    return { el: root, count: n, entries: function () { return Object.keys(sel).map(function (k) { return sel[k]; }); }, setFilter: setFilter,
+      reset: function () { rows.forEach(function (c) { setRow(c, false); }); root.querySelectorAll('details.mb-ch').forEach(function (d) { d.setAttribute('data-n', 0); }); refresh(); } };
+  }
+  /* crée (sans doublon, sur l’adresse) les ressources de la bibliothèque correspondant aux liens cochés ; renvoie [{ res, usage, neuf }] */
+  function toLibrary(entries) {
+    var by = {}; DB.list('fs_ressources').forEach(function (r) { if (r.url) by[r.url] = r; });
+    return entries.map(function (c) {
+      var r = by[c.it.url], neuf = false;
+      if (!r) { r = DB.create('fs_ressources', { type: Res.detectType(c.it.url), titre: c.it.titre, url: c.it.url, storage_path: null, mime: null, taille: 0, tags: [c.man.court, 'Ch. ' + c.ch.n].slice(0, 12), note: '' }); by[c.it.url] = r; neuf = true; }
+      return { res: r, usage: c.it.usage, neuf: neuf };
+    });
+  }
+  return { enabled: enabled, get: get, has: has, chapter: chapter, describe: describe, lines: lines, html: html, specs: specs, section: section, sync: sync, pg: pg, nums: nums, pdfAt: pdfAt, appAt: appAt, chapPdf: chapPdf, exoTxt: exoTxt, notionTxt: notionTxt, picker: picker, toLibrary: toLibrary, hasLibrary: hasLibrary, catalog: catalog };
 })();
 
 /* ── 72-views-annee.js ── */

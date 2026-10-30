@@ -337,3 +337,43 @@ body.printing .guide-wrap{display:none!important}
 .an-other{display:block;padding:.3rem 0;border-top:1px dashed var(--line);text-decoration:none;color:var(--text)}
 .an-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--line)}
 @media (max-width:900px){.an-wrap{grid-template-columns:1fr}.an-weeks{grid-template-columns:repeat(auto-fill,minmax(56px,1fr))}.an-name{width:100%}.an-tt{min-width:0}.an-tb{font-size:.62rem;padding:.1rem .2rem}.an-tb b{font-size:.68rem}.an-tb .an-bt{font-size:.62rem}}
+
+/* ═══ Boutons en couleurs (palette calme) · barre d’actions · « Par où commencer ? » · plus d’options ═══ */
+:root{--k1:#2B4C7E;--k2:#3F7A5C;--k3:#9A5F2A;--k4:#6A4C7C;--k5:#2F6F7E;--k-on:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--k1:#8FB0DD;--k2:#8CC3A1;--k3:#DDB07A;--k4:#C0A3D6;--k5:#7EC0CE;--k-on:#10162A}}
+:root[data-theme="dark"]{--k1:#8FB0DD;--k2:#8CC3A1;--k3:#DDB07A;--k4:#C0A3D6;--k5:#7EC0CE;--k-on:#10162A}
+.c1{--kc:var(--k1)}.c2{--kc:var(--k2)}.c3{--kc:var(--k3)}.c4{--kc:var(--k4)}.c5{--kc:var(--k5)}
+.btn.c1,.btn.c2,.btn.c3,.btn.c4,.btn.c5{background:var(--kc);border-color:var(--kc);color:var(--k-on);font-weight:600}
+.btn.c1:hover,.btn.c2:hover,.btn.c3:hover,.btn.c4:hover,.btn.c5:hover{background:var(--kc);filter:brightness(.9)}
+.chip.c1,.chip.c2,.chip.c3,.chip.c4,.chip.c5{border-color:var(--kc);color:var(--kc)}
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:.2rem 0 .9rem}
+.qbar-l{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:.2rem}
+.qbar .btn{min-height:42px}
+.start-card{border:2px dashed var(--line)}
+.start-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-top:.5rem}
+.tile-btn{display:flex;flex-direction:column;align-items:flex-start;gap:.25rem;text-align:left;padding:.85rem 1rem;border-radius:var(--r);border:2px solid var(--kc);background:color-mix(in srgb,var(--kc) 9%,var(--surface));color:var(--text);cursor:pointer;font:inherit;min-height:84px}
+.tile-btn strong{color:var(--kc);font-size:1.02rem}.tile-btn span{font-size:.85rem;color:var(--muted)}
+.tile-btn:hover{background:color-mix(in srgb,var(--kc) 17%,var(--surface))}
+.phase-add{align-items:center}
+.more{border:1px dashed var(--line);border-radius:var(--r);margin:.9rem 0;padding:.2rem .7rem;background:transparent}
+.more>summary{cursor:pointer;padding:.55rem 0;display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}
+.more-b{padding:.3rem 0 .6rem}.more-b .sec{box-shadow:none}
+@media (max-width:700px){.start-grid{grid-template-columns:1fr}}
+
+/* ═══ Bibliothèque des manuels (accordéons) ═══ */
+.mb{display:flex;flex-direction:column;gap:.5rem;margin:.6rem 0}
+.mb-lvl,.mb-top{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.mb-lvl>summary,.mb-top>summary{cursor:pointer;padding:.65rem .8rem;display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}
+.mb-body{padding:0 .5rem .5rem;display:flex;flex-direction:column;gap:.35rem}
+.mb-ch{border:1px solid var(--line);border-radius:var(--rs);background:var(--surface2)}
+.mb-ch>summary{cursor:pointer;padding:.5rem .6rem;display:flex;gap:.55rem;align-items:center;flex-wrap:wrap}
+.mb-ch>summary input{width:18px;height:18px}
+.mb-ct{font-weight:600}.mb-n,.mb-ln{margin-left:auto}
+.mb-g{margin:.5rem .8rem .15rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.mb-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.4rem .8rem;border-top:1px solid var(--line);cursor:pointer;min-height:40px}
+.mb-g[hidden],.mb-row[hidden],.mb-ch[hidden],.mb-lvl[hidden]{display:none}
+.mb-row.on{background:color-mix(in srgb,var(--k2) 14%,var(--surface2))}
+.mb-row input{width:18px;height:18px;flex:none}.mb-t{flex:1 1 220px}
+.mb-open{margin-left:auto;text-decoration:none;font-size:.9rem;padding:.1rem .45rem;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
+.mb-row .tag.ok{color:var(--ok);border-color:var(--ok)}
+.mb-top{margin:.5rem 0}.mb-top>.mb,.mb-top>.lib-pick{padding:0 .6rem .6rem}

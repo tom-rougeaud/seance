@@ -2800,6 +2800,1869 @@
   "reponses": 147,
   "glossaire": 149
  },
+ "cap": {
+  "id": "cap",
+  "nom": "Maths · CAP",
+  "court": "Manuel CAP",
+  "pdf": "https://tom-rougeaud.github.io/cap/pdf/maths-cap.pdf",
+  "web": "https://tom-rougeaud.github.io/cap/",
+  "chap_pdf": "https://tom-rougeaud.github.io/cap/pdf/chapitres/maths-cap-chapitre-%d.pdf",
+  "pages": 240,
+  "chapitres": [
+   {
+    "n": 1,
+    "titre": "Statistique à une variable",
+    "dom": "Statistique et probabilités · statistique à une variable",
+    "page": 8,
+    "fin": 28,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Effectifs, effectif total et classes",
+      "page": 10,
+      "partie": "Organiser les données",
+      "pages": [
+       10,
+       10
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Fréquences",
+      "page": 11,
+      "partie": "Organiser les données",
+      "pages": [
+       11,
+       11
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Diagrammes en bâtons et circulaires",
+      "page": 12,
+      "partie": "Les représenter",
+      "pages": [
+       12,
+       12
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "La moyenne",
+      "page": 13,
+      "partie": "Les résumer par un nombre",
+      "pages": [
+       13,
+       13
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Un tableau d’effectifs",
+      "notion": 2,
+      "page": 15,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Un tableau d’effectifs, pas à pas",
+      "notion": 2,
+      "page": 16,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Retrouver les effectifs",
+      "notion": 2,
+      "page": 16,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Du bâton au secteur",
+      "notion": 3,
+      "page": 17,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Lire un diagramme en bâtons, pas à pas",
+      "notion": 3,
+      "page": 18,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  Retrouver les effectifs à partir des angles",
+      "notion": 3,
+      "page": 19,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Une moyenne avec des effectifs",
+      "notion": 4,
+      "page": 20,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Une moyenne de tête",
+      "notion": 4,
+      "page": 20,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  La valeur qui manque",
+      "notion": 4,
+      "page": 20,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · calculer une moyenne",
+      "notion": 4,
+      "page": 21,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Le top 5 du cinéma en 2025 (pas à pas)",
+      "notion": 2,
+      "page": 21,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "Le top 10 du cinéma en 2025",
+      "notion": 2,
+      "page": 22,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "Les saisons des Simpson",
+      "notion": 3,
+      "page": 23,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "Le cinéma en France, mois par mois (2025)",
+      "notion": 4,
+      "page": 24,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  Retrouver une moyenne : 2024 contre 2025",
+      "notion": 4,
+      "page": 25,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 14,
+    "atoi": {
+     "page": 15,
+     "titre": "fréquence et angle"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 27,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 226,
+    "npages": 21
+   },
+   {
+    "n": 2,
+    "titre": "Probabilités",
+    "dom": "Statistique et probabilités · probabilités",
+    "page": 29,
+    "fin": 48,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Expérience aléatoire, issues et événements",
+      "page": 31,
+      "partie": "Le hasard et ses issues",
+      "pages": [
+       31,
+       31
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Fluctuation et stabilisation des fréquences",
+      "page": 32,
+      "partie": "Fréquence et probabilité",
+      "pages": [
+       32,
+       32
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "La probabilité d’un événement",
+      "page": 33,
+      "partie": "Fréquence et probabilité",
+      "pages": [
+       33,
+       33
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Événement contraire et deux épreuves",
+      "page": 34,
+      "partie": "Contraire et deux épreuves",
+      "pages": [
+       34,
+       34
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Issues et événement",
+      "notion": 3,
+      "page": 36,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Une probabilité, pas à pas",
+      "notion": 3,
+      "page": 37,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Retrouver le nombre de jetons",
+      "notion": 3,
+      "page": 37,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Fluctuation et stabilisation",
+      "notion": 2,
+      "page": 38,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Observer les fréquences, pas à pas",
+      "notion": 2,
+      "page": 38,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  Prévoir et comparer",
+      "notion": 2,
+      "page": 39,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Une pièce et un dé",
+      "notion": 4,
+      "page": 39,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Deux pièces, pas à pas",
+      "notion": 4,
+      "page": 40,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  Deux dés : la somme",
+      "notion": 4,
+      "page": 40,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · simuler le dé à 20 faces",
+      "notion": 2,
+      "page": 41,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Le Loto, pas à pas",
+      "notion": 3,
+      "page": 41,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "Loto ou EuroMillions ?",
+      "notion": 3,
+      "page": 42,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "Le coffre à butin d’un jeu vidéo",
+      "notion": 3,
+      "page": 43,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "Simuler un dé à 20 faces",
+      "notion": 2,
+      "page": 44,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  Deux dés : le raisonnement d’un joueur",
+      "notion": 4,
+      "page": 45,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 35,
+    "atoi": {
+     "page": 36,
+     "titre": "fréquence et probabilité"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 47,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 226,
+    "npages": 20
+   },
+   {
+    "n": 3,
+    "titre": "Proportionnalité",
+    "dom": "Algèbre et analyse · proportionnalité",
+    "page": 49,
+    "fin": 66,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Reconnaître une situation de proportionnalité",
+      "page": 51,
+      "partie": "Reconnaître la proportionnalité",
+      "pages": [
+       51,
+       51
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Le coefficient de proportionnalité",
+      "page": 52,
+      "partie": "Calculer avec la proportionnalité",
+      "pages": [
+       52,
+       52
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "La quatrième proportionnelle",
+      "page": 53,
+      "partie": "Calculer avec la proportionnalité",
+      "pages": [
+       53,
+       53
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Vitesse moyenne et proportionnalité",
+      "page": 54,
+      "partie": "Proportionnalité et vitesse",
+      "pages": [
+       54,
+       54
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Proportionnel ou pas ?",
+      "notion": 1,
+      "page": 56,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Proportionnel ou pas ? Pas à pas",
+      "notion": 1,
+      "page": 57,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Trouver l’erreur",
+      "notion": 1,
+      "page": 57,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Une recette pour tout le monde",
+      "notion": 2,
+      "page": 58,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Une recette, pas à pas",
+      "notion": 2,
+      "page": 58,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  Buffet de ramen : les unités",
+      "notion": 2,
+      "page": 58,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Passer par l’unité",
+      "notion": 3,
+      "page": 59,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Le prix d’une unité, pas à pas",
+      "notion": 3,
+      "page": 59,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  La vitesse de Bolt, un coefficient",
+      "notion": 3,
+      "page": 59,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · calculer un prix",
+      "notion": 3,
+      "page": 60,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Des blocs de fer, pas à pas",
+      "notion": 2,
+      "page": 60,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "Des blocs de fer et des lingots",
+      "notion": 3,
+      "page": 61,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "Le punch de la soirée jeux vidéo",
+      "notion": 2,
+      "page": 61,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "Usain Bolt : proportionnel ou pas ?",
+      "notion": 1,
+      "page": 62,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  Et si Bolt gardait sa meilleure vitesse ?",
+      "notion": 4,
+      "page": 63,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 55,
+    "atoi": {
+     "page": 56,
+     "titre": "proportionnel ou pas ?"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 65,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 227,
+    "npages": 18
+   },
+   {
+    "n": 4,
+    "titre": "Pourcentages et échelles",
+    "dom": "Nombres et calculs · pourcentages",
+    "page": 67,
+    "fin": 85,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Calculer un pourcentage d’une quantité",
+      "page": 69,
+      "partie": "Calculer un pourcentage",
+      "pages": [
+       69,
+       69
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Hausse, baisse et coefficient multiplicateur",
+      "page": 70,
+      "partie": "Hausses, baisses et taux d’évolution",
+      "pages": [
+       70,
+       70
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Calculer un taux d’évolution",
+      "page": 71,
+      "partie": "Hausses, baisses et taux d’évolution",
+      "pages": [
+       71,
+       71
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Les échelles",
+      "page": 72,
+      "partie": "Les échelles",
+      "pages": [
+       72,
+       72
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Soldes et parts",
+      "notion": 1,
+      "page": 74,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Une remise, pas à pas",
+      "notion": 1,
+      "page": 75,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Soldes, parts et prix de départ",
+      "notion": 1,
+      "page": 75,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Un abonnement qui change de prix",
+      "notion": 2,
+      "page": 76,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Une hausse, pas à pas",
+      "notion": 2,
+      "page": 76,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  Une hausse puis une baisse",
+      "notion": 2,
+      "page": 76,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Le plan d’une salle",
+      "notion": 4,
+      "page": 77,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Une échelle, pas à pas",
+      "notion": 4,
+      "page": 77,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  Une carte routière",
+      "notion": 4,
+      "page": 78,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · calculer un prix soldé",
+      "notion": 2,
+      "page": 78,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Une remise, pas à pas",
+      "notion": 1,
+      "page": 78,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "Les soldes de la boutique de goodies",
+      "notion": 2,
+      "page": 79,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "La hausse des abonnements Netflix",
+      "notion": 3,
+      "page": 80,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "Le cinéma en 2025 et en 2024",
+      "notion": 3,
+      "page": 81,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  La statue du Unicorn Gundam sur une affiche",
+      "notion": 4,
+      "page": 82,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 73,
+    "atoi": {
+     "page": 74,
+     "titre": "retrouver un taux d’évolution"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 84,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 227,
+    "npages": 19
+   },
+   {
+    "n": 5,
+    "titre": "Équations et formules",
+    "dom": "Algèbre et analyse · équations et formules",
+    "page": 86,
+    "fin": 104,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Calculer avec une formule",
+      "page": 88,
+      "partie": "Utiliser une formule",
+      "pages": [
+       88,
+       88
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Résoudre x + a = b et a × x = b",
+      "page": 89,
+      "partie": "Résoudre une équation",
+      "pages": [
+       89,
+       89
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Résoudre a × x + b = c",
+      "page": 90,
+      "partie": "Résoudre une équation",
+      "pages": [
+       90,
+       90
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Isoler une grandeur dans une formule",
+      "page": 91,
+      "partie": "Isoler une grandeur",
+      "pages": [
+       91,
+       91
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Calculer avec une formule",
+      "notion": 1,
+      "page": 93,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Une formule, pas à pas",
+      "notion": 1,
+      "page": 94,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Une formule dans les deux sens",
+      "notion": 1,
+      "page": 94,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Résoudre des équations",
+      "notion": 3,
+      "page": 95,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Une équation, pas à pas",
+      "notion": 3,
+      "page": 95,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  Équations et choix d’une formule",
+      "notion": 3,
+      "page": 96,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Isoler une grandeur",
+      "notion": 4,
+      "page": 96,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Une formule, pas à pas",
+      "notion": 4,
+      "page": 97,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  Électricité et trajet",
+      "notion": 4,
+      "page": 97,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · résoudre a × x + b = c",
+      "notion": 3,
+      "page": 98,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Le club de jeux, pas à pas",
+      "notion": 3,
+      "page": 98,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "Le club de jeux",
+      "notion": 3,
+      "page": 98,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "Les appareils d’une prise",
+      "notion": 4,
+      "page": 99,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "Deux formules de cinéma",
+      "notion": 3,
+      "page": 100,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  Un trajet en train",
+      "notion": 4,
+      "page": 101,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 92,
+    "atoi": {
+     "page": 93,
+     "titre": "résoudre 4x + 6 = 38"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 103,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 227,
+    "npages": 19
+   },
+   {
+    "n": 6,
+    "titre": "Fonctions et graphiques",
+    "dom": "Algèbre et analyse · fonctions",
+    "page": 105,
+    "fin": 126,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Lire un tableau de valeurs",
+      "page": 107,
+      "partie": "Lire un tableau de valeurs",
+      "pages": [
+       107,
+       107
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Lire les coordonnées d’un point",
+      "page": 108,
+      "partie": "Se repérer et lire un graphique",
+      "pages": [
+       108,
+       108
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Lire une image et un antécédent sur une courbe",
+      "page": 109,
+      "partie": "Se repérer et lire un graphique",
+      "pages": [
+       109,
+       109
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Lire les variations d’une fonction",
+      "page": 110,
+      "partie": "Les variations",
+      "pages": [
+       110,
+       110
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Lire un tableau de valeurs",
+      "notion": 1,
+      "page": 112,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Un tableau, pas à pas",
+      "notion": 1,
+      "page": 113,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Tableau et formule",
+      "notion": 1,
+      "page": 113,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Lire les coordonnées de points",
+      "notion": 2,
+      "page": 114,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Des coordonnées, pas à pas",
+      "notion": 2,
+      "page": 115,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  Coordonnées et déplacements",
+      "notion": 2,
+      "page": 116,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Lire la courbe d’un saut",
+      "notion": 4,
+      "page": 117,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Les variations, pas à pas",
+      "notion": 4,
+      "page": 118,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  Deux instants pour une même hauteur",
+      "notion": 4,
+      "page": 119,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · calculer l’image d’un nombre",
+      "notion": 4,
+      "page": 119,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Le tableau de Bolt, pas à pas",
+      "notion": 1,
+      "page": 120,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "La carte au trésor",
+      "notion": 2,
+      "page": 120,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "Le saut du personnage",
+      "notion": 4,
+      "page": 121,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "La course de Bolt",
+      "notion": 3,
+      "page": 122,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  Le saut dans les deux sens",
+      "notion": 4,
+      "page": 123,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 111,
+    "atoi": {
+     "page": 112,
+     "titre": "lire les variations du saut"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 125,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 228,
+    "npages": 22
+   },
+   {
+    "n": 7,
+    "titre": "Fonctions linéaires et affines",
+    "dom": "Algèbre et analyse · fonctions",
+    "page": 127,
+    "fin": 146,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "La fonction linéaire f(x) = a × x",
+      "page": 129,
+      "partie": "La fonction linéaire",
+      "pages": [
+       129,
+       129
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Tracer la droite d’une fonction linéaire",
+      "page": 130,
+      "partie": "La fonction linéaire",
+      "pages": [
+       130,
+       130
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "La fonction affine f(x) = a × x + b",
+      "page": 131,
+      "partie": "La fonction affine",
+      "pages": [
+       131,
+       131
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Comparer deux formules",
+      "page": 132,
+      "partie": "Comparer deux formules",
+      "pages": [
+       132,
+       132
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Une carte à prix fixe",
+      "notion": 1,
+      "page": 134,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Une formule, pas à pas",
+      "notion": 1,
+      "page": 135,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Linéaire ou affine ?",
+      "notion": 1,
+      "page": 135,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Lire une droite",
+      "notion": 2,
+      "page": 136,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Une droite, pas à pas",
+      "notion": 2,
+      "page": 137,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  Deux droites qui se croisent",
+      "notion": 2,
+      "page": 138,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Deux formules de séances",
+      "notion": 4,
+      "page": 138,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Comparer, pas à pas",
+      "notion": 4,
+      "page": 139,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  Un budget, deux formules",
+      "notion": 4,
+      "page": 139,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · comparer deux formules",
+      "notion": 4,
+      "page": 139,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Le pop-corn, pas à pas",
+      "notion": 1,
+      "page": 140,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "La carte de cinéma",
+      "notion": 3,
+      "page": 140,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "Deux formules de cinéma",
+      "notion": 4,
+      "page": 141,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "La carte ou la séance",
+      "notion": 3,
+      "page": 142,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  Le pop-corn dans les deux sens",
+      "notion": 4,
+      "page": 143,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 133,
+    "atoi": {
+     "page": 134,
+     "titre": "lire a et b"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 145,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 228,
+    "npages": 20
+   },
+   {
+    "n": 8,
+    "titre": "Calculs commerciaux",
+    "dom": "Nombres et calculs · calculs commerciaux",
+    "page": 147,
+    "fin": 165,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Prix HT, TVA et prix TTC",
+      "page": 149,
+      "partie": "Du prix ht au prix ttc",
+      "pages": [
+       149,
+       149
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Remise commerciale et facture",
+      "page": 150,
+      "partie": "Du prix ht au prix ttc",
+      "pages": [
+       150,
+       150
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Marge et taux de marge",
+      "page": 151,
+      "partie": "Marge et placement",
+      "pages": [
+       151,
+       151
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Intérêts simples et valeur acquise",
+      "page": 152,
+      "partie": "Marge et placement",
+      "pages": [
+       152,
+       152
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Du prix HT au prix TTC",
+      "notion": 1,
+      "page": 154,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Le prix TTC, pas à pas",
+      "notion": 1,
+      "page": 155,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Deux produits, deux taux",
+      "notion": 1,
+      "page": 155,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Compléter une facture",
+      "notion": 2,
+      "page": 156,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Une facture, pas à pas",
+      "notion": 2,
+      "page": 156,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  La facture à l’envers",
+      "notion": 2,
+      "page": 157,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "La marge d’un commerçant",
+      "notion": 3,
+      "page": 157,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Le taux de marge, pas à pas",
+      "notion": 3,
+      "page": 158,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  Quel article rapporte le mieux ?",
+      "notion": 3,
+      "page": 158,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · calculer une valeur acquise",
+      "notion": 4,
+      "page": 158,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Le casque, pas à pas",
+      "notion": 1,
+      "page": 159,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "La facture de la manette",
+      "notion": 2,
+      "page": 159,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "La boutique de goodies",
+      "notion": 3,
+      "page": 160,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "Le salon de coiffure",
+      "notion": 2,
+      "page": 161,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  La facture et le placement dans les deux sens",
+      "notion": 4,
+      "page": 162,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 153,
+    "atoi": {
+     "page": 154,
+     "titre": "marge et taux de marge"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 164,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 228,
+    "npages": 19
+   },
+   {
+    "n": 9,
+    "titre": "Périmètres, aires et volumes",
+    "dom": "Géométrie · mesures",
+    "page": 166,
+    "fin": 184,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Le périmètre",
+      "page": 168,
+      "partie": "Périmètre et aire",
+      "pages": [
+       168,
+       168
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "L’aire",
+      "page": 169,
+      "partie": "Périmètre et aire",
+      "pages": [
+       169,
+       169
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Le volume d’un solide",
+      "page": 170,
+      "partie": "Volume et unités",
+      "pages": [
+       170,
+       170
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Les conversions d’unités",
+      "page": 171,
+      "partie": "Volume et unités",
+      "pages": [
+       171,
+       171
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Un terrain et un fronton",
+      "notion": 1,
+      "page": 173,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  Périmètre et aire, pas à pas",
+      "notion": 1,
+      "page": 174,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Un jardin avec un bassin rond",
+      "notion": 1,
+      "page": 174,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Un bac et un gobelet",
+      "notion": 3,
+      "page": 175,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Le volume d’un pavé, pas à pas",
+      "notion": 3,
+      "page": 176,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  Le gobelet dans les deux sens",
+      "notion": 3,
+      "page": 176,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Combien de carreaux ?",
+      "notion": 4,
+      "page": 177,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Le carrelage, pas à pas",
+      "notion": 4,
+      "page": 177,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  Le devis du carreleur",
+      "notion": 4,
+      "page": 178,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · calculer un volume",
+      "notion": 3,
+      "page": 178,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  Le terrain de jeu, pas à pas",
+      "notion": 1,
+      "page": 179,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "La fresque et le fronton",
+      "notion": 2,
+      "page": 179,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "Le terrain de football",
+      "notion": 2,
+      "page": 180,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "La salle de bains du carreleur",
+      "notion": 4,
+      "page": 180,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  Le gobelet dans les deux sens",
+      "notion": 3,
+      "page": 181,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 172,
+    "atoi": {
+     "page": 173,
+     "titre": "le volume d’un gobelet"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 183,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 229,
+    "npages": 19
+   },
+   {
+    "n": 10,
+    "titre": "Pythagore, Thalès et trigonométrie",
+    "dom": "Géométrie · triangles",
+    "page": 185,
+    "fin": 208,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Le théorème de Pythagore : l’hypoténuse",
+      "page": 187,
+      "partie": "Le théorème de pythagore",
+      "pages": [
+       187,
+       187
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Pythagore : un côté et la réciproque",
+      "page": 188,
+      "partie": "Le théorème de pythagore",
+      "pages": [
+       188,
+       188
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Le théorème de Thalès",
+      "page": 189,
+      "partie": "Thalès et trigonométrie",
+      "pages": [
+       189,
+       189
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Sinus, cosinus et tangente",
+      "page": 190,
+      "partie": "Thalès et trigonométrie",
+      "pages": [
+       190,
+       190
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Pythagore : hypoténuse, côté et réciproque",
+      "notion": 1,
+      "page": 193,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🌱 Guidé  L’hypoténuse, pas à pas",
+      "notion": 1,
+      "page": 194,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "defi",
+      "titre": "🚀 Défi  Écran, équerre et échelle",
+      "notion": 1,
+      "page": 194,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Thalès : ombres et longueurs",
+      "notion": 3,
+      "page": 195,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "support",
+      "titre": "🌱 Guidé  Les ombres, pas à pas",
+      "notion": 3,
+      "page": 196,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "🚀 Défi  La statue et la figure de Thalès",
+      "notion": 3,
+      "page": 197,
+      "etapes": null
+     },
+     {
+      "n": 7,
+      "type": "support",
+      "titre": "Sinus, cosinus et tangente",
+      "notion": 4,
+      "page": 198,
+      "etapes": null
+     },
+     {
+      "n": 8,
+      "type": "support",
+      "titre": "🌱 Guidé  Le côté opposé, pas à pas",
+      "notion": 4,
+      "page": 199,
+      "etapes": null
+     },
+     {
+      "n": 9,
+      "type": "defi",
+      "titre": "🚀 Défi  La rampe de skate",
+      "notion": 4,
+      "page": 199,
+      "etapes": null
+     },
+     {
+      "n": 10,
+      "type": "support",
+      "titre": "🐱 Je programme · calculer une hypoténuse",
+      "notion": 1,
+      "page": 200,
+      "etapes": null
+     },
+     {
+      "n": 11,
+      "type": "probleme",
+      "titre": "🌱 Guidé  Petit problème  L’écran de télé, pas à pas",
+      "notion": 1,
+      "page": 200,
+      "etapes": null
+     },
+     {
+      "n": 12,
+      "type": "probleme",
+      "titre": "L’écran de télé",
+      "notion": 1,
+      "page": 201,
+      "etapes": null
+     },
+     {
+      "n": 13,
+      "type": "defi",
+      "titre": "La statue géante",
+      "notion": 3,
+      "page": 202,
+      "etapes": 5
+     },
+     {
+      "n": 14,
+      "type": "defi",
+      "titre": "La ferme du charpentier",
+      "notion": 4,
+      "page": 203,
+      "etapes": 5
+     },
+     {
+      "n": 15,
+      "type": "defi",
+      "titre": "🚀 Défi  Cas pratique  La rampe de skate dans les deux sens",
+      "notion": 4,
+      "page": 204,
+      "etapes": null
+     }
+    ],
+    "depart": null,
+    "mots": 191,
+    "atoi": {
+     "page": 192,
+     "titre": "la hauteur d’une échelle"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 206,
+     "titre": "S’évaluer au format du CCF · CAP"
+    },
+    "retiens": [],
+    "reponses": 229,
+    "npages": 24
+   }
+  ],
+  "reponses": 226,
+  "glossaire": 230
+ },
  "pm": {
   "id": "pm",
   "nom": "3ème Série Pro",

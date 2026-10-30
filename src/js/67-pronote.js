@@ -15,58 +15,79 @@ var Pronote = (function () {
   function liste(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' et ' + a[a.length - 1]; }
   function unique(a) { return a.filter(function (x, i) { return x && a.indexOf(x) === i; }); }
 
-  /* retourne { contenu, travail, manuel } ; temps : 'passe' | 'futur' ; version : 1 (ce qui a été fait) | 2 (avec renvoi au manuel)
-     Le texte dit CE QUI A ÉTÉ TRAITÉ (savoir-faire, notions), jamais le déroulé de la séance. */
+  var ENTETE = { evaluation: 'Évaluation', revision: 'Révision', dm: 'Devoir maison' };
+  /* « À la fin de la séance, l’élève sait : calculer… » → « calculer… » */
+  function objectifCourt(t) { t = fin(t).replace(/^à la fin de (la|cette) séance,?\s*(l[’']élève|les élèves|l[’']apprenant)\s*(sait|savent|est capable de|sont capables de)\s*:?\s*/i, '').replace(/^(l[’']élève|les élèves)\s+(sait|savent)\s*:?\s*/i, ''); return court(t, 110); }
+  /* texte officiel du BO → forme brève : « Calculer la moyenne d’une série statistique, mentalement dans… » → « Calculer la moyenne d’une série statistique » */
+  function bref(t) { t = fin(t); var m = t.split(/,\s|;\s|\s:\s|\s\(|\s(?=mentalement|à l[’']aide|avec une|sur papier|dans quelques)/)[0]; return court(m.length >= 22 ? m : t, 100); }
+  function sansDoublon(a, ref) { var r = Manuels.norm(ref); return a.filter(function (x) { return Manuels.norm(x) !== r; }); }
+
+  /* retourne { contenu, travail, manuel } ; temps : 'passe' | 'futur' ; version : 1 (BO) | 2 (mémo perso, avec mes manuels) | 3 (Ma séance)
+     Le texte est une liste de lignes courtes et sans répétition (Objectif · Notion abordée · Exercice traité…) :
+     il dit CE QUI A ÉTÉ TRAITÉ (savoir-faire, notions), jamais le déroulé de la séance. */
   function draft(s, cl, temps, version) {
     var d = s.data, past = temps !== 'futur', L = [];
     var md = (version === 3 && typeof Man !== 'undefined') ? Man.describe(s, cl) : null; if (md && !md.notions.length && !md.exos.length) md = null;
-    var ou = OUV[s.type] || OUV.autre;
-    var mod = s.modalite === 'demi_groupe' ? ' en demi-groupe' + (s.groupe ? ' (groupe ' + s.groupe.slice(1) + ')' : '') : '';
-    var chaps = unique((d.chapitres || []).map(function (id) { var l = Ref.lookup(id); return l && l.txt; })).slice(0, 2);
-    var theme = chaps.length ? liste(chaps.map(function (c) { return '« ' + fin(c) + ' »'; })) : '';
     var titre = fin(s.titre);
-    var chp = theme ? ' sur ' + theme : '';
-    if (titre) {
-      var ch2 = !md && theme && theme.indexOf(titre) < 0 ? ' (chapitre ' + theme + ')' : '';
-      L.push(past ? ou[0] + mod + ' : « ' + titre + ' »' + ch2 + '.' : 'Au programme' + mod + ' : ' + ou[1] + ' « ' + titre + ' »' + ch2 + '.');
-    } else L.push(past ? ou[0] + mod + (md ? '' : chp) + '.' : 'Au programme' + mod + ' : ' + ou[1] + (md ? '' : chp) + '.');
-    var its = unique((d.items || []).filter(function (i) { return i.k !== 'a'; }).map(function (i) { return court(i.txt, 95); }));
     var man = version === 2 ? Manuels.get(cl && cl.niveau_id) : null, mt = man ? Manuels.match(cl.niveau_id, d, s.titre) : null, manuel = !!(mt && mt.length);
+    var its = unique((d.items || []).filter(function (i) { return i.k !== 'a'; }));
+    var chaps = unique((d.chapitres || []).map(function (id) { var l = Ref.lookup(id); return l && fin(l.txt); })).slice(0, 2);
+    var en = ENTETE[s.type];
+    if (s.modalite === 'demi_groupe') L.push('Demi-groupe' + (s.groupe ? ' : groupe ' + s.groupe.slice(1) : ''));
+
+    /* 1. Objectif */
+    var obj = fin(d.objectif) ? objectifCourt(d.objectif) : '';
+    if (!obj) { var o1 = its.filter(function (i) { return i.k === 'o'; })[0]; if (o1) obj = bref(o1.txt); }
+    if (!obj && titre) obj = titre;
+    if (en) L.push(en + (titre && Manuels.norm(titre) !== Manuels.norm(obj) ? ' : ' + titre : ''));
+    if (obj) L.push('Objectif : ' + (obj === titre ? obj : minus(obj)));
+
+    /* 2. Notion(s) abordée(s) et 3. exercice(s) traité(s) */
+    var notions = [], exos = [], suite = [];
     if (md) {
-      /* version « mes manuels » : ce qui a été traité, avec les pages et les exercices du manuel */
-      var bits = [];
-      if (md.notions.length) bits.push((md.notions.length > 1 ? 'notions ' : 'notion ') + liste(md.notions.map(function (n) { return '« ' + n.titre + ' » (' + Man.pg(n.pages[0]) + ')'; })));
-      L.push((past ? 'Nous avons travaillé avec le manuel « ' : 'Nous allons travailler avec le manuel « ') + md.man.nom + ' », chapitre ' + md.ch.n + ' « ' + md.ch.titre + ' »' + (bits.length ? ' : ' + bits.join(' ; ') : '') + '.');
-      if (md.exos.length) L.push((past ? 'Exercices traités : ' : 'Exercices : ') + liste(md.exos.map(function (x) { return 'n° ' + x.n + ' (' + Man.pg(x.page) + ')'; })) + '.');
+      notions = md.notions.map(function (n) { return n.titre + ' (' + Man.pg(n.pages[0]) + ')'; });
+      if (!notions.length) notions = ['chapitre ' + md.ch.n + ' « ' + md.ch.titre + ' »'];
+      exos = md.exos.map(function (x) { return 'n° ' + x.n + ' (' + Man.pg(x.page) + ')'; });
+      suite.push((md.man.court || 'Manuel') + ' : chapitre ' + md.ch.n + ' « ' + md.ch.titre + ' »');
     } else if (manuel) {
-      /* version 2 : le texte s’appuie sur les chapitres et notions du manuel, pas sur les phrases du BO */
-      var parts = mt.map(function (x) { return 'chapitre ' + x.chap.n + ' « ' + x.chap.t + ' »' + (x.notions.length ? ', ' + (x.notions.length > 1 ? 'notions ' : 'notion ') + liste(x.notions.map(function (t) { return '« ' + t + ' »'; })) : ''); });
-      L.push((past ? 'Nous avons travaillé avec le manuel « ' : 'Nous allons travailler avec le manuel « ') + man.nom + ' » : ' + parts.join(' ; ') + '.');
-    } else if (its.length) L.push((past ? 'Nous avons travaillé : ' : 'Nous allons travailler : ') + its.slice(0, 4).map(minus).join(' ; ') + (its.length > 4 ? ' ; …' : '') + '.');
-    else if (d.objectif && fin(d.objectif)) L.push('Objectif : ' + minus(fin(d.objectif)) + '.');
+      mt.forEach(function (x) { if (x.notions.length) x.notions.forEach(function (t) { notions.push(t); }); else notions.push('chapitre ' + x.chap.n + ' « ' + x.chap.t + ' »'); });
+      suite.push('Manuel : ' + man.nom + ', chapitre ' + mt.map(function (x) { return x.chap.n + ' « ' + x.chap.t + ' »'; }).join(' ; '));
+    } else {
+      notions = unique(its.filter(function (i) { return i.k === 'k'; }).map(function (i) { return bref(i.txt); }));
+      if (!notions.length) notions = unique(its.filter(function (i) { return i.k === 'o'; }).map(function (i) { return bref(i.txt); }));
+      if (!notions.length) notions = chaps;
+      var ph = (d.phases || []).filter(function (x) { return x.phase === 'exercices' && fin(x.contenu); })[0];
+      if (ph) exos = [court(ph.contenu, 120)];
+    }
+    notions = sansDoublon(notions, obj).slice(0, 4);
+    if (notions.length) L.push((notions.length > 1 ? (past ? 'Notions abordées' : 'Notions à aborder') : (past ? 'Notion abordée' : 'Notion à aborder')) + ' : ' + notions.join(' ; '));
+    if (exos.length) L.push((exos.length > 1 || /,| et /.test(exos[0]) ? (past ? 'Exercices traités' : 'Exercices à traiter') : (past ? 'Exercice traité' : 'Exercice à traiter')) + ' : ' + exos.join(', '));
+    suite.forEach(function (x) { L.push(x); });
+
     var au = unique((d.items || []).filter(function (i) { return i.k === 'a'; }).map(function (i) { return court(i.txt, 70); }));
-    if (au.length) L.push('Automatismes : ' + minus(au.slice(0, 2).join(' ; ')) + '.');
+    if (au.length) L.push('Automatismes : ' + minus(au.slice(0, 2).join(' ; ')));
     var b = d.bilan || {};
-    if (past && fin(b.realise)) L.push(fin(b.realise).replace(/^./, function (c) { return c.toUpperCase(); }) + '.');
-    if (past && fin(b.a_reprendre)) L.push('À reprendre : ' + minus(fin(b.a_reprendre)) + '.');
-    var tr = '';
+    if (past && fin(b.realise)) L.push('Bilan : ' + minus(fin(b.realise)));
+    if (past && fin(b.a_reprendre)) L.push('À reprendre : ' + minus(fin(b.a_reprendre)));
+    if (!L.length) L.push((OUV[s.type] || OUV.autre)[0]);
+
+    /* travail à faire */
+    var T = [];
     if (d.dm && d.dm.actif) {
-      tr = fin(d.dm.titre) || 'Devoir maison';
+      var tr = fin(d.dm.titre) || 'Devoir maison';
       if (d.dm.pour && d.dm.pour !== 'classe') tr += ' (' + lbl(K.DM_POUR, d.dm.pour).toLowerCase() + ')';
       if (fin(d.dm.consigne)) tr += ' : ' + fin(d.dm.consigne).replace(/\s*\n+\s*/g, ' ; ').slice(0, 400);
       if (d.dm.rendu) tr += ' — à rendre pour le ' + fmtD(d.dm.rendu);
-      tr += '.';
+      T.push(tr);
     }
     if (md) {
       L.push('Appli : ' + Man.appAt(md.man, md.ch, md.notions.length ? 'lecon' : ''));
-      var rev = (past ? 'Revoir ' : 'Lire ') + (md.notions.length ? (md.notions.length > 1 ? 'les notions ' : 'la notion ') + liste(md.notions.map(function (n) { return '« ' + n.titre + ' » (' + Man.pg(n.pages[0]) + ')'; })) : 'le chapitre ' + md.ch.n) + ' dans le manuel.';
-      tr = tr ? tr + ' Pour réviser : ' + minus(rev) : rev;
+      T.push((past ? 'Revoir : ' : 'Lire : ') + (md.notions.length ? md.notions.map(function (n) { return n.titre + ' (' + Man.pg(n.pages[0]) + ')'; }).join(' ; ') : 'chapitre ' + md.ch.n));
     } else if (manuel) {
       L.push('Appli : ' + man.url);
-      var rev = (past ? 'Revoir ' : 'Lire ') + (mt[0].notions.length ? (mt[0].notions.length > 1 ? 'les notions ' : 'la notion ') + liste(mt[0].notions.map(function (t) { return '« ' + t + ' »'; })) : 'le chapitre ' + mt[0].chap.n) + ' dans le manuel (chapitre ' + mt[0].chap.n + '), puis faire les exercices de la notion.';
-      tr = tr ? tr + ' Pour réviser : ' + minus(rev) : rev;
+      T.push((past ? 'Revoir : ' : 'Lire : ') + (mt[0].notions.length ? mt[0].notions.join(' ; ') : 'chapitre ' + mt[0].chap.n) + ' (manuel, chapitre ' + mt[0].chap.n + ')');
     }
-    return { contenu: L.join(' '), travail: tr, manuel: manuel };
+    return { contenu: L.join('\n'), travail: T.join('\n'), manuel: manuel };
   }
 
   function section(s, cl, d, save) {
@@ -76,7 +97,7 @@ var Pronote = (function () {
 
     var ta1, ta2, cnt = h('span', { class: 'muted small' });
     function upd() { cnt.textContent = (p.contenu || '').length + ' caractères'; }
-    ta1 = UI.textarea(function () { return p.contenu; }, function (v) { p.contenu = v; save(); upd(); }, 'Quelques phrases : ce qui a été fait pendant la séance…', 4);
+    ta1 = UI.textarea(function () { return p.contenu; }, function (v) { p.contenu = v; save(); upd(); }, 'Objectif : …\nNotion abordée : …\nExercice traité : …', 5);
     ta2 = UI.textarea(function () { return p.travail; }, function (v) { p.travail = v; save(); }, 'Travail à faire pour la prochaine séance (facultatif)', 2);
     function setVal(ta, v) { ta.value = v; ta.dispatchEvent(new Event('input', { bubbles: true })); }
     function gen() {
@@ -86,7 +107,7 @@ var Pronote = (function () {
     }
     function cp(txt, msg) { if (!txt.trim()) { UI.toast('Rien à copier : rédigez d’abord la synthèse.', 'err'); return; } copyText(txt).then(function (ok) { UI.toast(ok ? msg : 'Copie impossible : sélectionnez le texte et copiez-le à la main.', ok ? '' : 'err'); }); }
     var box = h('div', null,
-      h('p', { class: 'muted small' }, 'Texte brut, sans mise en forme ni émojis : il se colle proprement dans le cahier de textes de Pronote. Relisez-le avant de le coller.'),
+      h('p', { class: 'muted small' }, 'Quelques lignes courtes (objectif, notion, exercice), sans mise en forme ni émojis : elles se collent proprement dans le cahier de textes de Pronote. Relisez avant de coller.'),
       h('div', { class: 'row-gap' }, UI.field('Rédaction', UI.select([['passe', 'Au passé (séance faite)'], ['futur', 'Au futur (séance à venir)']], tps(), function (v) { p.temps = v; save(); }, 'sm')),
         h('button', { class: 'btn primary', type: 'button', title: 'Ce qui a été traité, d’après les éléments du programme cochés', onclick: gen }, '✨ Rédiger la synthèse')),
       UI.field('Contenu de la séance', ta1), cnt,
@@ -114,10 +135,10 @@ var Pronote = (function () {
       if ((p.perso || '').trim() && (p.perso || '').trim() !== txt) UI.ask('Remplacer le mémo actuel par une nouvelle rédaction automatique ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
     }
     var box = h('div', null,
-      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Série Pro ») : chapitre, notions et lien de l’appli.'),
+      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Série Pro », « Maths · CAP ») : chapitre, notions et lien de l’appli.'),
       hasMan ? h('div', { class: 'row-gap' }, h('button', { class: 'btn primary', type: 'button', onclick: gen }, '✨ Rédiger le mémo avec mes manuels'),
         h('button', { class: 'btn', type: 'button', onclick: function () { if (!(p.perso || '').trim()) { UI.toast('Rien à copier : rédigez d’abord le mémo.', 'err'); return; } copyText(p.perso).then(function (ok) { UI.toast(ok ? 'Mémo copié.' : 'Copie impossible : sélectionnez le texte et copiez-le à la main.', ok ? '' : 'err'); }); } }, '📋 Copier le mémo'))
-        : h('p', { class: 'muted small' }, 'Pas de manuel pour ce niveau (CAP) : le mémo reste libre, vous pouvez le saisir à la main.'),
+        : h('p', { class: 'muted small' }, 'Pas de manuel pour ce niveau : le mémo reste libre, vous pouvez le saisir à la main.'),
       ta);
     return UI.section('sea-perso', '🔒 Mémo perso (avec mes manuels)', [box], { open: !!(p.perso || '').trim() });
   }

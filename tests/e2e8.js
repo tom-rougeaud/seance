@@ -32,11 +32,11 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
   ok(/var CACHE = 'maseance-\d{12}'/.test(sw) && /PREFIX = 'maseance-'/.test(sw) && /no-cache/.test(sw), 'service worker : cache maseance-… et requêtes no-cache');
 
   console.log('# Catalogue des manuels embarqué');
-  const cat = await page.evaluate(() => { const o = {}; ['bp2', 'bp1', 'bpt', 'pm'].forEach((n) => { const m = Man.get(n); o[n] = m ? { ch: m.chapitres.length, no: m.chapitres.reduce((s, c) => s + c.notions.length, 0), ex: m.chapitres.reduce((s, c) => s + c.exos.length, 0) } : null; }); o.cap = Man.has('cap'); return o; });
+  const cat = await page.evaluate(() => { const o = {}; ['bp2', 'bp1', 'bpt', 'pm', 'cap'].forEach((n) => { const m = Man.get(n); o[n] = m ? { ch: m.chapitres.length, no: m.chapitres.reduce((s, c) => s + c.notions.length, 0), ex: m.chapitres.reduce((s, c) => s + c.exos.length, 0) } : null; }); return o; });
   console.log('    ', JSON.stringify(cat));
   ok(cat.bp2.ch === 8 && cat.bp1.ch === 8 && cat.bpt.ch === 7 && cat.pm.ch === 10, 'chapitres : 8 / 8 / 7 / 10');
   ok(cat.bp2.no + cat.bp1.no + cat.bpt.no + cat.pm.no === 143 && cat.bp2.ex + cat.bp1.ex + cat.bpt.ex + cat.pm.ex === 202, '143 notions et 202 exercices chargés dans le fichier');
-  ok(cat.cap === false, 'CAP : pas de manuel');
+  ok(cat.cap && cat.cap.ch === 10 && cat.cap.no === 40 && cat.cap.ex === 150, 'CAP : 10 chapitres, 40 notions, 150 exercices chargés');
 
   console.log('# Séance : section Manuel');
   const ids = await page.evaluate(() => {
@@ -81,7 +81,7 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
   ok(/<h3>Manuel<\/h3>/.test(info.fiche) || info.fiche === '', 'fiche exportée : section Manuel');
   ok(/chapitre 1 « Prix, marges et TVA »/.test(info.pp.contenu) && /p\. 8/.test(info.pp.contenu) && /n° 1 \(p\. 13\)/.test(info.pp.contenu), 'Pronote : chapitre, notion et exercice avec pages');
   ok(!/accroche|Déroulé/i.test(info.pp.contenu) && /Appli : https:\/\/tom-rougeaud\.github\.io\/mcv\/2de\/#\/c1\/lecon/.test(info.pp.contenu), 'Pronote : pas de déroulé, lien appli de la leçon');
-  ok(/Revoir la notion « Prendre un pourcentage »/.test(info.pp.travail), 'travail à faire : revoir la notion');
+  ok(/^Revoir : Prendre un pourcentage/.test(info.pp.travail), 'travail à faire : revoir la notion');
 
   console.log('# Modèles « mes manuels »');
   await page.goto(BASE + '#/classe/' + ids.c); await page.waitForSelector('.guide');

@@ -38,7 +38,7 @@ var Shell = (function () {
     syncBtn = h('button', { class: 'sync', type: 'button', onclick: syncPopover, 'aria-live': 'polite' });
     el.view = h('main', { id: 'view', tabindex: -1 });
     el.nav = h('nav', { class: 'nav', 'aria-label': 'Navigation principale' }, NAV.map(function (n) { return h('a', { href: n[0], 'data-h': n[0] }, h('span', { class: 'ic' }, n[2]), h('span', { class: 't' }, h('span', { class: 't-l' }, n[1]), h('span', { class: 't-s' }, n[3]))); }));
-    el.top = h('header', { class: 'top' }, h('a', { class: 'brand', href: '#/' }, h('span', { class: 'logo' }, '📋'), h('span', null, 'Fiches')), h('div', { class: 'grow' }), syncBtn,
+    el.top = h('header', { class: 'top' }, h('a', { class: 'brand', href: '#/' }, h('span', { class: 'logo' }, APP.manuels ? '📘' : '📋'), h('span', null, APP.nom)), h('a', { class: 'ver', href: '#/reglages', title: 'Version installée — touchez pour chercher une mise à jour' }, Upd.short()), h('div', { class: 'grow' }), syncBtn,
       h('button', { class: 'icon-btn', type: 'button', title: 'Se déconnecter', 'aria-label': 'Se déconnecter', onclick: function () { Main.logout(); } }, '⎋'));
     app.appendChild(el.top); app.appendChild(h('div', { class: 'body' }, el.nav, el.view));
     DB.onSync(updateSync); updateSync(DB.syncInfo());
@@ -99,7 +99,7 @@ Views.auth = function () {
     var p = mode === 'in' ? Api.auth.signIn(email.value.trim(), pass.value) : Api.auth.signUp(email.value.trim(), pass.value).then(function (r) { if (!r.connected) { msg.className = 'auth-msg ok'; msg.textContent = 'Compte créé : confirmez votre adresse via l’e-mail reçu, puis connectez-vous.'; setMode('in'); throw { silent: true }; } });
     p.then(function () { Main.afterLogin(); }, function (err) { if (err && err.silent) return; msg.textContent = err.network ? 'Réseau indisponible. Réessayez.' : (/Invalid login/i.test(err.message) ? 'E-mail ou mot de passe incorrect.' : err.message); }).then(function () { btn.disabled = false; });
   } },
-    h('div', { class: 'auth-logo' }, '📋'), h('h1', null, 'Fiches'), h('p', { class: 'muted' }, 'Séances et séquences de maths, reliées aux programmes officiels et à votre progression.'),
+    h('div', { class: 'auth-logo' }, APP.manuels ? '📘' : '📋'), h('h1', null, APP.nom), h('p', { class: 'muted' }, APP.manuels ? 'Séances de maths construites sur mes manuels : chapitres, pages, exercices et liens.' : 'Séances et séquences de maths, reliées aux programmes officiels et à votre progression.'),
     UI.field('Adresse e-mail', email), UI.field('Mot de passe', pass), msg, btn,
     h('div', { class: 'auth-links' }, toggle, forgot),
     h('p', { class: 'muted small' }, 'Même compte que « Suivi Progression » si vous en avez déjà un. Aucune donnée d’élève n’est nécessaire.'),

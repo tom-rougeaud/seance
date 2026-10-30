@@ -23,7 +23,7 @@ function defaultNiv(type) { return { cours: 'decouverte', activite: 'decouverte'
 
 function emptySeanceData(cl) {
   var s = DB.settings();
-  return { objectif: '', items: [], chapitres: [], competences: [], comp_caps: [], comp_manual: false, prerequis: '', ancrage: (cl && cl.metier) || '',
+  return { objectif: '', items: [], chapitres: [], manuel: { chap: null, notions: [], exos: [] }, competences: [], comp_caps: [], comp_manual: false, prerequis: '', ancrage: (cl && cl.metier) || '',
     materiel: (s.materiel_defaut || ['casio']).slice(), materiel_libre: '', phases: [],
     groupes: [{ nom: 'Groupe 1', contenu: '' }, { nom: 'Groupe 2', contenu: '' }],
     diff: { upe2a: '', difficulte: '', rapides: '', amenagements: '' }, trace: '',

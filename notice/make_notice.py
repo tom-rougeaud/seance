@@ -3,6 +3,11 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether, Preformatted
+import re
+_PP = Paragraph
+def Paragraph(t, *a, **k):
+    t = re.sub('[\U0001F300-\U0001FAFF\u2600-\u27BF\u2B00-\u2BFF\uFE0F\u2795\uFF0B\u2630]\\s?', '', t)  # pas d’émojis : la police du PDF n’a pas les glyphes
+    return _PP(t, *a, **k)
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 D='/usr/share/fonts/truetype/dejavu/'
@@ -53,8 +58,18 @@ S+= [bl('<b>Planning</b> (menu) : indiquez si la semaine de rentrée est une <b>
  bl('<b>📋 Pronote</b> dans l’en-tête d’une séance : « Rédiger la synthèse » écrit quelques phrases sur ce qui a été traité (pas le déroulé) et le travail à faire, que vous modifiez puis copiez ; le texte dit ce qui a été fait (savoir-faire du programme). Le <b>🔒 Mémo perso</b> (bouton « Mémo manuels », section à part, réservé à vous et absent des exports) s’appuie sur vos manuels : chapitre, notions, lien de l’appli, notions à revoir. <b>Imprimer / Word</b> dans l’en-tête de chaque fiche ; <b>Réglages › Exporter (JSON)</b> pour sauvegarder.'),
  bl('<b>📥 Modèles d’1 h</b> (en-tête d’une séance, page classe, séquence, accueil) : chaque chapitre est découpé en séances d’environ 1 h déjà préremplies (objectif, déroulé, trace écrite, matériel) ; chargez-en une ou créez-en plusieurs d’un coup, puis adaptez. <b>💾 Enregistrer comme modèle</b> garde vos propres séances.'),
  bl('<b>📚 Historique</b> (page d’une classe ou « Classes ») : toutes les fiches de la classe, uniquement ce que vous avez saisi ; <b>Imprimer / PDF</b> (choisir « Enregistrer au format PDF »), Word ou HTML. Les boutons d’export sont aussi en bas des fiches.')]
-S+= [Paragraph('Mettre à jour plus tard',H2)]
-S+= [Paragraph('Remplacez dans le dépôt les fichiers <font name="M">index.html</font> et <font name="M">sw.js</font> (le reste ne change pas). Ne touchez pas à <font name="M">config.js</font> si le projet Supabase est le même. Si une nouvelle version du script SQL est fournie, relancez-le dans le SQL Editor avant de publier l’appli. Si l’ancienne version reste affichée, rechargez la page (ou fermez puis rouvrez l’appli installée) : le service worker se met à jour au rechargement.',B)]
+S+= [Paragraph('Parcours guidé',H2)]
+S+= [Paragraph('En bas de chaque page, un bloc <b>« 👉 Et maintenant ? »</b> propose <b>le bouton de l’étape suivante</b> (créneaux → séquence → séances → suivi pour une classe ; titre → contenu → déroulé → « prête » → « faite » → synthèse Pronote → bilan → séance suivante pour une séance) et quelques raccourcis. Il s’adapte à l’état de la page.',B)]
+S+= [Paragraph('Deux versions : « Fiches » et « Ma séance »',H2)]
+S+= [bl('<b>Fiches</b> (<font name="M">tom-rougeaud.github.io/seance/</font>) : la version <b>programme officiel (BO)</b>, destinée à être partagée.'),
+ bl('<b>Ma séance</b> (<font name="M">tom-rougeaud.github.io/maseance/</font>) : la version <b>mes manuels</b>, pour vous. Les 4 manuels (2de, 1re, Tle, 3e) sont <b>intégrés au fichier</b> : 33 chapitres, 143 notions avec leurs pages, 202 exercices avec leur page et leur type. Dans une séance, la section « 📘 Manuel » liste chapitre, notions et exercices à cocher ; chaque ligne a un lien vers <b>la bonne page du PDF</b> et vers l’appli du manuel. Les notions cochées ajoutent aussi les objectifs correspondants du BO : la <b>progression</b> reste à jour. Le texte Pronote cite le chapitre, les notions, les exercices et leurs pages.'),
+ bl('<b>📥 Modèles › « Mes manuels »</b> : pour chaque chapitre, une séance d’1 h par notion (Je découvre › Je retiens › exercices), une séance de défis et une séance de contrôle, déjà remplies avec pages et numéros d’exercices.'),
+ bl('Les deux versions partagent <b>le même compte et les mêmes données</b> Supabase (aucune modification du script SQL). Elles ont chacune leur installation sur l’écran d’accueil (icône bleue / verte), leurs réglages locaux et leur connexion.'),
+ Paragraph('<b>Mise en place de « Ma séance » (3 actions, une seule fois)</b> : (1) sur GitHub, dépôt <font name="M">maseance</font> › Settings › Pages › branche <b>main</b>, dossier <b>/ (root)</b> ; (2) dans Supabase › Authentication › URL Configuration › <b>Redirect URLs</b> : ajouter <font name="M">https://tom-rougeaud.github.io/maseance/</font> (pour les liens de réinitialisation du mot de passe) ; (3) ouvrir l’adresse, se connecter avec le même e-mail et mot de passe. Dans « Fiches », le lien vers « Ma séance » n’apparaît dans Réglages que pour les comptes listés dans <font name="M">OWNER_EMAILS</font> de <font name="M">config.js</font>.',B)]
+S+= [Paragraph('Voir les mises à jour',H2)]
+S+= [bl('La <b>date de version</b> est affichée en haut de l’écran (« v. 30/10 09h50 ») et dans Réglages › « Version et mises à jour ».'),
+ bl('À chaque ouverture (et au retour sur l’appli), elle vérifie s’il existe une version plus récente : un <b>bandeau « Mettre à jour maintenant »</b> apparaît et reste affiché tant que vous ne choisissez pas. Réglages › <b>« Rechercher une mise à jour »</b> le fait à la demande ; <b>« Forcer le rechargement complet »</b> vide le cache de l’appli (vos données ne sont pas touchées).'),
+ Paragraph('Pour publier une mise à jour à la main : remplacer dans le dépôt les fichiers <font name="M">index.html</font> et <font name="M">sw.js</font> (le reste ne change pas ; ne pas toucher à <font name="M">config.js</font> si le projet Supabase est le même). Si une nouvelle version du script SQL est fournie, la relancer dans le SQL Editor avant.',B)]
 S+= [Paragraph('Confidentialité et limites',H2)]
 S+= [bl('Aucune donnée d’élève n’est demandée : n’en saisissez pas dans les champs libres. Aucun traceur, aucune police ni script distants.'),
  bl('Les fichiers (PDF, images) vont dans un espace privé de votre Supabase ; les liens YouTube sont enregistrés en version « sans cookies » et ne sont jamais intégrés automatiquement.'),

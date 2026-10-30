@@ -41,6 +41,7 @@ var Exp = (function () {
     var h = '<h1>' + E(s.titre || 'Séance') + '</h1>';
     h += metaLine(cl, [cl.nom, Cls.niveauLabel(cl) + (cl.groupement ? ' (gr. ' + cl.groupement + ')' : ''), lbl(K.TYPES, s.type), fmtDuree(s.duree_min), dt ? fmtD(dt) : '', s.modalite !== 'classe' ? lbl(K.MODALITES, s.modalite) + (s.groupe ? ' ' + s.groupe : '') : '', seq ? 'Séquence : ' + seq.titre : '', opt.hist ? 'Statut : ' + lbl(K.STATUTS_SEANCE, s.statut).toLowerCase() + (s.statut === 'faite' && s.date_realisee ? ' le ' + fmtD(s.date_realisee) : '') : '']);
     if (d.objectif) h += '<p class="obj"><strong>Objectif :</strong> ' + nl(d.objectif) + '</p>';
+    if (typeof Man !== 'undefined' && Man.has(cl.niveau_id)) h += block('Manuel', Man.html(s, cl));
     h += block('Programme', itemsHtml(s, true) + compsHtml(s, cl));
     h += block('Prérequis', para(d.prerequis)); h += block('Ancrage métier', para(d.ancrage));
     var mat = (d.materiel || []).map(function (m) { return lbl(K.MATERIEL, m); }).concat(d.materiel_libre ? [d.materiel_libre] : []);

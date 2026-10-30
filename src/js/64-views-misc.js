@@ -128,10 +128,11 @@ Views.reglages = function () {
     });
     lookBody.appendChild(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Police'), fg, h('span', { class: 'hint' }, 'Les polices sont intégrées à l’application (aucun téléchargement) ; « Système » reprend celle de votre appareil.')));
     lookBody.appendChild(UI.field('Taille du texte', UI.select(K.TAILLES, cur.fs, function (v) { Main.setLook({ fs: v }); drawLook(); })));
-    lookBody.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { Main.setLook({ theme: 'auto', palette: 'marine', font: 'systeme', fs: '1' }); drawLook(); UI.toast('Apparence réinitialisée.'); } }, '↺ Revenir à l’apparence d’origine'));
+    lookBody.appendChild(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { Main.setLook({ theme: 'auto', palette: APP.palette, font: 'systeme', fs: '1' }); drawLook(); UI.toast('Apparence réinitialisée.'); } }, '↺ Revenir à l’apparence d’origine'));
   }
   drawLook(); root.appendChild(look);
 
+  root.appendChild(Upd.card()); var sib = Upd.siblingCard(); if (sib) root.appendChild(sib);
   /* installation */
   root.appendChild(h('section', { class: 'card' }, h('h2', null, 'Installer sur l’écran d’accueil'), h('p', { class: 'muted small' }, 'Fiches fonctionne comme une appli (plein écran, lancement rapide, lecture hors connexion de vos fiches déjà chargées).'), h('button', { class: 'btn', type: 'button', onclick: function () { Main.installHelp(); } }, '📲 Comment installer ?')));
 
@@ -146,7 +147,7 @@ Views.reglages = function () {
 
   /* compte */
   root.appendChild(h('section', { class: 'card' }, h('h2', null, 'Compte'), h('p', null, Api.user() && Api.user().email ? Api.user().email : ''), h('button', { class: 'btn', type: 'button', onclick: function () { Main.logout(); } }, 'Se déconnecter')));
-  root.appendChild(h('p', { class: 'small center' }, h('a', { href: '#/apropos' }, 'À propos'), ' · ', h('a', { href: '#/confidentialite' }, 'Confidentialité'), ' · ' + APP.nom + ' ' + APP.version + ' (' + APP.build + ')'));
+  root.appendChild(h('p', { class: 'small center' }, h('a', { href: '#/apropos' }, 'À propos'), ' · ', h('a', { href: '#/confidentialite' }, 'Confidentialité'), ' · ' + Upd.label()));
   return root;
 };
 
@@ -167,7 +168,7 @@ Views.apropos = function () {
     h('h3', null, 'Licence et auteur'),
     h('p', null, 'Créé par Tom Rougeaud, professeur de mathématiques-sciences. Licence ', h('a', { href: 'https://creativecommons.org/licenses/by-nc/4.0/deed.fr', target: '_blank', rel: 'noopener noreferrer' }, 'CC BY-NC 4.0'), ' : réutilisation libre avec mention de l’auteur, hors usage commercial.'),
     h('p', null, h('a', { href: 'https://tom-rougeaud.github.io/casier/', target: '_blank', rel: 'noopener noreferrer' }, 'Le casier'), ' · ', h('a', { href: 'https://www.linkedin.com/in/tomrougeaud/', target: '_blank', rel: 'noopener noreferrer' }, 'LinkedIn'), ' · ', h('a', { href: 'mailto:tom.rougeaud.education@gmail.com' }, 'Contact')),
-    h('p', { class: 'small muted' }, APP.nom + ' ' + APP.version + ' · version du ' + APP.build + ' · référentiels du ' + (Ref.raw().version || ''))));
+    h('p', { class: 'small muted' }, Upd.label() + ' · référentiels du ' + (Ref.raw().version || ''))));
   return root;
 };
 

@@ -9,7 +9,7 @@ var Main = (function () {
   function applyTheme() {
     var t = Store.get('theme') || 'auto', r = document.documentElement;
     if (t === 'light' || t === 'dark') r.setAttribute('data-theme', t); else r.removeAttribute('data-theme');
-    var pal = Store.get('palette') || 'marine', fo = Store.get('font') || 'systeme', fs = Store.get('fs') || '1';
+    var pal = Store.get('palette') || APP.palette, fo = Store.get('font') || 'systeme', fs = Store.get('fs') || '1';
     if (!K.PALETTES.some(function (x) { return x[0] === pal; })) pal = 'marine';
     if (!K.POLICES.some(function (x) { return x[0] === fo; })) fo = 'systeme';
     if (!K.TAILLES.some(function (x) { return x[0] === fs; })) fs = '1';
@@ -22,7 +22,7 @@ var Main = (function () {
   function setLook(patch) {
     Object.keys(patch).forEach(function (k) { Store.set(k, String(patch[k])); });
     applyTheme();
-    DB.saveSettings({ apparence: { theme: Store.get('theme') || 'auto', palette: Store.get('palette') || 'marine', font: Store.get('font') || 'systeme', fs: Store.get('fs') || '1' } });
+    DB.saveSettings({ apparence: { theme: Store.get('theme') || 'auto', palette: Store.get('palette') || APP.palette, font: Store.get('font') || 'systeme', fs: Store.get('fs') || '1' } });
   }
   function adoptLook() {
     var a = DB.settings().apparence; if (!a || typeof a !== 'object') return;
@@ -70,6 +70,7 @@ var Main = (function () {
     }
     var y = window.scrollY, node;
     try { node = build(r); } catch (e) { node = errorCard(e); }
+    try { var g = Guide.footer(r); if (g && node && node.appendChild) node.appendChild(g); } catch (e) { if (window.console) console.error(e); }
     Shell.show(node, hash);
     if (keepScroll === true) window.scrollTo(0, y);
     last = hash;
@@ -143,15 +144,15 @@ var Main = (function () {
     body.appendChild(h('h3', null, 'Android (Chrome)'));
     body.appendChild(h('ol', null, h('li', null, 'Touchez le menu ⋮ en haut à droite.'), h('li', null, 'Choisissez « Installer l’application » (ou « Ajouter à l’écran d’accueil »).')));
     body.appendChild(h('h3', null, 'Ordinateur (Chrome, Edge)'));
-    body.appendChild(h('p', null, 'Cliquez sur l’icône d’installation à droite de la barre d’adresse, ou menu › « Installer Fiches ».'));
-    UI.modal({ title: 'Installer Fiches', body: body, actions: [{ label: 'Fermer', kind: 'primary' }] });
+    body.appendChild(h('p', null, 'Cliquez sur l’icône d’installation à droite de la barre d’adresse, ou menu › « Installer ' + APP.nom + ' ».'));
+    UI.modal({ title: 'Installer ' + APP.nom, body: body, actions: [{ label: 'Fermer', kind: 'primary' }] });
   }
   function installBannerSoon() {
     if (isStandalone() || Store.get('install_dismissed') === '1' || $('.install-bar')) return;
     setTimeout(function () {
       if (!started || isStandalone() || Store.get('install_dismissed') === '1' || $('.install-bar')) return;
       var bar = h('div', { class: 'install-bar', role: 'region', 'aria-label': 'Installation' },
-        h('span', null, isIOS() ? '📲 Ajoutez Fiches à l’écran d’accueil : Partager → « Sur l’écran d’accueil ».' : '📲 Installer Fiches sur cet appareil ?'),
+        h('span', null, isIOS() ? '📲 Ajoutez ' + APP.nom + ' à l’écran d’accueil : Partager → « Sur l’écran d’accueil ».' : '📲 Installer ' + APP.nom + ' sur cet appareil ?'),
         h('span', { class: 'grow' }),
         !isIOS() ? h('button', { class: 'btn small primary', type: 'button', onclick: function () { if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.then(function () { deferredInstall = null; bar.remove(); }); } else { installHelp(); } } }, 'Installer') : h('button', { class: 'btn small primary', type: 'button', onclick: installHelp }, 'Comment ?'),
         h('button', { class: 'btn small ghost', type: 'button', onclick: function () { bar.remove(); } }, 'Plus tard'),
@@ -161,14 +162,8 @@ var Main = (function () {
   }
 
   function registerSW() {
-    if (!('serviceWorker' in navigator)) return;
-    if (!(location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) return;
-    navigator.serviceWorker.register('sw.js').then(function (reg) {
-      reg.addEventListener('updatefound', function () {
-        var nw = reg.installing; if (!nw) return;
-        nw.addEventListener('statechange', function () { if (nw.state === 'installed' && navigator.serviceWorker.controller) UI.toast('Une nouvelle version est disponible : rechargez la page.', '', 8000); });
-      });
-    }, function () { /* sans service worker : l’appli fonctionne quand même en ligne */ });
+    if (!('serviceWorker' in navigator) || !(location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) { Upd.watch(null); return; }
+    navigator.serviceWorker.register('sw.js').then(function (reg) { Upd.watch(reg); }, function () { Upd.watch(null); /* sans service worker : l’appli fonctionne quand même en ligne */ });
   }
 
   function boot() {

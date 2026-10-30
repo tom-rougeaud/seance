@@ -84,7 +84,7 @@ var Tpl = (function () {
   }
 
   function hasContent(s) { var d = s.data; return !!((d.items || []).length || (d.trace || '').trim() || (d.objectif || '').trim() || (d.phases || []).some(function (x) { return (x.contenu || '').trim(); })); }
-  var KEEP = ['objectif', 'items', 'chapitres', 'competences', 'comp_caps', 'comp_manual', 'prerequis', 'ancrage', 'materiel', 'materiel_libre', 'phases', 'trace', 'diff', 'eval'];
+  var KEEP = ['objectif', 'manuel', 'items', 'chapitres', 'competences', 'comp_caps', 'comp_manual', 'prerequis', 'ancrage', 'materiel', 'materiel_libre', 'phases', 'trace', 'diff', 'eval'];
   /* charge une proposition (ou un modèle perso) dans une séance existante : bilan, DM, ressources, notes sont conservés */
   function applyTo(s, cl, spec) {
     var d = spec.data;
@@ -106,7 +106,7 @@ var Tpl = (function () {
     opt = opt || {};
     var classes = Cls.actives(); if (!classes.length) { UI.toast('Créez d’abord une classe.'); return; }
     var cl = opt.cl || Cls.get(Store.get('last_class')) || classes[0]; if (cl.archive) cl = classes[0];
-    var load = opt.mode === 'load', picked = {}, tab = 'prog', q = '', withDate = true;
+    var load = opt.mode === 'load', picked = {}, tab = (Man.has(cl.niveau_id) ? 'man' : 'prog'), q = '', withDate = true;
     var wrap = h('div', { class: 'tpl' }), list = h('div', { class: 'tpl-list' }), count = h('span', { class: 'muted small' });
     var api;
     function nPicked() { return Object.keys(picked).length; }
@@ -117,10 +117,11 @@ var Tpl = (function () {
       var c = h('div', { class: 'tpl-card' });
       var head = h('div', { class: 'tpl-h' });
       if (!load) head.appendChild(h('input', { type: 'checkbox', 'aria-label': 'Sélectionner', checked: !!picked[meta.id], onchange: function (e) { if (e.target.checked) picked[meta.id] = { spec: spec }; else delete picked[meta.id]; updCount(); } }));
-      head.appendChild(h('div', { class: 'tpl-t' }, h('strong', null, spec.titre), h('div', { class: 'muted small' }, lbl(K.TYPES, spec.type) + ' · ' + fmtDuree(spec.duree) + ' · ' + plural(its.length, 'élément') + (meta.sub ? ' · ' + meta.sub : ''))));
+      head.appendChild(h('div', { class: 'tpl-t' }, h('strong', null, spec.titre), h('div', { class: 'muted small' }, lbl(K.TYPES, spec.type) + ' · ' + fmtDuree(spec.duree) + (spec.preview ? '' : ' · ' + plural(its.length, 'élément')) + (meta.sub ? ' · ' + meta.sub : ''))));
       if (load) head.appendChild(h('button', { class: 'btn small primary', type: 'button', onclick: function () { go(spec); } }, 'Charger'));
       c.appendChild(head);
-      if (its.length) c.appendChild(h('details', { class: 'tpl-d' }, h('summary', { class: 'small' }, 'Voir le contenu'), h('ul', { class: 'small' }, its.map(function (x) { return h('li', null, x.txt); })),
+      if (spec.preview) c.appendChild(h('details', { class: 'tpl-d' }, h('summary', { class: 'small' }, 'Voir le contenu'), h('ul', { class: 'small' }, spec.preview.map(function (x) { return h('li', null, x); }))));
+      else if (its.length) c.appendChild(h('details', { class: 'tpl-d' }, h('summary', { class: 'small' }, 'Voir le contenu'), h('ul', { class: 'small' }, its.map(function (x) { return h('li', null, x.txt); })),
         spec.data.objectif ? h('p', { class: 'small' }, h('strong', null, 'Objectif : '), spec.data.objectif) : null));
       return c;
     }
@@ -142,6 +143,24 @@ var Tpl = (function () {
       det.appendChild(box); if (open0) fill();
       return det;
     }
+    function manBlock(ch, open0) {
+      var box = h('div', { class: 'tpl-chap' }), filled = false, man = Man.get(cl.niveau_id);
+      var det = h('details', { class: 'tpl-chapd', open: open0 ? true : null }, h('summary', null, h('strong', null, 'Ch. ' + ch.n + ' · ' + ch.titre), h('span', { class: 'muted small' }, '  ' + Man.pg([ch.page, ch.fin]) + ' · ' + plural(ch.notions.length, 'notion') + ' · ' + plural(ch.exos.length, 'exercice'))));
+      function fill() { if (filled) return; filled = true; Man.specs(cl, ch).forEach(function (sp) { box.appendChild(card(sp, { id: sp.id, sub: sp.sub })); }); }
+      det.addEventListener('toggle', function () { if (det.open) fill(); });
+      det.appendChild(box); if (open0) fill();
+      return det;
+    }
+    function drawMan() {
+      var man = Man.get(cl.niveau_id);
+      if (!man) { list.appendChild(h('p', { class: 'muted' }, 'Pas de manuel pour ce niveau (' + Cls.niveauLabel(cl) + '). Utilisez l’onglet « Programme (BO) ».')); return; }
+      var ql = q.toLowerCase(), pre = {};
+      (opt.chapIds || []).forEach(function (bid) { var m = Manuels.get(cl.niveau_id); if (m) m.chap.forEach(function (c) { if (c.refs.indexOf(bid) >= 0) pre[c.n] = true; }); });
+      var chaps = man.chapitres.filter(function (c) { return !ql || (c.titre + ' ' + c.notions.map(function (n) { return n.titre; }).join(' ') + ' ' + c.exos.map(function (e) { return e.titre; }).join(' ')).toLowerCase().indexOf(ql) >= 0; });
+      list.appendChild(h('p', { class: 'muted small' }, man.nom + ' : une séance d’1 h par notion (« Je découvre » → « Je retiens » → exercices), une séance de défis et une séance de contrôle par chapitre.'));
+      chaps.forEach(function (c) { list.appendChild(manBlock(c, pre[c.n] || (!!ql && chaps.length <= 3))); });
+      if (!chaps.length) list.appendChild(h('p', { class: 'muted' }, 'Aucun chapitre ne correspond.'));
+    }
     function drawProg() {
       var e = Ref.effective(cl.niveau_id), ql = q.toLowerCase();
       var chaps = e.chapitres.filter(function (c) { return !ql || (c.titre + ' ' + c.domaine + ' ' + c.objectifs.concat(c.connaissances).map(function (x) { return x.txt; }).join(' ')).toLowerCase().indexOf(ql) >= 0; });
@@ -161,12 +180,12 @@ var Tpl = (function () {
         list.appendChild(c);
       });
     }
-    function draw() { clear(list); if (tab === 'prog') drawProg(); else drawMine(); }
+    function draw() { clear(list); if (tab === 'man') drawMan(); else if (tab === 'prog') drawProg(); else drawMine(); }
     function top() {
       var t = h('div', { class: 'tpl-top' });
       if (!opt.cl || !load) t.appendChild(UI.field('Classe', UI.select(classes.map(function (c) { return [c.id, c.nom + ' — ' + Cls.niveauLabel(c)]; }), cl.id, function (v) { cl = Cls.get(v); picked = {}; updCount(); draw(); })));
-      t.appendChild(h('div', { class: 'tabs', role: 'tablist' }, [['prog', 'Modèles des programmes'], ['mine', 'Mes modèles']].map(function (x) { return h('button', { class: 'tab' + (tab === x[0] ? ' on' : ''), type: 'button', role: 'tab', onclick: function () { tab = x[0]; clear(wrap); build(); } }, x[1]); })));
-      if (tab === 'prog') t.appendChild(h('input', { class: 'inp', type: 'search', placeholder: 'Filtrer par mot (ex. pourcentage, fonction, probabilité)…', value: q, oninput: function (e) { q = e.target.value; clear(list); drawProg(); } }));
+      t.appendChild(h('div', { class: 'tabs', role: 'tablist' }, (APP.manuels ? [['man', 'Mes manuels'], ['prog', 'Programme (BO)'], ['mine', 'Mes modèles']] : [['prog', 'Modèles des programmes'], ['mine', 'Mes modèles']]).map(function (x) { return h('button', { class: 'tab' + (tab === x[0] ? ' on' : ''), type: 'button', role: 'tab', onclick: function () { tab = x[0]; clear(wrap); build(); } }, x[1]); })));
+      if (tab === 'prog' || tab === 'man') t.appendChild(h('input', { class: 'inp', type: 'search', placeholder: 'Filtrer par mot (ex. pourcentage, fonction, probabilité)…', value: q, oninput: function (e) { q = e.target.value; clear(list); if (tab === 'man') drawMan(); else drawProg(); } }));
       return t;
     }
     function build() {

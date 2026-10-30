@@ -1,0 +1,3998 @@
+{
+ "bp2": {
+  "id": "bp2",
+  "nom": "Maths et MCV · 2de",
+  "court": "Manuel 2de",
+  "pdf": "https://tom-rougeaud.github.io/mcv/2de/pdf/maths-et-mcv-2de.pdf",
+  "web": "https://tom-rougeaud.github.io/mcv/2de/",
+  "chap_pdf": "https://tom-rougeaud.github.io/mcv/2de/pdf/chapitres/maths-et-mcv-2de-chapitre-%d.pdf",
+  "pages": 128,
+  "chapitres": [
+   {
+    "n": 1,
+    "titre": "Prix, marges et TVA",
+    "dom": "Calculs commerciaux",
+    "page": 7,
+    "fin": 20,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Prendre un pourcentage",
+      "page": 8,
+      "partie": null,
+      "pages": [
+       8,
+       8
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Le coefficient multiplicateur",
+      "page": 9,
+      "partie": null,
+      "pages": [
+       9,
+       9
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Prix HT, TVA, prix TTC",
+      "page": 10,
+      "partie": null,
+      "pages": [
+       10,
+       10
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "La marge, le taux de marge, le taux de marque",
+      "page": 11,
+      "partie": null,
+      "pages": [
+       11,
+       11
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "La barre des 100 %",
+      "notion": 1,
+      "page": 13,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "La flèche « × CM »",
+      "notion": 2,
+      "page": 14,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "HT, TVA, TTC",
+      "notion": 3,
+      "page": 14,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le coefficient de vente",
+      "notion": 4,
+      "page": 15,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Black Friday : une réduction conforme ?",
+      "notion": 3,
+      "page": 16,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "L’opération « − 30 % sur les doudounes »",
+      "notion": null,
+      "page": 17,
+      "etapes": 6
+     }
+    ],
+    "depart": null,
+    "mots": 12,
+    "atoi": {
+     "page": 13,
+     "titre": "la même méthode"
+    },
+    "saisfaire": 18,
+    "evalu": {
+     "page": 19,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [],
+    "reponses": 121,
+    "npages": 14
+   },
+   {
+    "n": 2,
+    "titre": "Statistique à une variable",
+    "dom": "Statistique et probabilités",
+    "page": 21,
+    "fin": 34,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Effectifs et fréquences",
+      "page": 23,
+      "partie": null,
+      "pages": [
+       23,
+       23
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "La moyenne",
+      "page": 24,
+      "partie": null,
+      "pages": [
+       24,
+       24
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "La médiane et les quartiles",
+      "page": 25,
+      "partie": null,
+      "pages": [
+       25,
+       25
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Dispersion et boîte à moustaches",
+      "page": 26,
+      "partie": null,
+      "pages": [
+       26,
+       26
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Effectifs et fréquences",
+      "notion": 1,
+      "page": 28,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "La moyenne avec des effectifs",
+      "notion": 2,
+      "page": 28,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "La file rangée",
+      "notion": 3,
+      "page": 29,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "L’attente en caisse",
+      "notion": 1,
+      "page": 29,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Deux magasins, deux profils de clients",
+      "notion": 4,
+      "page": 30,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "L’attente à l’accueil du magasin",
+      "notion": null,
+      "page": 31,
+      "etapes": 5
+     }
+    ],
+    "depart": 22,
+    "mots": 27,
+    "atoi": {
+     "page": 28,
+     "titre": "la même méthode"
+    },
+    "saisfaire": 32,
+    "evalu": {
+     "page": 33,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [],
+    "reponses": 121,
+    "npages": 14
+   },
+   {
+    "n": 3,
+    "titre": "Problèmes du premier degré",
+    "dom": "Algèbre",
+    "page": 35,
+    "fin": 50,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Résoudre une équation",
+      "page": 37,
+      "partie": null,
+      "pages": [
+       37,
+       37
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Mettre un problème en équation",
+      "page": 38,
+      "partie": null,
+      "pages": [
+       38,
+       38
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Les intervalles",
+      "page": 39,
+      "partie": null,
+      "pages": [
+       39,
+       39
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Résoudre une inéquation",
+      "page": 40,
+      "partie": null,
+      "pages": [
+       40,
+       40
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "La balance",
+      "notion": 1,
+      "page": 42,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Le schéma en barres",
+      "notion": 2,
+      "page": 43,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Sur la droite graduée",
+      "notion": 3,
+      "page": 43,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le prix d’un paquet",
+      "notion": 2,
+      "page": 44,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Louer un stand au marché de Noël",
+      "notion": 2,
+      "page": 45,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Choisir son terminal de paiement",
+      "notion": null,
+      "page": 46,
+      "etapes": 5
+     }
+    ],
+    "depart": 36,
+    "mots": 41,
+    "atoi": {
+     "page": 42,
+     "titre": "la même méthode"
+    },
+    "saisfaire": 47,
+    "evalu": {
+     "page": 49,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [],
+    "reponses": 121,
+    "npages": 16
+   },
+   {
+    "n": 4,
+    "titre": "Factures, réductions et intérêts",
+    "dom": "Calculs commerciaux",
+    "page": 51,
+    "fin": 62,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Les réductions commerciales",
+      "page": 52,
+      "partie": null,
+      "pages": [
+       52,
+       52
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Devis et facture",
+      "page": 53,
+      "partie": null,
+      "pages": [
+       53,
+       53
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "L’intérêt simple",
+      "page": 54,
+      "partie": null,
+      "pages": [
+       54,
+       54
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "L’escalier des remises",
+      "notion": 1,
+      "page": 56,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "La frise des intérêts",
+      "notion": 3,
+      "page": 56,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "La facture à compléter",
+      "notion": 2,
+      "page": 57,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le compte d’épargne",
+      "notion": 3,
+      "page": 57,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Compléter une facture",
+      "notion": 2,
+      "page": 58,
+      "etapes": 5
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Deux devis pour des parasols",
+      "notion": null,
+      "page": 59,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 55,
+    "atoi": {
+     "page": 56,
+     "titre": "la même méthode"
+    },
+    "saisfaire": 60,
+    "evalu": {
+     "page": 61,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [],
+    "reponses": 121,
+    "npages": 12
+   },
+   {
+    "n": 5,
+    "titre": "Fonctions",
+    "dom": "Algèbre – Analyse",
+    "page": 63,
+    "fin": 76,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Image et antécédent",
+      "page": 65,
+      "partie": null,
+      "pages": [
+       65,
+       65
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Tableau de valeurs et courbe",
+      "page": 66,
+      "partie": null,
+      "pages": [
+       66,
+       66
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Fonction affine : la pente",
+      "page": 67,
+      "partie": null,
+      "pages": [
+       67,
+       67
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "La fonction carré, le sens de variation",
+      "page": 68,
+      "partie": null,
+      "pages": [
+       68,
+       68
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "La machine à transformer",
+      "notion": 1,
+      "page": 70,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Le tableau de valeurs",
+      "notion": 2,
+      "page": 70,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Lire le graphique",
+      "notion": 3,
+      "page": 71,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le tarif de livraison",
+      "notion": 3,
+      "page": 71,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Choisir un transporteur",
+      "notion": 4,
+      "page": 72,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le food truck",
+      "notion": null,
+      "page": 73,
+      "etapes": 5
+     }
+    ],
+    "depart": 64,
+    "mots": 69,
+    "atoi": {
+     "page": 70,
+     "titre": "la même méthode"
+    },
+    "saisfaire": 74,
+    "evalu": {
+     "page": 75,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [],
+    "reponses": 121,
+    "npages": 14
+   },
+   {
+    "n": 6,
+    "titre": "Fluctuation et probabilités",
+    "dom": "Statistique et probabilités",
+    "page": 77,
+    "fin": 90,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Qu’est-ce qu’une probabilité ?",
+      "page": 79,
+      "partie": null,
+      "pages": [
+       79,
+       79
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Calculer une probabilité",
+      "page": 80,
+      "partie": null,
+      "pages": [
+       80,
+       80
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Compter avec un arbre ou un tableau",
+      "page": 81,
+      "partie": null,
+      "pages": [
+       81,
+       81
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Fréquence et fluctuation",
+      "page": 82,
+      "partie": null,
+      "pages": [
+       82,
+       82
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "La roue colorée",
+      "notion": 2,
+      "page": 84,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Les fréquences des lancers",
+      "notion": 4,
+      "page": 84,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Le tableau des issues",
+      "notion": 3,
+      "page": 85,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Les cartes à gratter",
+      "notion": 1,
+      "page": 85,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Le paiement sans contact",
+      "notion": 4,
+      "page": 86,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "La roue du commerçant",
+      "notion": null,
+      "page": 87,
+      "etapes": 5
+     }
+    ],
+    "depart": 78,
+    "mots": 83,
+    "atoi": {
+     "page": 84,
+     "titre": "la même méthode"
+    },
+    "saisfaire": 88,
+    "evalu": {
+     "page": 89,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [],
+    "reponses": 121,
+    "npages": 14
+   },
+   {
+    "n": 7,
+    "titre": "Géométrie",
+    "dom": "Géométrie",
+    "page": 91,
+    "fin": 104,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Aires et périmètres",
+      "page": 93,
+      "partie": null,
+      "pages": [
+       93,
+       93
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Volumes et contenances",
+      "page": 94,
+      "partie": null,
+      "pages": [
+       94,
+       94
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Le théorème de Pythagore",
+      "page": 95,
+      "partie": null,
+      "pages": [
+       95,
+       95
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Agrandir et réduire",
+      "page": 96,
+      "partie": null,
+      "pages": [
+       96,
+       96
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Le quadrillage",
+      "notion": 1,
+      "page": 98,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Les cubes",
+      "notion": 2,
+      "page": 99,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Pythagore",
+      "notion": 3,
+      "page": 99,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "La rampe d’accès",
+      "notion": 3,
+      "page": 100,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "La maquette du stand",
+      "notion": 4,
+      "page": 100,
+      "etapes": 3
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le coffret cadeau",
+      "notion": null,
+      "page": 101,
+      "etapes": 5
+     }
+    ],
+    "depart": 92,
+    "mots": 97,
+    "atoi": {
+     "page": 98,
+     "titre": "la même méthode"
+    },
+    "saisfaire": 102,
+    "evalu": {
+     "page": 103,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [],
+    "reponses": 122,
+    "npages": 14
+   },
+   {
+    "n": 8,
+    "titre": "Croisement de deux variables",
+    "dom": "Statistique et probabilités",
+    "page": 105,
+    "fin": 120,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Lire un tableau croisé",
+      "page": 106,
+      "partie": null,
+      "pages": [
+       106,
+       106
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Compléter un tableau croisé",
+      "page": 107,
+      "partie": null,
+      "pages": [
+       107,
+       107
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Sur le total, ou « parmi » ?",
+      "page": 108,
+      "partie": null,
+      "pages": [
+       108,
+       108
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Comparer deux groupes",
+      "page": 109,
+      "partie": null,
+      "pages": [
+       109,
+       109
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Lire le tableau croisé",
+      "notion": 1,
+      "page": 111,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Compléter le tableau",
+      "notion": 2,
+      "page": 112,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Sur le total, ou « parmi » ?",
+      "notion": 3,
+      "page": 112,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "L’accueil du centre commercial",
+      "notion": 1,
+      "page": 113,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Semaine des soldes : le taux de transformation",
+      "notion": 2,
+      "page": 114,
+      "etapes": 5
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le stand du salon de l’habitat",
+      "notion": null,
+      "page": 116,
+      "etapes": 6
+     }
+    ],
+    "depart": null,
+    "mots": 110,
+    "atoi": {
+     "page": 111,
+     "titre": "la même méthode"
+    },
+    "saisfaire": 117,
+    "evalu": {
+     "page": 119,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [],
+    "reponses": 122,
+    "npages": 16
+   }
+  ],
+  "reponses": 121,
+  "glossaire": 123
+ },
+ "bp1": {
+  "id": "bp1",
+  "nom": "Maths et MCV · 1re",
+  "court": "Manuel 1re",
+  "pdf": "https://tom-rougeaud.github.io/mcv/1ere/pdf/maths-et-mcv-1re.pdf",
+  "web": "https://tom-rougeaud.github.io/mcv/1ere/",
+  "chap_pdf": "https://tom-rougeaud.github.io/mcv/1ere/pdf/chapitres/maths-et-mcv-1re-chapitre-%d.pdf",
+  "pages": 160,
+  "chapitres": [
+   {
+    "n": 1,
+    "titre": "Calculs commerciaux et financiers",
+    "dom": "Algèbre-analyse · calculs commerciaux et financiers",
+    "page": 8,
+    "fin": 24,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Coût total, recette et résultat",
+      "page": 11,
+      "partie": "Coûts et résultat",
+      "pages": [
+       11,
+       12
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Coût moyen et coût marginal",
+      "page": 13,
+      "partie": "Coûts et résultat",
+      "pages": [
+       13,
+       13
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Les intérêts simples",
+      "page": 14,
+      "partie": "Intérêts simples",
+      "pages": [
+       14,
+       14
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Les taux : an, mois, quinzaine, jour",
+      "page": 15,
+      "partie": "Intérêts simples",
+      "pages": [
+       15,
+       15
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Le bilan en pile",
+      "notion": 1,
+      "page": 17,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Coût moyen et coût marginal",
+      "notion": 2,
+      "page": 18,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Intérêts simples et taux",
+      "notion": 3,
+      "page": 18,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le mois de novembre",
+      "notion": 1,
+      "page": 19,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Placer la trésorerie",
+      "notion": 3,
+      "page": 19,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Accepter une commande spéciale",
+      "notion": 2,
+      "page": 20,
+      "etapes": 5
+     }
+    ],
+    "depart": 10,
+    "mots": 16,
+    "atoi": {
+     "page": 17,
+     "titre": "intérêts simples"
+    },
+    "saisfaire": 21,
+    "evalu": {
+     "page": 23,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [
+     12
+    ],
+    "reponses": 145,
+    "npages": 17
+   },
+   {
+    "n": 2,
+    "titre": "Résolution graphique d’équations et d’inéquations",
+    "dom": "Algèbre-analyse · résolution graphique",
+    "page": 25,
+    "fin": 40,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Lire une image et un antécédent",
+      "page": 28,
+      "partie": "Lire une fonction sur son graphique",
+      "pages": [
+       28,
+       28
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Résoudre f(x) = g(x)",
+      "page": 29,
+      "partie": "Résoudre f(x) = g(x) et f(x) ≥ g(x)",
+      "pages": [
+       29,
+       29
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Comparer : f(x) ≥ g(x)",
+      "page": 30,
+      "partie": "Résoudre f(x) = g(x) et f(x) ≥ g(x)",
+      "pages": [
+       30,
+       30
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Le seuil de rentabilité",
+      "page": 31,
+      "partie": "Application : le seuil de rentabilité",
+      "pages": [
+       31,
+       32
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Image et antécédent",
+      "notion": 1,
+      "page": 34,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Où se croisent les droites ?",
+      "notion": 2,
+      "page": 35,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Le seuil de rentabilité",
+      "notion": 4,
+      "page": 36,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Choisir un transporteur",
+      "notion": 2,
+      "page": 36,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Louer un stand de salon",
+      "notion": 3,
+      "page": 37,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Une nouvelle gamme de bougies",
+      "notion": 4,
+      "page": 38,
+      "etapes": 5
+     }
+    ],
+    "depart": 27,
+    "mots": null,
+    "atoi": {
+     "page": 33,
+     "titre": "un seuil de rentabilité"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 39,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [
+     32
+    ],
+    "methode": 33,
+    "reponses": 145,
+    "npages": 16
+   },
+   {
+    "n": 3,
+    "titre": "Fonctions polynômes de degré 2",
+    "dom": "Algèbre-analyse · fonctions du second degré",
+    "page": 41,
+    "fin": 54,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "La parabole : ax² + bx + c",
+      "page": 43,
+      "partie": "La parabole",
+      "pages": [
+       43,
+       44
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Les racines : f(x) = 0",
+      "page": 44,
+      "partie": "Racines, forme factorisée et signe",
+      "pages": [
+       44,
+       45
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Forme factorisée et signe",
+      "page": 45,
+      "partie": "Racines, forme factorisée et signe",
+      "pages": [
+       45,
+       46
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Le sommet et l’extremum",
+      "page": 46,
+      "partie": "Sommet et extremum",
+      "pages": [
+       46,
+       47
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Lire une parabole",
+      "notion": 1,
+      "page": 49,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Tableau de valeurs",
+      "notion": 1,
+      "page": 49,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Racines, sommet et signe",
+      "notion": 3,
+      "page": 50,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le meilleur prix de vente",
+      "notion": 4,
+      "page": 50,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Un enclos pour la vitrine",
+      "notion": 4,
+      "page": 51,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le prix des coussins",
+      "notion": 4,
+      "page": 52,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": null,
+    "atoi": {
+     "page": 48,
+     "titre": "un minimum"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 53,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [
+     44,
+     45,
+     46,
+     47
+    ],
+    "methode": 48,
+    "reponses": 145,
+    "npages": 14
+   },
+   {
+    "n": 4,
+    "titre": "Fonction dérivée et étude des variations",
+    "dom": "Algèbre-analyse · dérivation",
+    "page": 55,
+    "fin": 72,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Taux de variation et tangente",
+      "page": 58,
+      "partie": "Nombre dérivé et tangente",
+      "pages": [
+       58,
+       59
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "La fonction dérivée",
+      "page": 60,
+      "partie": "Fonction dérivée et variations",
+      "pages": [
+       60,
+       60
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Signe de la dérivée et variations",
+      "page": 61,
+      "partie": "Fonction dérivée et variations",
+      "pages": [
+       61,
+       62
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Dérivée et coût marginal",
+      "page": 62,
+      "partie": "Applications : coût marginal et fonction inverse",
+      "pages": [
+       62,
+       63
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "La fonction inverse",
+      "page": 63,
+      "partie": "Applications : coût marginal et fonction inverse",
+      "pages": [
+       63,
+       64
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Pente de la tangente",
+      "notion": 1,
+      "page": 66,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Dériver",
+      "notion": 2,
+      "page": 66,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Tableau de variations",
+      "notion": 3,
+      "page": 67,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Cas pratique  Le coût de la pièce de plus",
+      "notion": 4,
+      "page": 67,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "La recette selon le prix",
+      "notion": 3,
+      "page": 68,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Faut-il augmenter le prix ?",
+      "notion": 3,
+      "page": 69,
+      "etapes": 5
+     }
+    ],
+    "depart": 57,
+    "mots": null,
+    "atoi": {
+     "page": 65,
+     "titre": "variations d’une fonction"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 71,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [
+     59,
+     62,
+     63,
+     64
+    ],
+    "methode": 65,
+    "reponses": 145,
+    "npages": 18
+   },
+   {
+    "n": 5,
+    "titre": "Suites numériques",
+    "dom": "Algèbre-analyse · suites numériques",
+    "page": 73,
+    "fin": 90,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Notation indicielle et termes",
+      "page": 76,
+      "partie": "Notation et sens de variation",
+      "pages": [
+       76,
+       76
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Le sens de variation d’une suite",
+      "page": 77,
+      "partie": "Notation et sens de variation",
+      "pages": [
+       77,
+       77
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Les suites arithmétiques",
+      "page": 78,
+      "partie": "Suites arithmétiques et sommes",
+      "pages": [
+       78,
+       78
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "La somme des premiers termes",
+      "page": 79,
+      "partie": "Suites arithmétiques et sommes",
+      "pages": [
+       79,
+       80
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "Les suites géométriques",
+      "page": 81,
+      "partie": "Pour aller plus loin : suites géométriques  ➕ pour aller plus loin · programme de terminale",
+      "pages": [
+       81,
+       81
+      ]
+     },
+     {
+      "n": 6,
+      "titre": "Choisir le bon modèle",
+      "page": 82,
+      "partie": "Pour aller plus loin : suites géométriques  ➕ pour aller plus loin · programme de terminale",
+      "pages": [
+       82,
+       83
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Une suite arithmétique",
+      "notion": 3,
+      "page": 85,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Le sens de variation",
+      "notion": 2,
+      "page": 85,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "La somme des premiers termes",
+      "notion": 4,
+      "page": 86,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le stock de cartons",
+      "notion": 3,
+      "page": 86,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "La fréquentation d’un salon",
+      "notion": 2,
+      "page": 87,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Louer une vitrine",
+      "notion": 4,
+      "page": 88,
+      "etapes": 5
+     }
+    ],
+    "depart": 75,
+    "mots": null,
+    "atoi": {
+     "page": 84,
+     "titre": "une somme de versements"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 89,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [
+     80,
+     83
+    ],
+    "methode": 84,
+    "reponses": 145,
+    "npages": 18
+   },
+   {
+    "n": 6,
+    "titre": "Statistique à deux variables quantitatives",
+    "dom": "Statistique et probabilités · statistique à deux variables",
+    "page": 91,
+    "fin": 108,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Nuage de points et point moyen",
+      "page": 94,
+      "partie": "Nuage de points et ajustement affine",
+      "pages": [
+       94,
+       95
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "La droite d’ajustement",
+      "page": 96,
+      "partie": "Nuage de points et ajustement affine",
+      "pages": [
+       96,
+       96
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Le coefficient de détermination R²",
+      "page": 97,
+      "partie": "Qualité de l’ajustement et prévisions",
+      "pages": [
+       97,
+       97
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Prévoir et rester prudent",
+      "page": 98,
+      "partie": "Qualité de l’ajustement et prévisions",
+      "pages": [
+       98,
+       99
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Le point moyen",
+      "notion": 1,
+      "page": 101,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Prévoir avec la droite",
+      "notion": 4,
+      "page": 102,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Lire un tableur",
+      "notion": 3,
+      "page": 103,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Visites et commandes",
+      "notion": 4,
+      "page": 104,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Les glaces et la météo",
+      "notion": 3,
+      "page": 104,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Flyers et clients",
+      "notion": 4,
+      "page": 105,
+      "etapes": 5
+     }
+    ],
+    "depart": 93,
+    "mots": null,
+    "atoi": {
+     "page": 100,
+     "titre": "un objectif de chiffre d’affaires"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 107,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [
+     95,
+     99
+    ],
+    "methode": 100,
+    "reponses": 145,
+    "npages": 18
+   },
+   {
+    "n": 7,
+    "titre": "Probabilités",
+    "dom": "Statistique et probabilités · probabilités",
+    "page": 109,
+    "fin": 126,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Expérience aléatoire et probabilité",
+      "page": 112,
+      "partie": "Probabilité d’un évènement",
+      "pages": [
+       112,
+       113
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Contraire et incompatibles",
+      "page": 114,
+      "partie": "Probabilité d’un évènement",
+      "pages": [
+       114,
+       114
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Réunion et intersection",
+      "page": 115,
+      "partie": "Réunion et intersection",
+      "pages": [
+       115,
+       115
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Le tableau croisé",
+      "page": 116,
+      "partie": "Tableaux croisés et probabilités conditionnelles",
+      "pages": [
+       116,
+       116
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "La probabilité conditionnelle",
+      "page": 117,
+      "partie": "Tableaux croisés et probabilités conditionnelles",
+      "pages": [
+       117,
+       118
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Une roue sans équiprobabilité",
+      "notion": 2,
+      "page": 120,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Et, ou",
+      "notion": 3,
+      "page": 120,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Un tableau croisé",
+      "notion": 4,
+      "page": 121,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Les cartes à gratter",
+      "notion": 2,
+      "page": 121,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Le samedi et les promotions",
+      "notion": 3,
+      "page": 122,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Domicile ou point relais ?",
+      "notion": 4,
+      "page": 123,
+      "etapes": 5
+     }
+    ],
+    "depart": 111,
+    "mots": null,
+    "atoi": {
+     "page": 119,
+     "titre": "lire un tableau croisé"
+    },
+    "saisfaire": 124,
+    "evalu": {
+     "page": 125,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [
+     113,
+     118
+    ],
+    "methode": 119,
+    "reponses": 146,
+    "npages": 18
+   },
+   {
+    "n": 8,
+    "titre": "Géométrie dans l’espace",
+    "dom": "Géométrie · géométrie dans l’espace",
+    "page": 127,
+    "fin": 144,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Représenter un solide en perspective",
+      "page": 129,
+      "partie": "Représenter un solide",
+      "pages": [
+       129,
+       130
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Volumes : prismes, cylindres, pyramides, cônes",
+      "page": 130,
+      "partie": "Volumes des solides usuels",
+      "pages": [
+       130,
+       131
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Le volume de la boule",
+      "page": 132,
+      "partie": "Volumes des solides usuels",
+      "pages": [
+       132,
+       132
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Les sections planes",
+      "page": 133,
+      "partie": "Sections et solides composés",
+      "pages": [
+       133,
+       134
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "Les solides composés",
+      "page": 134,
+      "partie": "Sections et solides composés",
+      "pages": [
+       134,
+       135
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Un carton en perspective",
+      "notion": 1,
+      "page": 137,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Cylindre et cône",
+      "notion": 2,
+      "page": 138,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Des sections planes",
+      "notion": 4,
+      "page": 139,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le carton d’expédition",
+      "notion": 2,
+      "page": 139,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Pyramide ou cône ?",
+      "notion": 2,
+      "page": 140,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Quelle boîte pour la bougie boule ?",
+      "notion": 3,
+      "page": 141,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": null,
+    "atoi": {
+     "page": 136,
+     "titre": "la boule dans sa boîte"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 143,
+     "titre": "S’évaluer · contrôle blanc · une feuille recto verso"
+    },
+    "retiens": [
+     130,
+     131,
+     134,
+     135
+    ],
+    "methode": 136,
+    "reponses": 146,
+    "npages": 18
+   }
+  ],
+  "reponses": 145,
+  "glossaire": 147
+ },
+ "bpt": {
+  "id": "bpt",
+  "nom": "Maths et MCV · Terminale",
+  "court": "Manuel Tle",
+  "pdf": "https://tom-rougeaud.github.io/mcv/terminale/pdf/maths-et-mcv-tle.pdf",
+  "web": "https://tom-rougeaud.github.io/mcv/terminale/",
+  "chap_pdf": "https://tom-rougeaud.github.io/mcv/terminale/pdf/chapitres/maths-et-mcv-tle-chapitre-%d.pdf",
+  "pages": 158,
+  "chapitres": [
+   {
+    "n": 1,
+    "titre": "Suites numériques",
+    "dom": "Algèbre-analyse · suites numériques",
+    "page": 8,
+    "fin": 28,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Reconnaître une suite géométrique",
+      "page": 11,
+      "partie": "Suites géométriques",
+      "pages": [
+       11,
+       12
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Le terme de rang n",
+      "page": 13,
+      "partie": "Suites géométriques",
+      "pages": [
+       13,
+       14
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Sens de variation et nuage de points",
+      "page": 15,
+      "partie": "Sens de variation et représentation",
+      "pages": [
+       15,
+       16
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "La somme des premiers termes",
+      "page": 17,
+      "partie": "Sommes et évolution à taux fixe",
+      "pages": [
+       17,
+       18
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "Évolution à taux fixe et fonction exponentielle",
+      "page": 19,
+      "partie": "Sommes et évolution à taux fixe",
+      "pages": [
+       19,
+       20
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Arithmétique ou géométrique ?",
+      "notion": 1,
+      "page": 22,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Le terme de rang n",
+      "notion": 2,
+      "page": 22,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Cumuler au tableur",
+      "notion": 4,
+      "page": 23,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Les abonnés d’une lettre d’information",
+      "notion": 2,
+      "page": 23,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Reprendre un téléphone",
+      "notion": 3,
+      "page": 24,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le commerce en ligne en France",
+      "notion": 5,
+      "page": 25,
+      "etapes": 5
+     }
+    ],
+    "depart": 10,
+    "mots": null,
+    "atoi": {
+     "page": 21,
+     "titre": "la décote d’un téléphone"
+    },
+    "saisfaire": 26,
+    "evalu": {
+     "page": 27,
+     "titre": "S’évaluer au format CCF · situation d’évaluation"
+    },
+    "retiens": [
+     12,
+     14,
+     16,
+     18,
+     20
+    ],
+    "methode": 21,
+    "reponses": 147,
+    "npages": 21
+   },
+   {
+    "n": 2,
+    "titre": "Calculs commerciaux et financiers",
+    "dom": "Calculs commerciaux et financiers",
+    "page": 29,
+    "fin": 48,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Les intérêts composés",
+      "page": 32,
+      "partie": "Intérêts composés",
+      "pages": [
+       32,
+       33
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "La durée d’un placement",
+      "page": 33,
+      "partie": "Intérêts composés",
+      "pages": [
+       33,
+       34
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Taux mensuel équivalent et taux moyen",
+      "page": 35,
+      "partie": "Taux équivalents et taux moyen",
+      "pages": [
+       35,
+       36
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "L’emprunt à amortissement constant",
+      "page": 37,
+      "partie": "Emprunts",
+      "pages": [
+       37,
+       38
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "L’emprunt à annuités constantes",
+      "page": 39,
+      "partie": "Emprunts",
+      "pages": [
+       39,
+       40
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Intérêts simples ou composés ?",
+      "notion": 1,
+      "page": 42,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Taux équivalents et taux moyen",
+      "notion": 3,
+      "page": 42,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Un tableau d’amortissement",
+      "notion": 4,
+      "page": 43,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Un Livret A pour un projet",
+      "notion": 1,
+      "page": 43,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Financer un canapé",
+      "notion": 3,
+      "page": 44,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Choisir sa formule de crédit",
+      "notion": 5,
+      "page": 45,
+      "etapes": 5
+     }
+    ],
+    "depart": 31,
+    "mots": null,
+    "atoi": {
+     "page": 41,
+     "titre": "un tableau d’amortissement"
+    },
+    "saisfaire": 46,
+    "evalu": {
+     "page": 47,
+     "titre": "S’évaluer au format CCF · situation d’évaluation"
+    },
+    "retiens": [
+     33,
+     34,
+     36,
+     38,
+     40
+    ],
+    "methode": 41,
+    "reponses": 147,
+    "npages": 20
+   },
+   {
+    "n": 3,
+    "titre": "Fonctions polynômes de degré 3",
+    "dom": "Algèbre-analyse · fonctions",
+    "page": 49,
+    "fin": 66,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "La fonction cube",
+      "page": 52,
+      "partie": "La fonction cube",
+      "pages": [
+       52,
+       53
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Dériver un polynôme de degré 3",
+      "page": 53,
+      "partie": "Dérivée et variations",
+      "pages": [
+       53,
+       54
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Variations et extremums locaux",
+      "page": 55,
+      "partie": "Dérivée et variations",
+      "pages": [
+       55,
+       56
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Nombre de solutions de f(x) = c",
+      "page": 57,
+      "partie": "Équations f(x) = c",
+      "pages": [
+       57,
+       58
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Dériver un polynôme de degré 3",
+      "notion": 2,
+      "page": 60,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Le tableau de variations",
+      "notion": 3,
+      "page": 60,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Combien de solutions ?",
+      "notion": 4,
+      "page": 61,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Des cartons cubiques",
+      "notion": 1,
+      "page": 61,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Le meilleur bénéfice d’une boutique en ligne",
+      "notion": 3,
+      "page": 62,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Une boîte-présentoir pour la vitrine",
+      "notion": 4,
+      "page": 63,
+      "etapes": 5
+     }
+    ],
+    "depart": 51,
+    "mots": null,
+    "atoi": {
+     "page": 59,
+     "titre": "le meilleur bénéfice"
+    },
+    "saisfaire": 64,
+    "evalu": {
+     "page": 65,
+     "titre": "S’évaluer au format CCF · situation d’évaluation"
+    },
+    "retiens": [
+     53,
+     54,
+     56,
+     58
+    ],
+    "methode": 59,
+    "reponses": 147,
+    "npages": 18
+   },
+   {
+    "n": 4,
+    "titre": "Fonctions exponentielles et logarithme décimal",
+    "dom": "Algèbre-analyse · fonctions",
+    "page": 67,
+    "fin": 84,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "La fonction exponentielle x ↦ qˣ",
+      "page": 70,
+      "partie": "Fonctions exponentielles x ↦ qˣ",
+      "pages": [
+       70,
+       71
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Les propriétés opératoires",
+      "page": 71,
+      "partie": "Fonctions exponentielles x ↦ qˣ",
+      "pages": [
+       71,
+       72
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Le logarithme décimal",
+      "page": 72,
+      "partie": "Le logarithme décimal",
+      "pages": [
+       72,
+       73
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Résoudre qˣ = a",
+      "page": 73,
+      "partie": "Équations et inéquations",
+      "pages": [
+       73,
+       74
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "Équation log(x) = a et inéquations",
+      "page": 75,
+      "partie": "Équations et inéquations",
+      "pages": [
+       75,
+       75
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Une fonction exponentielle",
+      "notion": 1,
+      "page": 77,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Les propriétés opératoires",
+      "notion": 2,
+      "page": 78,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Résoudre avec le logarithme",
+      "notion": 4,
+      "page": 78,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Les visiteurs d’un site",
+      "notion": 1,
+      "page": 79,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Un abonnement qui augmente",
+      "notion": 4,
+      "page": 80,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "La fin de série d’un téléphone",
+      "notion": 5,
+      "page": 81,
+      "etapes": 5
+     }
+    ],
+    "depart": 69,
+    "mots": 76,
+    "atoi": {
+     "page": 77,
+     "titre": "quand l’audience quadruple-t-elle ?"
+    },
+    "saisfaire": 82,
+    "evalu": {
+     "page": 83,
+     "titre": "S’évaluer au format CCF · situation d’évaluation"
+    },
+    "retiens": [
+     71,
+     72,
+     73,
+     74
+    ],
+    "reponses": 147,
+    "npages": 18
+   },
+   {
+    "n": 5,
+    "titre": "Statistique à deux variables",
+    "dom": "Statistique et probabilités",
+    "page": 85,
+    "fin": 104,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Nuage de points et choix d’un modèle",
+      "page": 88,
+      "partie": "Choisir un modèle d’ajustement",
+      "pages": [
+       88,
+       88
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Le coefficient de détermination R²",
+      "page": 89,
+      "partie": "Choisir un modèle d’ajustement",
+      "pages": [
+       89,
+       90
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Le changement de variable z = log(y)",
+      "page": 91,
+      "partie": "Changements de variable",
+      "pages": [
+       91,
+       92
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Les changements de variable z = 1/x et z = qˣ",
+      "page": 93,
+      "partie": "Changements de variable",
+      "pages": [
+       93,
+       93
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "Interpoler et extrapoler",
+      "page": 94,
+      "partie": "Interpoler et extrapoler",
+      "pages": [
+       94,
+       95
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Choisir le meilleur ajustement",
+      "notion": 2,
+      "page": 97,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Le changement de variable z = log(y)",
+      "notion": 3,
+      "page": 97,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Le changement de variable z = 1/x",
+      "notion": 4,
+      "page": 98,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Les inscrits à une lettre d’information",
+      "notion": 2,
+      "page": 98,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Fixer le prix d’un article",
+      "notion": 4,
+      "page": 99,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Les achats en ligne : quel modèle ?",
+      "notion": 5,
+      "page": 100,
+      "etapes": 5
+     }
+    ],
+    "depart": 87,
+    "mots": null,
+    "atoi": {
+     "page": 96,
+     "titre": "revenir de z = log(y) au modèle"
+    },
+    "saisfaire": 101,
+    "evalu": {
+     "page": 103,
+     "titre": "S’évaluer au format CCF · situation d’évaluation"
+    },
+    "retiens": [
+     90,
+     92,
+     95
+    ],
+    "methode": 96,
+    "reponses": 147,
+    "npages": 20
+   },
+   {
+    "n": 6,
+    "titre": "Probabilités",
+    "dom": "Statistique et probabilités",
+    "page": 105,
+    "fin": 122,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "L’arbre pondéré",
+      "page": 108,
+      "partie": "Arbres pondérés",
+      "pages": [
+       108,
+       109
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "La probabilité d’un chemin",
+      "page": 109,
+      "partie": "Arbres pondérés",
+      "pages": [
+       109,
+       110
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "La probabilité conditionnelle",
+      "page": 111,
+      "partie": "Probabilités conditionnelles",
+      "pages": [
+       111,
+       111
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "La formule des probabilités totales",
+      "page": 112,
+      "partie": "Probabilités conditionnelles",
+      "pages": [
+       112,
+       112
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "Évènements indépendants",
+      "page": 113,
+      "partie": "Indépendance",
+      "pages": [
+       113,
+       114
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Compléter un arbre pondéré",
+      "notion": 2,
+      "page": 116,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Du tableau croisé aux probabilités conditionnelles",
+      "notion": 3,
+      "page": 116,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Indépendants ou pas ?",
+      "notion": 5,
+      "page": 117,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Des cartes à gratter",
+      "notion": 2,
+      "page": 117,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "D’où viennent les retours ?",
+      "notion": 4,
+      "page": 118,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le service client",
+      "notion": 5,
+      "page": 119,
+      "etapes": 5
+     }
+    ],
+    "depart": 107,
+    "mots": null,
+    "atoi": {
+     "page": 115,
+     "titre": "avis client et carte de fidélité"
+    },
+    "saisfaire": 120,
+    "evalu": {
+     "page": 121,
+     "titre": "S’évaluer au format CCF · situation d’évaluation"
+    },
+    "retiens": [
+     109,
+     110,
+     114
+    ],
+    "methode": 115,
+    "reponses": 148,
+    "npages": 18
+   },
+   {
+    "n": 7,
+    "titre": "Exponentielle et logarithme népérien",
+    "dom": "Programme complémentaire · poursuite d’études",
+    "page": 123,
+    "fin": 138,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Le nombre e et la fonction exponentielle",
+      "page": 126,
+      "partie": "La fonction exponentielle de base e  ➕ pour aller plus loin · poursuite d’études",
+      "pages": [
+       126,
+       126
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Dérivée de eˣ et croissance continue",
+      "page": 127,
+      "partie": "La fonction exponentielle de base e  ➕ pour aller plus loin · poursuite d’études",
+      "pages": [
+       127,
+       127
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Le logarithme népérien",
+      "page": 128,
+      "partie": "Le logarithme népérien  ➕ pour aller plus loin · poursuite d’études",
+      "pages": [
+       128,
+       128
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Résoudre eˣ = a et ln(x) = a",
+      "page": 129,
+      "partie": "Le logarithme népérien  ➕ pour aller plus loin · poursuite d’études",
+      "pages": [
+       129,
+       130
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Calculer avec le nombre e",
+      "notion": 1,
+      "page": 132,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Dériver une fonction exponentielle",
+      "notion": 2,
+      "page": 132,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Résoudre avec le logarithme népérien",
+      "notion": 4,
+      "page": 132,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Des intérêts en continu",
+      "notion": 1,
+      "page": 133,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Une audience en croissance continue",
+      "notion": 4,
+      "page": 133,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le prix qui rapporte le plus",
+      "notion": 2,
+      "page": 134,
+      "etapes": 5
+     }
+    ],
+    "depart": 125,
+    "mots": null,
+    "atoi": {
+     "page": 131,
+     "titre": "résoudre avec ln"
+    },
+    "saisfaire": 135,
+    "evalu": {
+     "page": 137,
+     "titre": "S’évaluer au format CCF · situation d’évaluation"
+    },
+    "retiens": [
+     130
+    ],
+    "methode": 131,
+    "reponses": 148,
+    "npages": 16
+   }
+  ],
+  "reponses": 147,
+  "glossaire": 149
+ },
+ "pm": {
+  "id": "pm",
+  "nom": "3ème Série Pro",
+  "court": "Manuel 3e",
+  "pdf": "https://tom-rougeaud.github.io/3eme/pdf/maths-3e-serie-pro.pdf",
+  "web": "https://tom-rougeaud.github.io/3eme/",
+  "chap_pdf": "https://tom-rougeaud.github.io/3eme/pdf/chapitres/maths-3e-serie-pro-chapitre-%d.pdf",
+  "pages": 174,
+  "chapitres": [
+   {
+    "n": 1,
+    "titre": "Nombres entiers et arithmétique",
+    "dom": "Nombres et calculs · arithmétique",
+    "page": 9,
+    "fin": 23,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Multiples, diviseurs et critères de divisibilité",
+      "page": 11,
+      "partie": "Multiples et diviseurs",
+      "pages": [
+       11,
+       11
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Nombres premiers",
+      "page": 12,
+      "partie": "Nombres premiers et décomposition",
+      "pages": [
+       12,
+       12
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Décomposer en produit de facteurs premiers",
+      "page": 13,
+      "partie": "Nombres premiers et décomposition",
+      "pages": [
+       13,
+       13
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Rendre une fraction irréductible",
+      "page": 14,
+      "partie": "Utiliser la décomposition",
+      "pages": [
+       14,
+       14
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "Partager en lots identiques",
+      "page": 15,
+      "partie": "Utiliser la décomposition",
+      "pages": [
+       15,
+       15
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Les critères de divisibilité",
+      "notion": 1,
+      "page": 17,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "L’escalier des divisions",
+      "notion": 3,
+      "page": 18,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Des lots identiques",
+      "notion": 5,
+      "page": 18,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "🐱 Je programme · tester un diviseur",
+      "notion": 1,
+      "page": 18,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "probleme",
+      "titre": "Le 800e épisode des Simpson",
+      "notion": 3,
+      "page": 19,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Les pochettes du tournoi",
+      "notion": 5,
+      "page": 19,
+      "etapes": 4
+     },
+     {
+      "n": 7,
+      "type": "defi",
+      "titre": "La collection One Piece",
+      "notion": 3,
+      "page": 20,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 16,
+    "atoi": {
+     "page": 17,
+     "titre": "décomposer 252"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 22,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 162,
+    "npages": 15
+   },
+   {
+    "n": 2,
+    "titre": "Fractions, puissances et écriture scientifique",
+    "dom": "Nombres et calculs · fractions et puissances",
+    "page": 24,
+    "fin": 37,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Additionner et soustraire des fractions",
+      "page": 26,
+      "partie": "Calculer avec des fractions",
+      "pages": [
+       26,
+       26
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Prendre une fraction d’une quantité",
+      "page": 27,
+      "partie": "Calculer avec des fractions",
+      "pages": [
+       27,
+       27
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Puissances de 10 et préfixes",
+      "page": 28,
+      "partie": "Puissances de 10 et écriture scientifique",
+      "pages": [
+       28,
+       28
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "L’écriture scientifique",
+      "page": 29,
+      "partie": "Puissances de 10 et écriture scientifique",
+      "pages": [
+       29,
+       29
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "La barre de fractions",
+      "notion": 1,
+      "page": 31,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Puissances de 10 et préfixes",
+      "notion": 3,
+      "page": 32,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "L’écriture scientifique",
+      "notion": 4,
+      "page": 32,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Les tomes de One Piece",
+      "notion": 4,
+      "page": 32,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Dix milliards de cartes en un an",
+      "notion": 4,
+      "page": 33,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "La médiathèque des mangas",
+      "notion": 2,
+      "page": 34,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 30,
+    "atoi": {
+     "page": 31,
+     "titre": "calculer 2/3 + 1/4"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 36,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 162,
+    "npages": 14
+   },
+   {
+    "n": 3,
+    "titre": "Calcul littéral et équations",
+    "dom": "Nombres et calculs · calcul littéral",
+    "page": 38,
+    "fin": 51,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Développer une expression",
+      "page": 40,
+      "partie": "Transformer une expression",
+      "pages": [
+       40,
+       40
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Factoriser et prouver avec une lettre",
+      "page": 41,
+      "partie": "Transformer une expression",
+      "pages": [
+       41,
+       41
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Résoudre une équation du premier degré",
+      "page": 42,
+      "partie": "Résoudre une équation",
+      "pages": [
+       42,
+       42
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Résoudre une équation produit nul",
+      "page": 43,
+      "partie": "Résoudre une équation",
+      "pages": [
+       43,
+       43
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Le rectangle découpé",
+      "notion": 1,
+      "page": 45,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Résoudre une équation",
+      "notion": 3,
+      "page": 46,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Le programme de calcul",
+      "notion": 2,
+      "page": 46,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "🐱 Je programme · un programme de calcul",
+      "notion": 2,
+      "page": 46,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "probleme",
+      "titre": "Le pass de jeux vidéo",
+      "notion": 3,
+      "page": 47,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le cadre du poster",
+      "notion": 1,
+      "page": 47,
+      "etapes": 4
+     },
+     {
+      "n": 7,
+      "type": "defi",
+      "titre": "Trois formules de streaming",
+      "notion": 3,
+      "page": 48,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 44,
+    "atoi": {
+     "page": 45,
+     "titre": "résoudre 4x + 3 = x + 15"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 50,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 162,
+    "npages": 14
+   },
+   {
+    "n": 4,
+    "titre": "Proportionnalité, pourcentages et grandeurs composées",
+    "dom": "Organisation et gestion de données · proportionnalité",
+    "page": 52,
+    "fin": 64,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Proportionnalité et quatrième proportionnelle",
+      "page": 54,
+      "partie": "Proportionnalité et pourcentages",
+      "pages": [
+       54,
+       54
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Pourcentages d’évolution",
+      "page": 55,
+      "partie": "Proportionnalité et pourcentages",
+      "pages": [
+       55,
+       55
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Grandeurs composées : vitesse et débit",
+      "page": 56,
+      "partie": "Grandeurs composées et ratio",
+      "pages": [
+       56,
+       56
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Partager selon un ratio",
+      "page": 57,
+      "partie": "Grandeurs composées et ratio",
+      "pages": [
+       57,
+       57
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Adapter une recette",
+      "notion": 1,
+      "page": 59,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Hausses et baisses",
+      "notion": 2,
+      "page": 59,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Vitesse et débit",
+      "notion": 3,
+      "page": 60,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Des ramen pour toute la classe",
+      "notion": 1,
+      "page": 60,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "La hausse des abonnements",
+      "notion": 2,
+      "page": 60,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Un film en Ultra HD",
+      "notion": 3,
+      "page": 61,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 58,
+    "atoi": {
+     "page": 59,
+     "titre": "appliquer une hausse de 12 %"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 63,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 162,
+    "npages": 13
+   },
+   {
+    "n": 5,
+    "titre": "Fonctions linéaires et affines",
+    "dom": "Fonctions",
+    "page": 65,
+    "fin": 79,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Image, antécédent, lecture graphique",
+      "page": 67,
+      "partie": "La notion de fonction",
+      "pages": [
+       67,
+       67
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Fonction linéaire et proportionnalité",
+      "page": 68,
+      "partie": "Fonctions linéaires et affines",
+      "pages": [
+       68,
+       68
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Fonction affine",
+      "page": 69,
+      "partie": "Fonctions linéaires et affines",
+      "pages": [
+       69,
+       69
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Comparer deux formules",
+      "page": 70,
+      "partie": "Fonctions linéaires et affines",
+      "pages": [
+       70,
+       70
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Lire une fonction affine",
+      "notion": 3,
+      "page": 72,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Le tableau de valeurs",
+      "notion": 2,
+      "page": 73,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Deux formules de cinéma",
+      "notion": 4,
+      "page": 73,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Le devis du garage",
+      "notion": 3,
+      "page": 74,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "La batterie de la console",
+      "notion": 1,
+      "page": 74,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Trois formules de cinéma",
+      "notion": 4,
+      "page": 75,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 71,
+    "atoi": {
+     "page": 72,
+     "titre": "trouver l’antécédent de 59 par f(x) = 4x + 15"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 77,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 162,
+    "npages": 15
+   },
+   {
+    "n": 6,
+    "titre": "Statistiques",
+    "dom": "Organisation et gestion de données · statistiques",
+    "page": 80,
+    "fin": 93,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Calculer une moyenne",
+      "page": 82,
+      "partie": "Résumer une série",
+      "pages": [
+       82,
+       82
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Médiane et étendue",
+      "page": 83,
+      "partie": "Résumer une série",
+      "pages": [
+       83,
+       83
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Lire et comparer des diagrammes",
+      "page": 84,
+      "partie": "Lire et traiter des données",
+      "pages": [
+       84,
+       84
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Fréquences et tableur",
+      "page": 85,
+      "partie": "Lire et traiter des données",
+      "pages": [
+       85,
+       85
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Moyenne simple, moyenne pondérée",
+      "notion": 1,
+      "page": 87,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Médiane et étendue",
+      "notion": 2,
+      "page": 87,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Lire un diagramme en barres",
+      "notion": 3,
+      "page": 88,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "36 saisons des Simpson",
+      "notion": 1,
+      "page": 88,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Une année de cinéma",
+      "notion": 3,
+      "page": 89,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le top 10 de l’année",
+      "notion": 2,
+      "page": 90,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 86,
+    "atoi": {
+     "page": 87,
+     "titre": "calculer une médiane (effectif pair)"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 92,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 162,
+    "npages": 14
+   },
+   {
+    "n": 7,
+    "titre": "Probabilités",
+    "dom": "Organisation et gestion de données · probabilités",
+    "page": 94,
+    "fin": 107,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Calculer une probabilité",
+      "page": 96,
+      "partie": "Calculer une probabilité",
+      "pages": [
+       96,
+       96
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Événement contraire, impossible, certain",
+      "page": 97,
+      "partie": "Calculer une probabilité",
+      "pages": [
+       97,
+       97
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Une expérience à deux épreuves",
+      "page": 98,
+      "partie": "Deux épreuves et simulation",
+      "pages": [
+       98,
+       98
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Fréquence et probabilité",
+      "page": 99,
+      "partie": "Deux épreuves et simulation",
+      "pages": [
+       99,
+       99
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Les issues d’un dé",
+      "notion": 1,
+      "page": 101,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Deux dés : le tableau",
+      "notion": 3,
+      "page": 102,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Fréquence ou probabilité ?",
+      "notion": 4,
+      "page": 102,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "🐱 Je programme · simuler 1 000 lancers",
+      "notion": 4,
+      "page": 102,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "probleme",
+      "titre": "Le dé du maître du jeu",
+      "notion": 2,
+      "page": 103,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Deux boosters",
+      "notion": 3,
+      "page": 103,
+      "etapes": 4
+     },
+     {
+      "n": 7,
+      "type": "defi",
+      "titre": "La simulation de deux dés",
+      "notion": 4,
+      "page": 104,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 100,
+    "atoi": {
+     "page": 101,
+     "titre": "utiliser l’événement contraire"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 106,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 163,
+    "npages": 14
+   },
+   {
+    "n": 8,
+    "titre": "Pythagore et trigonométrie",
+    "dom": "Espace et géométrie · triangle rectangle",
+    "page": 108,
+    "fin": 121,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Le théorème de Pythagore",
+      "page": 110,
+      "partie": "Le théorème de pythagore",
+      "pages": [
+       110,
+       110
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Prouver qu’un triangle est rectangle",
+      "page": 111,
+      "partie": "Le théorème de pythagore",
+      "pages": [
+       111,
+       111
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Calculer une longueur avec la trigonométrie",
+      "page": 112,
+      "partie": "La trigonométrie",
+      "pages": [
+       112,
+       112
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Calculer un angle",
+      "page": 113,
+      "partie": "La trigonométrie",
+      "pages": [
+       113,
+       113
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Le théorème de Pythagore",
+      "notion": 1,
+      "page": 115,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Rectangle ou pas ?",
+      "notion": 2,
+      "page": 116,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Trigonométrie",
+      "notion": 3,
+      "page": 116,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Un écran de 65 pouces",
+      "notion": 1,
+      "page": 117,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "Au pied de la statue géante",
+      "notion": 3,
+      "page": 117,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "La rampe de skate",
+      "notion": 4,
+      "page": 118,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 114,
+    "atoi": {
+     "page": 115,
+     "titre": "calculer un côté de l’angle droit"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 120,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 163,
+    "npages": 14
+   },
+   {
+    "n": 9,
+    "titre": "Échelles, agrandissements et Thalès",
+    "dom": "Grandeurs et mesures · Espace et géométrie",
+    "page": 122,
+    "fin": 135,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Utiliser une échelle",
+      "page": 124,
+      "partie": "Échelles, agrandissements et réductions",
+      "pages": [
+       124,
+       124
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Agrandir et réduire des longueurs",
+      "page": 125,
+      "partie": "Échelles, agrandissements et réductions",
+      "pages": [
+       125,
+       125
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Aires et volumes : k² et k³",
+      "page": 126,
+      "partie": "Échelles, agrandissements et réductions",
+      "pages": [
+       126,
+       126
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Le théorème de Thalès",
+      "page": 127,
+      "partie": "Le théorème de thalès",
+      "pages": [
+       127,
+       127
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Le plan à l’échelle",
+      "notion": 1,
+      "page": 129,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "Agrandir ou réduire",
+      "notion": 3,
+      "page": 129,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Le théorème de Thalès",
+      "notion": 4,
+      "page": 130,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "probleme",
+      "titre": "Les maquettes de la statue",
+      "notion": 2,
+      "page": 130,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "defi",
+      "titre": "La fresque murale",
+      "notion": 3,
+      "page": 131,
+      "etapes": 4
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Le projecteur du ciné-club",
+      "notion": 4,
+      "page": 132,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 128,
+    "atoi": {
+     "page": 129,
+     "titre": "calculer avec Thalès"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 134,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 163,
+    "npages": 14
+   },
+   {
+    "n": 10,
+    "titre": "Espace, transformations et programmes",
+    "dom": "Espace et géométrie · Algorithmique et programmation",
+    "page": 136,
+    "fin": 152,
+    "notions": [
+     {
+      "n": 1,
+      "titre": "Volume d’un cylindre, d’un cône, d’une pyramide",
+      "page": 138,
+      "partie": "Volumes",
+      "pages": [
+       138,
+       138
+      ]
+     },
+     {
+      "n": 2,
+      "titre": "Volume d’une boule",
+      "page": 139,
+      "partie": "Volumes",
+      "pages": [
+       139,
+       139
+      ]
+     },
+     {
+      "n": 3,
+      "titre": "Se repérer sur la Terre",
+      "page": 140,
+      "partie": "Se repérer sur la sphère",
+      "pages": [
+       140,
+       140
+      ]
+     },
+     {
+      "n": 4,
+      "titre": "Les transformations",
+      "page": 141,
+      "partie": "Transformations et programmes",
+      "pages": [
+       141,
+       141
+      ]
+     },
+     {
+      "n": 5,
+      "titre": "Programmer une boucle avec Scratch",
+      "page": 142,
+      "partie": "Transformations et programmes",
+      "pages": [
+       142,
+       142
+      ]
+     }
+    ],
+    "exos": [
+     {
+      "n": 1,
+      "type": "support",
+      "titre": "Les volumes",
+      "notion": 1,
+      "page": 144,
+      "etapes": null
+     },
+     {
+      "n": 2,
+      "type": "support",
+      "titre": "🐱 Je programme · le logo du tournoi",
+      "notion": 5,
+      "page": 144,
+      "etapes": null
+     },
+     {
+      "n": 3,
+      "type": "support",
+      "titre": "Se repérer sur la Terre",
+      "notion": 3,
+      "page": 145,
+      "etapes": null
+     },
+     {
+      "n": 4,
+      "type": "support",
+      "titre": "Les transformations du sprite",
+      "notion": 4,
+      "page": 145,
+      "etapes": null
+     },
+     {
+      "n": 5,
+      "type": "probleme",
+      "titre": "Le ballon de taille 5",
+      "notion": 2,
+      "page": 146,
+      "etapes": null
+     },
+     {
+      "n": 6,
+      "type": "defi",
+      "titre": "Seau ou cornet ?",
+      "notion": 1,
+      "page": 147,
+      "etapes": 4
+     },
+     {
+      "n": 7,
+      "type": "defi",
+      "titre": "Le vaisseau du jeu",
+      "notion": 5,
+      "page": 148,
+      "etapes": 5
+     }
+    ],
+    "depart": null,
+    "mots": 143,
+    "atoi": {
+     "page": 144,
+     "titre": "volume d’une pyramide"
+    },
+    "saisfaire": null,
+    "evalu": {
+     "page": 150,
+     "titre": "S’évaluer au format du brevet · série professionnelle"
+    },
+    "retiens": [],
+    "reponses": 163,
+    "npages": 17
+   }
+  ],
+  "reponses": 162,
+  "glossaire": 164
+ }
+}

@@ -3,5 +3,7 @@
    (chaque compte ne voit que ses propres lignes). Même projet Supabase que « Suivi Progression » / « Flash Maths ». */
 var FICHES_CONFIG = {
   SUPABASE_URL: 'https://zfqzvwpjxmrlctxsmxch.supabase.co',
-  SUPABASE_ANON_KEY: 'sb_publishable_21JhJbzpINsSzFdD0oGqUw_BL_AtgSA'
+  SUPABASE_ANON_KEY: 'sb_publishable_21JhJbzpINsSzFdD0oGqUw_BL_AtgSA',
+  /* comptes qui voient, dans « Fiches », le lien vers « Ma séance » (la version « mes manuels » reste discrète pour les autres) */
+  OWNER_EMAILS: ['tom.rougeaud.education@gmail.com']
 };

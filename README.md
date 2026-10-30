@@ -10,6 +10,9 @@ Application web (une seule page HTML, installable sur l’écran d’accueil) po
 - **Synthèse Pronote** : quelques phrases rédigées automatiquement à partir de la séance — ce qui a été traité (pas le déroulé) —, modifiables et copiables en un clic. À part, un **🔒 Mémo perso** réservé à l’enseignant(e), appuyé sur les manuels (« Maths et MCV » 2de / 1re / Tle, « 3ème Série Pro ») : chapitre, notions, lien de l’appli, notions à revoir ; il n’apparaît dans aucun export (table de correspondance dans `src/js/57-manuels.js` ; pas de manuel pour le CAP).
 - **Historique des fiches** : par classe (ou toutes), uniquement les éléments saisis, export PDF (fenêtre d’impression › « Enregistrer au format PDF »), Word et HTML ; boutons d’export aussi en bas des fiches.
 - **Modèles de séances d’1 h** : pour chaque chapitre, les objectifs et notions sont regroupés en séances d’environ 1 h (≈ 270 propositions sur les 5 niveaux), chargeables dans une séance ou créables en lot ; « 💾 Enregistrer comme modèle » pour vos propres modèles (table `fs_modeles`).
+- **Parcours guidé** : un bloc « Et maintenant ? » en bas de chaque page propose l’étape suivante (créneaux → séquence → séances → suivi ; titre → contenu → déroulé → prête → faite → synthèse Pronote → bilan → séance suivante).
+- **Mises à jour visibles** : date de version affichée en haut de l’écran, bandeau « Mettre à jour maintenant » dès qu’une version plus récente est publiée, Réglages › « Rechercher une mise à jour » et « Forcer le rechargement complet ».
+- **Deux versions du même code** : *Fiches* (programme officiel, ce dépôt, <https://tom-rougeaud.github.io/seance/>) et *Ma séance* (séances construites sur mes manuels « Maths et MCV » et « 3ème Série Pro » : chapitres, notions, pages, exercices et liens intégrés ; dépôt `maseance`, <https://tom-rougeaud.github.io/maseance/>). Même compte et mêmes tables Supabase ; stockage local, cache et installation distincts.
 - **Apparence** : 8 palettes calmes (clair / sombre, dont un contraste élevé), 6 polices libres intégrées (OFL, aucun téléchargement), taille du texte ; le choix suit le compte.
 - Impression A4, export Word, texte détaillé pour le cahier de textes, sauvegarde / import JSON.
 - Données enregistrées dans **Supabase** (même projet et même compte que « Suivi Progression » / « Flash Maths »), lecture hors connexion.
@@ -24,11 +27,12 @@ Application web (une seule page HTML, installable sur l’écran d’accueil) po
 ## Développement
 
 ```
-node build.js          # src/ → index.html + sw.js (aucune dépendance)
+node build.js            # version « Fiches » (BO) : index.html + sw.js à la racine
+node build.js maseance   # version « Ma séance » (manuels) : dist/maseance/ (à publier à la racine du dépôt maseance)
 ```
 
-- `src/js/` : modules chargés dans l’ordre des numéros ; `src/data/referentiels.json` : programmes (intégrés dans la page) ; `src/css/app.css` ; `src/index.template.html`.
-- `tests/` : tests de bout en bout Playwright avec un faux Supabase (`node tests/e2e.js`, `node tests/e2e2.js`, serveur statique sur le port 8765) ; `tests/rls_test.sql` : test d’isolation des comptes (PostgreSQL).
+- `src/js/` : modules chargés dans l’ordre des numéros ; `src/data/referentiels.json` : programmes (intégrés dans la page) ; `src/data/manuels.json` : catalogue des manuels (extrait des PDF par `tools/extract_manuels.py`, intégré seulement dans « Ma séance ») ; `src/css/app.css` ; `src/index.template.html`.
+- `tests/` : tests de bout en bout Playwright avec un faux Supabase (`node tests/e2e.js` … `node tests/e2e8.js`, serveur statique sur le port 8765 ; `e2e8` teste la version `dist/maseance`) ; `tests/rls_test.sql` : test d’isolation des comptes (PostgreSQL).
 
 ## Sources et licence
 

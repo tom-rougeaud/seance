@@ -1,6 +1,6 @@
 /* ═══ FICHES · utilitaires ═══ */
 'use strict';
-var APP = { nom: 'Fiches', version: 'v1', build: '2026-10-29', prefix: 'fiches_v1_' };
+var APP = { id: 'seance', nom: 'Fiches', version: 'v1', build: '202610290000', prefix: 'fiches_v1_', cache: 'fiches-', manuels: false, url: '', frere: null, palette: 'marine' };
 
 /* ── stockage local sécurisé (try/catch + repli en mémoire) ── */
 var Mem = {};

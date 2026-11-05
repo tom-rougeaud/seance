@@ -1,7 +1,9 @@
 /* ═══ FICHES · « Ma séance » : séances construites sur mes manuels (chapitres, notions, pages, exercices, liens) ═══ */
 'use strict';
 var Man = (function () {
-  var DATA, TYPE = { support: 'Support', probleme: 'Problème', defi: 'Défi' };
+  var DATA, TYPE = { support: 'Support', probleme: 'Problème', defi: 'Défi' }, NIV = { meca: 'Mécanique', prog: 'Scratch', guide: 'Guidé', variante: 'Variante', rappel: 'Rappel' };
+  function lbl(e) { return NIV[e.niv] || TYPE[e.type] || e.type; }
+  function core(e) { return e.type !== 'defi' && e.niv !== 'variante' && e.niv !== 'rappel'; }
   var APPSEC = { support: 'entrainement', probleme: 'problemes', defi: 'problemes' };
   function load() {
     if (DATA !== undefined) return DATA;
@@ -93,7 +95,7 @@ var Man = (function () {
       return { d: d, spec: { id: man.id + '.' + ch.n + '#' + rang, type: type, duree: 60, titre: 'Ch. ' + ch.n + ' — ' + head, rang: rang, total: tot, data: d } };
     }
     ch.notions.forEach(function (n) {
-      var ex = ch.exos.filter(function (e) { return e.notion === n.n && e.type !== 'defi'; });
+      var ex = ch.exos.filter(function (e) { return e.notion === n.n && core(e); });
       var b = base('cours', n.titre, n.titre, { notions: [n.n], exos: ex.map(function (e) { return e.n; }) }), d = b.d;
       d.objectif = 'À la fin de la séance, l’élève sait : ' + n.titre.charAt(0).toLowerCase() + n.titre.slice(1) + '.';
       d.chapitres = [];
@@ -111,7 +113,7 @@ var Man = (function () {
       d.phases = ph;
       d.trace = 'Titre : ' + n.titre + '\n\nÀ retenir (manuel ' + pg(n.pages[1]) + ') : …\nExemple : …';
       b.spec.sub = pg(n.pages) + (ex.length ? ' · ' + plural(ex.length, 'exercice') : '');
-      b.spec.preview = ['Notion ' + n.n + ' : ' + n.titre + ' (' + pg(n.pages) + ')'].concat(ex.map(function (e) { return 'Exercice ' + exoTxt(e) + ' — ' + (TYPE[e.type] || e.type).toLowerCase(); }));
+      b.spec.preview = ['Notion ' + n.n + ' : ' + n.titre + ' (' + pg(n.pages) + ')'].concat(ex.map(function (e) { return 'Exercice ' + exoTxt(e) + ' — ' + lbl(e).toLowerCase(); }));
       b.spec.head = n.titre; out.push(b.spec);
     });
     var defis = ch.exos.filter(function (e) { return e.type === 'defi'; });
@@ -171,11 +173,11 @@ var Man = (function () {
       exs.forEach(function (x) {
         var on = m.exos.indexOf(x.n) >= 0, rel = chosen.indexOf(x.notion) >= 0;
         el.appendChild(h('div', { class: 'man-row' + (on ? ' on' : '') + (rel ? ' rel' : '') }, h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: on, onchange: function (e) { if (e.target.checked) m.exos.push(x.n); else m.exos = m.exos.filter(function (y) { return y !== x.n; }); m.exos.sort(function (a, b) { return a - b; }); save.now(); draw(); } }),
-          h('span', null, h('strong', null, 'Ex. ' + x.n), ' ' + x.titre, h('em', { class: 'tag t-' + x.type }, TYPE[x.type] || x.type), x.notion ? h('em', { class: 'tag' }, 'notion ' + x.notion) : null, x.etapes ? h('em', { class: 'tag' }, x.etapes + ' étapes') : null)),
+          h('span', null, h('strong', null, 'Ex. ' + x.n), ' ' + x.titre, h('em', { class: 'tag t-' + x.type }, lbl(x)), x.notion ? h('em', { class: 'tag' }, 'notion ' + x.notion) : null, x.etapes ? h('em', { class: 'tag' }, x.etapes + ' étapes') : null)),
           h('span', { class: 'man-ref' }, lnk(pdfAt(man, x.page), '📄 ' + pg(x.page), 'Ouvrir le manuel à cette page'), lnk(appAt(man, ch, APPSEC[x.type] || 'entrainement'), '🌐 appli'))));
       });
       box.appendChild(h('div', { class: 'man-hd' }, h('h3', { class: 'man-h' }, 'Exercices du chapitre'), h('span', { class: 'grow' }),
-        h('button', { class: 'btn small', type: 'button', title: 'Coche les exercices (supports et problèmes) des notions choisies', onclick: function () { var ids = ch.exos.filter(function (e) { return chosen.indexOf(e.notion) >= 0 && e.type !== 'defi'; }).map(function (e) { return e.n; }); if (!ids.length) { UI.toast('Cochez d’abord une notion.'); return; } ids.forEach(function (i) { if (m.exos.indexOf(i) < 0) m.exos.push(i); }); m.exos.sort(function (a, b) { return a - b; }); save.now(); draw(); } }, '☑ Exercices des notions cochées'),
+        h('button', { class: 'btn small', type: 'button', title: 'Coche les exercices principaux (mécaniques, supports, guidés) des notions choisies ; les variantes et les défis restent à cocher à la main', onclick: function () { var ids = ch.exos.filter(function (e) { return chosen.indexOf(e.notion) >= 0 && core(e); }).map(function (e) { return e.n; }); if (!ids.length) { UI.toast('Cochez d’abord une notion.'); return; } ids.forEach(function (i) { if (m.exos.indexOf(i) < 0) m.exos.push(i); }); m.exos.sort(function (a, b) { return a - b; }); save.now(); draw(); } }, '☑ Exercices des notions cochées'),
         m.exos.length ? h('button', { class: 'btn small ghost', type: 'button', onclick: function () { m.exos = []; save.now(); draw(); } }, 'Tout décocher') : null));
       box.appendChild(el);
       box.appendChild(h('p', { class: 'muted small' }, 'Les liens ouvrent le manuel (PDF à la bonne page) ou l’appli du manuel dans un nouvel onglet. Cocher une notion ajoute les objectifs correspondants du programme officiel : la progression de la classe se met à jour quand la séance est « faite ».'));

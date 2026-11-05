@@ -35,8 +35,8 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
   const cat = await page.evaluate(() => { const o = {}; ['bp2', 'bp1', 'bpt', 'pm', 'cap'].forEach((n) => { const m = Man.get(n); o[n] = m ? { ch: m.chapitres.length, no: m.chapitres.reduce((s, c) => s + c.notions.length, 0), ex: m.chapitres.reduce((s, c) => s + c.exos.length, 0) } : null; }); return o; });
   console.log('    ', JSON.stringify(cat));
   ok(cat.bp2.ch === 8 && cat.bp1.ch === 8 && cat.bpt.ch === 7 && cat.pm.ch === 10, 'chapitres : 8 / 8 / 7 / 10');
-  ok(cat.bp2.no + cat.bp1.no + cat.bpt.no + cat.pm.no === 143 && cat.bp2.ex + cat.bp1.ex + cat.bpt.ex + cat.pm.ex === 202, '143 notions et 202 exercices chargés dans le fichier');
-  ok(cat.cap && cat.cap.ch === 10 && cat.cap.no === 40 && cat.cap.ex === 150, 'CAP : 10 chapitres, 40 notions, 150 exercices chargés');
+  ok(cat.bp2.no + cat.bp1.no + cat.bpt.no + cat.pm.no === 143 && cat.bp2.ex + cat.bp1.ex + cat.bpt.ex + cat.pm.ex === 340, '143 notions et 340 exercices chargés dans le fichier');
+  ok(cat.cap && cat.cap.ch === 10 && cat.cap.no === 40 && cat.cap.ex === 213, 'CAP : 10 chapitres, 40 notions, 213 exercices chargés');
 
   console.log('# Séance : section Manuel');
   const ids = await page.evaluate(() => {
@@ -51,9 +51,9 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
   await page.evaluate(() => { const sel = [...document.querySelectorAll('#view details.sec select')].find((x) => [...x.options].some((o) => /Prix, marges/.test(o.textContent))); sel.value = '1'; sel.dispatchEvent(new Event('change', { bubbles: true })); });
   await page.waitForSelector('text=Notions du chapitre');
   const nbN = await page.locator('.man-row').count();
-  ok(nbN === 4 + 6, 'chapitre 1 : 4 notions + 6 exercices listés (' + nbN + ')');
+  ok(nbN === 4 + 10, 'chapitre 1 : 4 notions + 10 exercices listés (' + nbN + ')');
   const l1 = await page.evaluate(() => [...document.querySelectorAll('.man-links a')].map((x) => x.getAttribute('href')));
-  ok(l1.some((h) => /maths-et-mcv-2de\.pdf#page=7$/.test(h)) && l1.some((h) => /chapitre-1\.pdf$/.test(h)) && l1.some((h) => /mcv\/2de\/#\/c1$/.test(h)) && l1.some((h) => /#page=121$/.test(h)), 'liens du chapitre : PDF p.7, PDF du chapitre, appli, réponses p.121');
+  ok(l1.some((h) => /maths-et-mcv-2de\.pdf#page=7$/.test(h)) && l1.some((h) => /chapitre-1\.pdf$/.test(h)) && l1.some((h) => /mcv\/2de\/#\/c1$/.test(h)) && l1.some((h) => /#page=127$/.test(h)), 'liens du chapitre : PDF p.7, PDF du chapitre, appli, réponses p.127');
   await page.locator('.man-row', { hasText: 'Prendre un pourcentage' }).locator('input[type=checkbox]').check();
   await page.waitForSelector('.toast');
   let r = await page.evaluate((id) => { const s = DB.byId('fs_seances', id); return { man: s.data.manuel, items: s.data.items.map((i) => [i.via, i.chap, i.txt.slice(0, 40)]), chap: s.data.chapitres }; }, ids.s);

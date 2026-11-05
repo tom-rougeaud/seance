@@ -9,8 +9,16 @@ MAN = {
  'bp1': dict(nom='Maths et MCV · 1re', court='Manuel 1re', pdf='mcv/1ere/pdf/maths-et-mcv-1re.pdf', web='mcv/1ere/', chdir='mcv/1ere/pdf/chapitres/maths-et-mcv-1re-chapitre-%d.pdf'),
  'bpt': dict(nom='Maths et MCV · Terminale', court='Manuel Tle', pdf='mcv/terminale/pdf/maths-et-mcv-tle.pdf', web='mcv/terminale/', chdir='mcv/terminale/pdf/chapitres/maths-et-mcv-tle-chapitre-%d.pdf'),
  'cap': dict(nom='Maths · CAP', court='Manuel CAP', pdf='cap/pdf/maths-cap.pdf', web='cap/', chdir='cap/pdf/chapitres/maths-cap-chapitre-%d.pdf'),
- 'pm':  dict(nom='3ème Série Pro', court='Manuel 3e', pdf='3eme/pdf/maths-3e-serie-pro.pdf', web='3eme/', chdir='3eme/pdf/chapitres/maths-3e-serie-pro-chapitre-%d.pdf'),
+ 'pm':  dict(nom='3ème Prépa-Métiers', court='Manuel 3e', pdf='3eme/pdf/maths-3e-serie-pro.pdf', web='3eme/', chdir='3eme/pdf/chapitres/maths-3e-serie-pro-chapitre-%d.pdf'),
 }
+PROPRES = ['Pythagore', 'HD', 'UHD', 'PIB', 'IMC', 'Thalès', 'Thalès', 'Scratch', 'PGCD', 'TVA', 'HT', 'TTC', 'Simpson', 'One Piece', 'Netflix', 'DNB']
+def casse(t):
+    """TITRE EN CAPITALES → Titre en minuscules avec majuscule initiale (noms propres et sigles rétablis)."""
+    letters = [c for c in t if c.isalpha()]
+    if not letters or sum(c.isupper() for c in letters) / len(letters) < .8: return t
+    t = t.lower(); t = t[:1].upper() + t[1:]
+    for w in PROPRES: t = re.sub(r'\b' + re.escape(w.lower()) + r'\b', w, t, flags=re.I)
+    return t
 def clean(l): return re.sub(r'\s{2,}', '  ', l.strip())
 JSON = os.path.join(os.path.dirname(__file__), '..', 'src', 'data', 'manuels.json')
 ONLY = sys.argv[1:] or list(MAN.keys())
@@ -38,6 +46,11 @@ for key, m in MAN.items():
                     end = j; break
         rng = range(i, end)
         titre = P[i][1] if len(P[i]) > 1 else ''
+        if titre.upper() == titre or re.search(r'Chapitre \d+ ·', titre):
+            for jj in range(i + 1, min(i + 5, len(P))):
+                rh = re.search(r'· Chapitre %d · (.+)$' % n, P[jj][0]) if P[jj] else None
+                if rh: titre = rh.group(1).strip(); break
+        titre = casse(titre)
         # si l'ouverture porte le domaine puis le titre (2de : « Chapitre 1 · Calculs commerciaux » / « Prix, marges et TVA »)
         dom = re.sub(r'^Chapitre \d+ · ', '', P[i][0])
         ch = dict(n=n, titre=titre, dom=dom, page=i + 1, fin=end, notions=[], exos=[], depart=None, mots=None, atoi=None, saisfaire=None, evalu=None, retiens=[])
@@ -66,8 +79,18 @@ for key, m in MAN.items():
                     for y in reversed(L[max(0, x_i - 5):x_i]):
                         mm = re.match(r'^(\d{1,2})  (\S.{2,100}?)(  |$)', y)
                         if mm: head = (int(mm.group(1)), mm.group(2).strip()); break
+                    if head and head[0] == len(ch['notions']) + 1 and head[1] == head[1].upper() and len(head[1]) < 40:
+                        head = None   # titre sur deux lignes en capitales : on retombe sur la lecture ci-dessous
                     if head and head[0] == len(ch['notions']) + 1:
-                        ch['notions'].append(dict(n=head[0], titre=head[1], page=j + 1, partie=None))
+                        ch['notions'].append(dict(n=head[0], titre=casse(re.sub(r'\s+Chapitre \d+ ·.*$', '', head[1])), page=j + 1, partie=None))
+                    elif not head or head[0] != len(ch['notions']) + 1:
+                        cand = []
+                        for y in L[max(0, x_i - 6):x_i]:
+                            y = re.sub(r'\s+Chapitre \d+ ·.*$', '', y); y = re.sub(r'^\d{1,2}\s+', '', y).strip()
+                            lt = [c for c in y if c.isalpha()]
+                            if len(y) > 3 and lt and sum(c.isupper() for c in lt) / len(lt) > .8 and 'Prépa-Métiers' not in y and not y.startswith('🔎') and not y.startswith('Chapitre'): cand.append(y)
+                            elif cand: cand = []
+                        if cand: ch['notions'].append(dict(n=len(ch['notions']) + 1, titre=casse(' '.join(cand)), page=j + 1, partie=None))
         for nt in ch['notions']:
             j = nt['page'] - 1
             nxt = P[j + 1] if j + 1 < len(P) else []
@@ -86,27 +109,52 @@ for key, m in MAN.items():
             if any('Je m’entraîne' in x and x.startswith('✏️') for x in P[j][:8]): z0 = j; break
         if z0 is None and ch['atoi']: z0 = ch['atoi']['page'] - 1
         if z0 is None and ch.get('methode'): z0 = ch['methode'] - 1
+        inline = False
+        if z0 is None and ch['notions']: z0 = ch['notions'][0]['page'] - 1; inline = True
         z1 = (ch['saisfaire'] - 1) if ch['saisfaire'] else (ch['evalu']['page'] - 1 if ch['evalu'] else end)   # indice exclusif
         if z0 is not None:
-            started = False; last = 0
+            started = inline; last = 0
             for j in range(z0, z1):
                 L = P[j]
                 for x_i, x in enumerate(L):
                     if j == z0 and not started:
                         if x.startswith('✏️') and 'Je m’entraîne' in x: started = True
                         continue
-                    mm = re.match(r'^(\d{1,2})  (.+)$', x)
+                    mm = re.match(r'^(\d{1,2})\s+(\S.*)$', x)
                     if not mm: continue
                     num = int(mm.group(1))
-                    if num != last + 1: continue
-                    rest = mm.group(2); nxt = L[x_i + 1] if x_i + 1 < len(L) else ''
-                    tag = re.search(r'notion (\d+)', rest) or re.search(r'^notion (\d+)', nxt)
-                    typ = 'probleme' if 'Petit problème' in rest else ('defi' if 'Défi' in rest else 'support')
-                    if typ == 'support' and not tag: continue
+                    if not (last < num <= last + 3 or (last == 0 and num <= 12)): continue
+                    rest = mm.group(2)
+                    win = ' '.join([rest] + L[x_i + 1:x_i + 4])
+                    tag = re.search(r'notion (\d+)', win)
+                    var = re.search(r'autres nombres · comme l’exercice (\d+)', win)
+                    marq = re.search(r'Guidé|Défi|Petit problème|Cas pratique|Je programme|JE PROGRAMME|Mécanique', rest)
+                    rap = 'je me rappelle' in win
+                    seq = (not inline and num == last + 1 and last > 0 and re.match(r'^[A-ZÉÈÊÀÂÎÔÛ][^=€%°0-9→.?]{3,70}$', rest) and not re.search(r'(S’approprier|Analyser|Réaliser|Valider|Communiquer)\s*$', rest))
+                    if not (tag or marq or rap or seq): continue
+                    if num != last + 1 and last and not (marq or rap or (tag and not re.search(r'[=€%°]', rest))): continue
+                    if rap and not marq: niv = 'rappel'
+                    elif 'Je programme' in rest or 'JE PROGRAMME' in rest: niv = 'prog'
+                    elif 'Mécanique' in rest: niv = 'meca'
+                    elif 'Guidé' in rest: niv = 'guide'
+                    elif 'Défi' in rest or 'Cas pratique' in rest: niv = 'defi'
+                    elif var: niv = 'variante'
+                    else: niv = 'base'
+                    typ = 'defi' if niv == 'defi' else ('probleme' if 'Petit problème' in rest else 'support')
                     et = re.search(r'Défi · (\d+) étapes?', rest)
-                    t = re.sub(r'\s*notion \d+.*$', '', rest); t = re.sub(r'^(Petit problème|🏔️ Défi · \d+ étapes?)\s*', '', t).strip()
-                    if not t and typ != 'support': t = rest[:60]
-                    ch['exos'].append(dict(n=num, type=typ, titre=t, notion=int(tag.group(1)) if tag else None, page=j + 1, etapes=int(et.group(1)) if et else None)); last = num
+                    t = re.sub(r'[\U0001F300-\U0001FAFF\u2600-\u27BF\uFE0F]', '', rest)
+                    t = re.sub(r'\s*notion \d+.*$', '', t); t = re.sub(r'^\s*Mécanique\s*', '', t); t = re.sub(r'\s*\d+ calculs · sans contexte.*$', '', t); t = re.sub(r'^\s*JE PROGRAMME\s*', 'Je programme ', t); t = re.sub(r'\s+Scratch\s*$', '', t)
+                    t = re.sub(r'(S’approprier|Analyser-raisonner|Analyser|Réaliser|Valider|Communiquer)(\s+(S’approprier|Analyser-raisonner|Analyser|Réaliser|Valider|Communiquer))*\s*$', '', t)
+                    t = re.sub(r'^\s*(Guidé|Petit problème|Cas pratique|Défi(\s*·\s*\d+\s*étapes?)?)\s*', '', t)
+                    t = re.sub(r'^\s*(Petit problème|Cas pratique)\s*', '', t)
+                    t = casse(re.sub(r'\s+', ' ', t).strip(' ·'))
+                    if not t: t = re.sub(r'\s+', ' ', re.sub(r'[\U0001F300-\U0001FAFF\u2600-\u27BF\uFE0F]', '', rest)).strip()[:60]
+                    if niv == 'rappel': t = re.sub(r'\s+je me rappelle.*$', '', t)
+                    ch['exos'].append(dict(n=num, type=typ, niv=niv, titre=t, notion=int(tag.group(1)) if tag else None, page=j + 1, etapes=int(et.group(1)) if et else None, ref=int(var.group(1)) if var and niv == 'variante' else None)); last = num
+        for e in ch['exos']:   # une variante reprend le titre et la notion de l’exercice dont elle change les nombres
+            if e['niv'] == 'variante':
+                b0 = [x for x in ch['exos'] if x['n'] == e['ref']]
+                if b0: e['titre'] = b0[0]['titre']; e['notion'] = b0[0]['notion']
         # réponses
         rep = re.search(r'Réponses (?:de « Je m’entraîne » )?p\. (\d+)', ' '.join(' '.join(P[j]) for j in rng))
         ch['reponses'] = int(rep.group(1)) if rep else None
@@ -119,6 +167,11 @@ for key, m in MAN.items():
         if os.path.exists(cp):
             info = subprocess.run(['pdfinfo', cp], capture_output=True, text=True).stdout
             npg = int(re.search(r'Pages:\s+(\d+)', info).group(1)); ch['fin'] = ch['page'] + npg - 1; ch['npages'] = npg
+    for c_ in chaps:
+        for n_ in c_['notions']: n_['titre'] = n_['titre'].replace('k 2 et k 3', 'k² et k³')
+        for e_ in c_['exos']: e_['titre'] = e_['titre'].replace('k 2 et k 3', 'k² et k³').replace('Je programme · ', 'Je programme ')
+            m_ = re.match(r'^Je programme (.+)$', e_['titre'])
+            if m_: e_['titre'] = 'Je programme : ' + casse(m_.group(1)).lower().capitalize() if False else 'Je programme : ' + casse(m_.group(1))
     out[key] = dict(id=key, nom=m['nom'], court=m['court'], pdf=BASE + m['pdf'].replace('mcv/', 'mcv/', 1), web=BASE + m['web'], chap_pdf=BASE + m['chdir'], pages=len(P), chapitres=chaps, reponses=rep_page, glossaire=glo_page)
 order = [k for k in ('bp2', 'bp1', 'bpt', 'cap', 'pm') if k in out]
 out = {k: out[k] for k in order}

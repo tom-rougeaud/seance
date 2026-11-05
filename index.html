@@ -422,7 +422,7 @@ null
 /* ── 00-util.js ── */
 /* ═══ FICHES · utilitaires ═══ */
 'use strict';
-var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202610302104","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
+var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202611050652","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
 
 /* ── stockage local sécurisé (try/catch + repli en mémoire) ── */
 var Mem = {};
@@ -1476,7 +1476,7 @@ var Picker = (function () {
 })();
 
 /* ── 57-manuels.js ── */
-/* ═══ FICHES · correspondance programme du BO ↔ chapitres de mes manuels « Maths et MCV » / « 3ème Série Pro » ═══ */
+/* ═══ FICHES · correspondance programme du BO ↔ chapitres de mes manuels « Maths et MCV » / « 3ème Prépa-Métiers » ═══ */
 'use strict';
 var Manuels = (function () {
   var BASE = 'https://tom-rougeaud.github.io/';
@@ -1519,11 +1519,11 @@ var Manuels = (function () {
       N(8, 'Calculs commerciaux', ['cap.calc'], [['Prix HT, TVA et prix TTC', 'tva|ttc|taxe|prix|\\bht\\b'], ['Remise commerciale et facture', 'remise|rabais|ristourne|reduction|facture|devis|bon de commande'], ['Marge et taux de marge', 'marge|cout|taux'], ['Intérêts simples et valeur acquise', 'interet|valeur acquise|capital|placement']]),
       N(9, 'Périmètres, aires et volumes', ['cap.geo'], [['Le périmètre', 'perimetre'], ['L’aire', 'aire'], ['Le volume d’un solide', 'volume|solide'], ['Les conversions d’unités', 'conversion|convertir|unite']]),
       N(10, 'Pythagore, Thalès et trigonométrie', ['cap.geo'], [['Le théorème de Pythagore : l’hypoténuse', 'pythagore|longueur d.un segment'], ['Pythagore : un côté et la réciproque', 'reciproque|pythagore'], ['Le théorème de Thalès', 'thales'], ['Sinus, cosinus et tangente', 'sinus|cosinus|tangente|trigonom|angle']])] },
-    pm: { nom: '3ème Série Pro', url: BASE + '3eme/', chap: [
+    pm: { nom: '3ème Prépa-Métiers', url: BASE + '3eme/', chap: [
       N(1, 'Nombres entiers et arithmétique', ['pm.A3'], [['Multiples, diviseurs et critères de divisibilité', 'multiple|diviseur|divisib|critere'], ['Nombres premiers', 'premier'], ['Décomposer en produit de facteurs premiers', 'decompos|produit de facteurs'], ['Rendre une fraction irréductible', 'irreductible|fraction|pgcd']]),
       N(2, 'Fractions, puissances et écriture scientifique', ['pm.A1', 'pm.A2'], [['Additionner et soustraire des fractions', 'fraction|addition|soustra'], ['Prendre une fraction d’une quantité', 'fraction'], ['Puissances de 10 et préfixes', 'puissance|prefixe'], ['L’écriture scientifique', 'scientifique']]),
-      N(3, 'Calcul littéral et équations', ['pm.A4'], [['Développer une expression', 'develop'], ['Factoriser et prouver avec une lettre', 'factoris|identit|prouver'], ['Résoudre une équation du premier degré', 'equation|resoudre'], ['Résoudre une équation produit nul', 'produit nul']]),
-      N(4, 'Proportionnalité, pourcentages et grandeurs composées', ['pm.B7', 'pm.C9'], [['Proportionnalité et quatrième proportionnelle', 'proportionnalit|quatrieme|coefficient'], ['Pourcentages d’évolution', 'pourcentage|evolution|taux'], ['Grandeurs composées : vitesse et débit', 'vitesse|debit|grandeur|unite|conversion'], ['Partager selon un ratio', 'ratio|partage']]),
+      N(3, 'Proportionnalité, pourcentages et grandeurs composées', ['pm.B7', 'pm.C9'], [['Proportionnalité et quatrième proportionnelle', 'proportionnalit|quatrieme|coefficient'], ['Pourcentages d’évolution', 'pourcentage|evolution|taux'], ['Grandeurs composées : vitesse et débit', 'vitesse|debit|grandeur|unite|conversion'], ['Partager selon un ratio', 'ratio|partage']]),
+      N(4, 'Calcul littéral et équations', ['pm.A4'], [['Développer une expression', 'develop'], ['Factoriser et prouver avec une lettre', 'factoris|identit|prouver'], ['Résoudre une équation du premier degré', 'equation|resoudre'], ['Résoudre une équation produit nul', 'produit nul']]),
       N(5, 'Fonctions linéaires et affines', ['pm.B8'], [['Image, antécédent, lecture graphique', 'image|antecedent|lecture|notion de fonction|graphique|courbe'], ['Fonction linéaire et proportionnalité', 'lineaire'], ['Fonction affine', 'affine'], ['Comparer deux formules', 'comparer|formule|tableur|programme de calcul']]),
       N(6, 'Statistiques', ['pm.B5'], [['Calculer une moyenne', 'moyenne|moyen'], ['Médiane et étendue', 'mediane|etendue|quartile|dispersion'], ['Lire et comparer des diagrammes', 'diagramme|histogramme|representer|graphique|interpreter'], ['Fréquences et tableur', 'frequence|tableur|effectif']]),
       N(7, 'Probabilités', ['pm.B6'], [['Calculer une probabilité', 'probabilit|issue|equiprobab'], ['Événement contraire, impossible, certain', 'contraire|impossible|certain'], ['Une expérience à deux épreuves', 'epreuve|arbre|tableau'], ['Fréquence et probabilité', 'frequence|simulation|fluctuation']]),
@@ -3779,7 +3779,7 @@ var Pronote = (function () {
       if ((p.perso || '').trim() && (p.perso || '').trim() !== txt) UI.ask('Remplacer le mémo actuel par une nouvelle rédaction automatique ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
     }
     var box = h('div', null,
-      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Série Pro », « Maths · CAP ») : chapitre, notions et lien de l’appli.'),
+      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Prépa-Métiers », « Maths · CAP ») : chapitre, notions et lien de l’appli.'),
       hasMan ? h('div', { class: 'row-gap' }, h('button', { class: 'btn primary', type: 'button', onclick: gen }, '✨ Rédiger le mémo avec mes manuels'),
         h('button', { class: 'btn', type: 'button', onclick: function () { if (!(p.perso || '').trim()) { UI.toast('Rien à copier : rédigez d’abord le mémo.', 'err'); return; } copyText(p.perso).then(function (ok) { UI.toast(ok ? 'Mémo copié.' : 'Copie impossible : sélectionnez le texte et copiez-le à la main.', ok ? '' : 'err'); }); } }, '📋 Copier le mémo'))
         : h('p', { class: 'muted small' }, 'Pas de manuel pour ce niveau : le mémo reste libre, vous pouvez le saisir à la main.'),
@@ -4261,7 +4261,9 @@ var Guide = (function () {
 /* ═══ FICHES · « Ma séance » : séances construites sur mes manuels (chapitres, notions, pages, exercices, liens) ═══ */
 'use strict';
 var Man = (function () {
-  var DATA, TYPE = { support: 'Support', probleme: 'Problème', defi: 'Défi' };
+  var DATA, TYPE = { support: 'Support', probleme: 'Problème', defi: 'Défi' }, NIV = { meca: 'Mécanique', prog: 'Scratch', guide: 'Guidé', variante: 'Variante', rappel: 'Rappel' };
+  function lbl(e) { return NIV[e.niv] || TYPE[e.type] || e.type; }
+  function core(e) { return e.type !== 'defi' && e.niv !== 'variante' && e.niv !== 'rappel'; }
   var APPSEC = { support: 'entrainement', probleme: 'problemes', defi: 'problemes' };
   function load() {
     if (DATA !== undefined) return DATA;
@@ -4353,7 +4355,7 @@ var Man = (function () {
       return { d: d, spec: { id: man.id + '.' + ch.n + '#' + rang, type: type, duree: 60, titre: 'Ch. ' + ch.n + ' — ' + head, rang: rang, total: tot, data: d } };
     }
     ch.notions.forEach(function (n) {
-      var ex = ch.exos.filter(function (e) { return e.notion === n.n && e.type !== 'defi'; });
+      var ex = ch.exos.filter(function (e) { return e.notion === n.n && core(e); });
       var b = base('cours', n.titre, n.titre, { notions: [n.n], exos: ex.map(function (e) { return e.n; }) }), d = b.d;
       d.objectif = 'À la fin de la séance, l’élève sait : ' + n.titre.charAt(0).toLowerCase() + n.titre.slice(1) + '.';
       d.chapitres = [];
@@ -4371,7 +4373,7 @@ var Man = (function () {
       d.phases = ph;
       d.trace = 'Titre : ' + n.titre + '\n\nÀ retenir (manuel ' + pg(n.pages[1]) + ') : …\nExemple : …';
       b.spec.sub = pg(n.pages) + (ex.length ? ' · ' + plural(ex.length, 'exercice') : '');
-      b.spec.preview = ['Notion ' + n.n + ' : ' + n.titre + ' (' + pg(n.pages) + ')'].concat(ex.map(function (e) { return 'Exercice ' + exoTxt(e) + ' — ' + (TYPE[e.type] || e.type).toLowerCase(); }));
+      b.spec.preview = ['Notion ' + n.n + ' : ' + n.titre + ' (' + pg(n.pages) + ')'].concat(ex.map(function (e) { return 'Exercice ' + exoTxt(e) + ' — ' + lbl(e).toLowerCase(); }));
       b.spec.head = n.titre; out.push(b.spec);
     });
     var defis = ch.exos.filter(function (e) { return e.type === 'defi'; });
@@ -4431,11 +4433,11 @@ var Man = (function () {
       exs.forEach(function (x) {
         var on = m.exos.indexOf(x.n) >= 0, rel = chosen.indexOf(x.notion) >= 0;
         el.appendChild(h('div', { class: 'man-row' + (on ? ' on' : '') + (rel ? ' rel' : '') }, h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: on, onchange: function (e) { if (e.target.checked) m.exos.push(x.n); else m.exos = m.exos.filter(function (y) { return y !== x.n; }); m.exos.sort(function (a, b) { return a - b; }); save.now(); draw(); } }),
-          h('span', null, h('strong', null, 'Ex. ' + x.n), ' ' + x.titre, h('em', { class: 'tag t-' + x.type }, TYPE[x.type] || x.type), x.notion ? h('em', { class: 'tag' }, 'notion ' + x.notion) : null, x.etapes ? h('em', { class: 'tag' }, x.etapes + ' étapes') : null)),
+          h('span', null, h('strong', null, 'Ex. ' + x.n), ' ' + x.titre, h('em', { class: 'tag t-' + x.type }, lbl(x)), x.notion ? h('em', { class: 'tag' }, 'notion ' + x.notion) : null, x.etapes ? h('em', { class: 'tag' }, x.etapes + ' étapes') : null)),
           h('span', { class: 'man-ref' }, lnk(pdfAt(man, x.page), '📄 ' + pg(x.page), 'Ouvrir le manuel à cette page'), lnk(appAt(man, ch, APPSEC[x.type] || 'entrainement'), '🌐 appli'))));
       });
       box.appendChild(h('div', { class: 'man-hd' }, h('h3', { class: 'man-h' }, 'Exercices du chapitre'), h('span', { class: 'grow' }),
-        h('button', { class: 'btn small', type: 'button', title: 'Coche les exercices (supports et problèmes) des notions choisies', onclick: function () { var ids = ch.exos.filter(function (e) { return chosen.indexOf(e.notion) >= 0 && e.type !== 'defi'; }).map(function (e) { return e.n; }); if (!ids.length) { UI.toast('Cochez d’abord une notion.'); return; } ids.forEach(function (i) { if (m.exos.indexOf(i) < 0) m.exos.push(i); }); m.exos.sort(function (a, b) { return a - b; }); save.now(); draw(); } }, '☑ Exercices des notions cochées'),
+        h('button', { class: 'btn small', type: 'button', title: 'Coche les exercices principaux (mécaniques, supports, guidés) des notions choisies ; les variantes et les défis restent à cocher à la main', onclick: function () { var ids = ch.exos.filter(function (e) { return chosen.indexOf(e.notion) >= 0 && core(e); }).map(function (e) { return e.n; }); if (!ids.length) { UI.toast('Cochez d’abord une notion.'); return; } ids.forEach(function (i) { if (m.exos.indexOf(i) < 0) m.exos.push(i); }); m.exos.sort(function (a, b) { return a - b; }); save.now(); draw(); } }, '☑ Exercices des notions cochées'),
         m.exos.length ? h('button', { class: 'btn small ghost', type: 'button', onclick: function () { m.exos = []; save.now(); draw(); } }, 'Tout décocher') : null));
       box.appendChild(el);
       box.appendChild(h('p', { class: 'muted small' }, 'Les liens ouvrent le manuel (PDF à la bonne page) ou l’appli du manuel dans un nouvel onglet. Cocher une notion ajoute les objectifs correspondants du programme officiel : la progression de la classe se met à jour quand la séance est « faite ».'));

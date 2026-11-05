@@ -26,9 +26,9 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
     return { nom: man.nom, ch: man.chapitres.length, g: g.map((x) => [x.g, x.items.length]), urls: g.reduce((a, x) => a.concat(x.items.map((i) => i.url)), []), rep: man.reponses, titres: g[2].items.map((i) => i.titre) };
   });
   ok(cat.nom === 'Maths · CAP' && cat.ch === 10, 'CAP : 10 chapitres');
-  ok(cat.g[1][1] === 4 && cat.g[2][1] === 15 && cat.g[0][1] >= 7, 'chapitre 1 : liens du chapitre ≥ 7, 4 notions, 15 exercices (' + JSON.stringify(cat.g) + ')');
-  ok(cat.urls.includes('https://tom-rougeaud.github.io/cap/pdf/maths-cap.pdf#page=16') && cat.urls.includes('https://tom-rougeaud.github.io/cap/pdf/chapitres/maths-cap-chapitre-1.pdf') && cat.urls.includes('https://tom-rougeaud.github.io/cap/#/c1/lecon') && cat.urls.includes('https://tom-rougeaud.github.io/cap/pdf/maths-cap.pdf#page=226'), 'liens : PDF à la page, PDF du chapitre, appli (#/c1/lecon), réponses p. 226');
-  ok(cat.titres.every((t) => !/[\u{1F300}-\u{1FAFF}]/u.test(t)) && cat.titres.some((t) => /^CAP|Manuel CAP · Ch\. 1 — Ex\. 2 : Guidé — Un tableau d’effectifs, pas à pas \(p\. 16\)$/.test(t)), 'titres des ressources propres (sans émoji) : ' + cat.titres[1]);
+  ok(cat.g[1][1] === 4 && cat.g[2][1] === 23 && cat.g[0][1] >= 7, 'chapitre 1 : liens du chapitre ≥ 7, 4 notions, 23 exercices (' + JSON.stringify(cat.g) + ')');
+  ok(cat.urls.includes('https://tom-rougeaud.github.io/cap/pdf/maths-cap.pdf#page=16') && cat.urls.includes('https://tom-rougeaud.github.io/cap/pdf/chapitres/maths-cap-chapitre-1.pdf') && cat.urls.includes('https://tom-rougeaud.github.io/cap/#/c1/lecon') && cat.urls.includes('https://tom-rougeaud.github.io/cap/pdf/maths-cap.pdf#page=238'), 'liens : PDF à la page, PDF du chapitre, appli (#/c1/lecon), réponses p. 238');
+  ok(cat.titres.every((t) => !/[\u{1F300}-\u{1FAFF}]/u.test(t)) && cat.titres.some((t) => /^CAP|Manuel CAP · Ch\. 1 — Ex\. 2 : Un tableau d’effectifs, pas à pas \(p\. 16\)$/.test(t)), 'titres des ressources propres (sans émoji) : ' + cat.titres[1]);
 
   console.log('# Séance CAP : section Manuel et Pronote en lignes');
   const ids = await page.evaluate(() => {
@@ -40,7 +40,7 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
   await page.goto(BASE + '#/seance/' + ids.s); await page.waitForSelector('text=Manuel : chapitre, pages, exercices');
   await page.evaluate(() => { const sel = [...document.querySelectorAll('#view details.sec select')].find((x) => [...x.options].some((o) => /Statistique à une variable/.test(o.textContent))); sel.value = '1'; sel.dispatchEvent(new Event('change', { bubbles: true })); });
   await page.waitForSelector('text=Notions du chapitre');
-  ok(await page.locator('.man-row').count() === 4 + 15, 'CAP ch. 1 : 4 notions + 15 exercices listés');
+  ok(await page.locator('.man-row').count() === 4 + 23, 'CAP ch. 1 : 4 notions + 23 exercices listés');
   await page.locator('.man-row', { hasText: 'La moyenne' }).first().locator('input[type=checkbox]').check();
   await page.waitForFunction((id) => DB.byId('fs_seances', id).data.manuel.notions.length === 1, ids.s);
   await page.waitForSelector('text=Notions du chapitre');
@@ -49,13 +49,13 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
   await page.click('text=☑ Exercices des notions cochées');
   await page.waitForFunction((id) => DB.byId('fs_seances', id).data.manuel.exos.length >= 1, ids.s);
   const exs = await page.evaluate((id) => DB.byId('fs_seances', id).data.manuel.exos, ids.s);
-  ok(exs.join() === '7,8,10,11,12'.split(',').filter((x) => ['7', '8', '10'].includes(x)).join() || exs.slice(0, 3).join() === '7,8,10', 'exercices de la notion 4 (hors défis) cochés : ' + exs.join(','));
+  ok(exs.join() === '10,11,17', 'exercices de la notion 4 (hors défis) cochés : ' + exs.join(','));
   await page.click('text=📋 Pronote'); await sleep(300);
   await page.click('text=✨ Rédiger la synthèse'); await sleep(500);
   const txt = await page.locator('textarea[placeholder^="Objectif"]').inputValue();
   console.log('     » ' + txt.replace(/\n/g, '\n       '));
   const lines = txt.split('\n');
-  ok(/^Objectif : calculer la moyenne d’une série statistique$/.test(lines[0]) && lines.some((l) => /^Notion abordée : La moyenne \(p\. 13\)$/.test(l)) && lines.some((l) => /^Exercices traités : n° 7 \(p\. 20\), n° 8 \(p\. 20\), n° 10 \(p\. 21\)/.test(l)), 'lignes : Objectif / Notion abordée / Exercices traités');
+  ok(/^Objectif : calculer la moyenne d’une série statistique$/.test(lines[0]) && lines.some((l) => /^Notion abordée : La moyenne \(p\. 13\)$/.test(l)) && lines.some((l) => /^Exercices traités : n° 10 \(p\. 19\), n° 11 \(p\. 20\), n° 17 \(p\. 22\)/.test(l)), 'lignes : Objectif / Notion abordée / Exercices traités');
   ok(lines.filter((l) => /La moyenne/i.test(l)).length <= 2 && !/Séance de|Nous avons/.test(txt), 'pas de répétition ni de phrase');
   ok(lines.some((l) => /^Appli : https:\/\/tom-rougeaud\.github\.io\/cap\/#\/c1\/lecon$/.test(l)) && /^Manuel CAP : chapitre 1 « Statistique à une variable »$/m.test(txt), 'ligne Manuel et lien de l’appli CAP');
   const tr = await page.locator('textarea[placeholder^="Travail à faire"]').inputValue();
@@ -70,9 +70,9 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
   await page.locator('details.mb-lvl', { hasText: 'Maths · CAP' }).locator('summary').first().click();
   await page.locator('details.mb-lvl', { hasText: 'Maths · CAP' }).locator('details.mb-ch', { hasText: 'Ch. 1 ·' }).locator('summary').first().click({ position: { x: 150, y: 10 } });
   const ch1 = page.locator('details.mb-lvl', { hasText: 'Maths · CAP' }).locator('details.mb-ch').first();
-  ok(await ch1.locator('.mb-row').count() === 7 + 4 + 15 || await ch1.locator('.mb-row').count() >= 26, 'chapitre 1 : tous les liens listés (' + await ch1.locator('.mb-row').count() + ')');
+  ok(await ch1.locator('.mb-row').count() === 7 + 4 + 23 || await ch1.locator('.mb-row').count() >= 26, 'chapitre 1 : tous les liens listés (' + await ch1.locator('.mb-row').count() + ')');
   await ch1.locator('.mb-row', { hasText: 'Notion 4 : La moyenne' }).locator('input').check();
-  await ch1.locator('.mb-row', { hasText: 'Ex. 7 — Une moyenne avec des effectifs' }).locator('input').check();
+  await ch1.locator('.mb-row', { hasText: 'Ex. 10 — Une moyenne avec des effectifs' }).locator('input').check();
   const btn = page.locator('button:has-text("Ajouter ma sélection")');
   ok((await btn.innerText()).includes('(2)') && !(await btn.isDisabled()), 'bouton « Ajouter ma sélection (2) »');
   await btn.click(); await sleep(400);

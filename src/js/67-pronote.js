@@ -135,7 +135,7 @@ var Pronote = (function () {
       if ((p.perso || '').trim() && (p.perso || '').trim() !== txt) UI.ask('Remplacer le mémo actuel par une nouvelle rédaction automatique ?', { ok: 'Remplacer' }).then(function (ok) { if (ok) go(); }); else go();
     }
     var box = h('div', null,
-      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Série Pro », « Maths · CAP ») : chapitre, notions et lien de l’appli.'),
+      h('p', { class: 'muted small' }, 'Réservé à votre usage : ce texte n’est pas celui du cahier de textes Pronote. Il s’appuie sur vos manuels (« Maths et MCV » 2de / 1re / Terminale, « 3ème Prépa-Métiers », « Maths · CAP ») : chapitre, notions et lien de l’appli.'),
       hasMan ? h('div', { class: 'row-gap' }, h('button', { class: 'btn primary', type: 'button', onclick: gen }, '✨ Rédiger le mémo avec mes manuels'),
         h('button', { class: 'btn', type: 'button', onclick: function () { if (!(p.perso || '').trim()) { UI.toast('Rien à copier : rédigez d’abord le mémo.', 'err'); return; } copyText(p.perso).then(function (ok) { UI.toast(ok ? 'Mémo copié.' : 'Copie impossible : sélectionnez le texte et copiez-le à la main.', ok ? '' : 'err'); }); } }, '📋 Copier le mémo'))
         : h('p', { class: 'muted small' }, 'Pas de manuel pour ce niveau : le mémo reste libre, vous pouvez le saisir à la main.'),

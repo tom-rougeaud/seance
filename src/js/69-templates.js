@@ -107,7 +107,7 @@ var Tpl = (function () {
     var classes = Cls.actives(); if (!classes.length) { UI.toast('Créez d’abord une classe.'); return; }
     var cl = opt.cl || Cls.get(Store.get('last_class')) || classes[0]; if (cl.archive) cl = classes[0];
     var load = opt.mode === 'load', picked = {}, tab = (Man.has(cl.niveau_id) ? 'man' : 'prog'), q = '', withDate = true;
-    var wrap = h('div', { class: 'tpl' }), list = h('div', { class: 'tpl-list' }), count = h('span', { class: 'muted small' });
+    var openCh = {}, wrap = h('div', { class: 'tpl' }), list = h('div', { class: 'tpl-list' }), count = h('span', { class: 'muted small' });
     var api;
     function nPicked() { return Object.keys(picked).length; }
     function updCount() { count.textContent = load ? '' : nPicked() + ' séance' + (nPicked() > 1 ? 's' : '') + ' sélectionnée' + (nPicked() > 1 ? 's' : ''); }
@@ -146,9 +146,14 @@ var Tpl = (function () {
     function manBlock(ch, open0) {
       var box = h('div', { class: 'tpl-chap' }), filled = false, man = Man.get(cl.niveau_id);
       var det = h('details', { class: 'tpl-chapd', open: open0 ? true : null }, h('summary', null, h('strong', null, 'Ch. ' + ch.n + ' · ' + ch.titre), h('span', { class: 'muted small' }, '  ' + Man.pg([ch.page, ch.fin]) + ' · ' + plural(ch.notions.length, 'notion') + ' · ' + plural(ch.exos.length, 'exercice'))));
-      function fill() { if (filled) return; filled = true; Man.specs(cl, ch).forEach(function (sp) { box.appendChild(card(sp, { id: sp.id, sub: sp.sub })); }); }
-      det.addEventListener('toggle', function () { if (det.open) fill(); });
-      det.appendChild(box); if (open0) fill();
+      function fill() {
+        if (filled) return; filled = true;
+        var sps = Man.specs(cl, ch);
+        if (!load && sps.length) box.appendChild(h('div', { class: 'row-gap' }, h('button', { class: 'btn small ghost', type: 'button', onclick: function () { var all = sps.every(function (sp) { return picked[sp.id]; }); sps.forEach(function (sp) { if (all) delete picked[sp.id]; else picked[sp.id] = { spec: sp }; }); updCount(); clear(list); drawMan(); } }, '☑ Tout le chapitre (' + sps.length + ' séances)')));
+        sps.forEach(function (sp) { box.appendChild(card(sp, { id: sp.id, sub: sp.sub })); });
+      }
+      det.addEventListener('toggle', function () { openCh[ch.n] = det.open; if (det.open) fill(); });
+      det.appendChild(box); if (open0 || openCh[ch.n]) { det.open = true; fill(); }
       return det;
     }
     function drawMan() {
@@ -158,6 +163,11 @@ var Tpl = (function () {
       (opt.chapIds || []).forEach(function (bid) { var m = Manuels.get(cl.niveau_id); if (m) m.chap.forEach(function (c) { if (c.refs.indexOf(bid) >= 0) pre[c.n] = true; }); });
       var chaps = man.chapitres.filter(function (c) { return !ql || (c.titre + ' ' + c.notions.map(function (n) { return n.titre; }).join(' ') + ' ' + c.exos.map(function (e) { return e.titre; }).join(' ')).toLowerCase().indexOf(ql) >= 0; });
       list.appendChild(h('p', { class: 'muted small' }, man.nom + ' : une séance d’1 h par notion (« Je découvre » → « Je retiens » → exercices), une séance de défis et une séance de contrôle par chapitre.'));
+      if (!load) {
+        var allSp = []; man.chapitres.forEach(function (c) { Man.specs(cl, c).forEach(function (sp) { allSp.push(sp); }); });
+        var every = allSp.length && allSp.every(function (sp) { return picked[sp.id]; });
+        list.appendChild(h('div', { class: 'row-gap' }, h('button', { class: 'btn small c1', type: 'button', title: 'Sélectionne toutes les séances d’1 h du manuel, chapitre après chapitre', onclick: function () { allSp.forEach(function (sp) { if (every) delete picked[sp.id]; else picked[sp.id] = { spec: sp }; }); updCount(); clear(list); drawMan(); } }, every ? '☐ Tout désélectionner' : '☑ Tout le manuel (' + allSp.length + ' séances)')));
+      }
       chaps.forEach(function (c) { list.appendChild(manBlock(c, pre[c.n] || (!!ql && chaps.length <= 3))); });
       if (!chaps.length) list.appendChild(h('p', { class: 'muted' }, 'Aucun chapitre ne correspond.'));
     }

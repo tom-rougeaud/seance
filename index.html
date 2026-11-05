@@ -422,7 +422,7 @@ null
 /* ── 00-util.js ── */
 /* ═══ FICHES · utilitaires ═══ */
 'use strict';
-var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202611050652","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
+var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202611052049","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
 
 /* ── stockage local sécurisé (try/catch + repli en mémoire) ── */
 var Mem = {};
@@ -3974,7 +3974,7 @@ var Tpl = (function () {
     var classes = Cls.actives(); if (!classes.length) { UI.toast('Créez d’abord une classe.'); return; }
     var cl = opt.cl || Cls.get(Store.get('last_class')) || classes[0]; if (cl.archive) cl = classes[0];
     var load = opt.mode === 'load', picked = {}, tab = (Man.has(cl.niveau_id) ? 'man' : 'prog'), q = '', withDate = true;
-    var wrap = h('div', { class: 'tpl' }), list = h('div', { class: 'tpl-list' }), count = h('span', { class: 'muted small' });
+    var openCh = {}, wrap = h('div', { class: 'tpl' }), list = h('div', { class: 'tpl-list' }), count = h('span', { class: 'muted small' });
     var api;
     function nPicked() { return Object.keys(picked).length; }
     function updCount() { count.textContent = load ? '' : nPicked() + ' séance' + (nPicked() > 1 ? 's' : '') + ' sélectionnée' + (nPicked() > 1 ? 's' : ''); }
@@ -4013,9 +4013,14 @@ var Tpl = (function () {
     function manBlock(ch, open0) {
       var box = h('div', { class: 'tpl-chap' }), filled = false, man = Man.get(cl.niveau_id);
       var det = h('details', { class: 'tpl-chapd', open: open0 ? true : null }, h('summary', null, h('strong', null, 'Ch. ' + ch.n + ' · ' + ch.titre), h('span', { class: 'muted small' }, '  ' + Man.pg([ch.page, ch.fin]) + ' · ' + plural(ch.notions.length, 'notion') + ' · ' + plural(ch.exos.length, 'exercice'))));
-      function fill() { if (filled) return; filled = true; Man.specs(cl, ch).forEach(function (sp) { box.appendChild(card(sp, { id: sp.id, sub: sp.sub })); }); }
-      det.addEventListener('toggle', function () { if (det.open) fill(); });
-      det.appendChild(box); if (open0) fill();
+      function fill() {
+        if (filled) return; filled = true;
+        var sps = Man.specs(cl, ch);
+        if (!load && sps.length) box.appendChild(h('div', { class: 'row-gap' }, h('button', { class: 'btn small ghost', type: 'button', onclick: function () { var all = sps.every(function (sp) { return picked[sp.id]; }); sps.forEach(function (sp) { if (all) delete picked[sp.id]; else picked[sp.id] = { spec: sp }; }); updCount(); clear(list); drawMan(); } }, '☑ Tout le chapitre (' + sps.length + ' séances)')));
+        sps.forEach(function (sp) { box.appendChild(card(sp, { id: sp.id, sub: sp.sub })); });
+      }
+      det.addEventListener('toggle', function () { openCh[ch.n] = det.open; if (det.open) fill(); });
+      det.appendChild(box); if (open0 || openCh[ch.n]) { det.open = true; fill(); }
       return det;
     }
     function drawMan() {
@@ -4025,6 +4030,11 @@ var Tpl = (function () {
       (opt.chapIds || []).forEach(function (bid) { var m = Manuels.get(cl.niveau_id); if (m) m.chap.forEach(function (c) { if (c.refs.indexOf(bid) >= 0) pre[c.n] = true; }); });
       var chaps = man.chapitres.filter(function (c) { return !ql || (c.titre + ' ' + c.notions.map(function (n) { return n.titre; }).join(' ') + ' ' + c.exos.map(function (e) { return e.titre; }).join(' ')).toLowerCase().indexOf(ql) >= 0; });
       list.appendChild(h('p', { class: 'muted small' }, man.nom + ' : une séance d’1 h par notion (« Je découvre » → « Je retiens » → exercices), une séance de défis et une séance de contrôle par chapitre.'));
+      if (!load) {
+        var allSp = []; man.chapitres.forEach(function (c) { Man.specs(cl, c).forEach(function (sp) { allSp.push(sp); }); });
+        var every = allSp.length && allSp.every(function (sp) { return picked[sp.id]; });
+        list.appendChild(h('div', { class: 'row-gap' }, h('button', { class: 'btn small c1', type: 'button', title: 'Sélectionne toutes les séances d’1 h du manuel, chapitre après chapitre', onclick: function () { allSp.forEach(function (sp) { if (every) delete picked[sp.id]; else picked[sp.id] = { spec: sp }; }); updCount(); clear(list); drawMan(); } }, every ? '☐ Tout désélectionner' : '☑ Tout le manuel (' + allSp.length + ' séances)')));
+      }
       chaps.forEach(function (c) { list.appendChild(manBlock(c, pre[c.n] || (!!ql && chaps.length <= 3))); });
       if (!chaps.length) list.appendChild(h('p', { class: 'muted' }, 'Aucun chapitre ne correspond.'));
     }
@@ -4354,24 +4364,39 @@ var Man = (function () {
       d.manuel = { chap: ch.n, notions: mn.notions, exos: mn.exos };
       return { d: d, spec: { id: man.id + '.' + ch.n + '#' + rang, type: type, duree: 60, titre: 'Ch. ' + ch.n + ' — ' + head, rang: rang, total: tot, data: d } };
     }
+    var defisCh = ch.exos.filter(function (e) { return e.type === 'defi'; });
+    function txtEx(a) { return a.map(exoTxt).join(' ; '); }
     ch.notions.forEach(function (n) {
       var ex = ch.exos.filter(function (e) { return e.notion === n.n && core(e); });
+      var meca = ex.filter(function (e) { return e.niv === 'meca'; }), prog = ex.filter(function (e) { return e.niv === 'prog'; }), main = ex.filter(function (e) { return e.niv !== 'meca'; });
+      var guid = ex.filter(function (e) { return e.niv === 'guide'; });
+      var vars = ch.exos.filter(function (e) { return e.notion === n.n && e.niv === 'variante'; });
       var b = base('cours', n.titre, n.titre, { notions: [n.n], exos: ex.map(function (e) { return e.n; }) }), d = b.d;
-      d.objectif = 'À la fin de la séance, l’élève sait : ' + n.titre.charAt(0).toLowerCase() + n.titre.slice(1) + '.';
+      var inf = /^[A-ZÉÈ][a-zéèêëàâîïôûç]+(er|ir|re)$/.test(n.titre.split(/[\s’']/)[0]);
+      d.objectif = 'À la fin de la séance, l’élève sait : ' + (inf ? n.titre.charAt(0).toLowerCase() + n.titre.slice(1) : 'utiliser la notion « ' + n.titre + ' »') + '.';
       d.chapitres = [];
       var fake = { data: d, type: 'cours' }; sync(fake, cl); d.items = fake.data.items; d.chapitres = fake.data.chapitres;
       d.comp_manual = false;
-      d.prerequis = rang > 1 ? 'Notion précédente du chapitre ' + ch.n + ' (manuel ' + pg(ch.notions[rang - 2] ? ch.notions[rang - 2].pages : null) + ').' : '';
-      var ph = defaultPhases('cours', 60);
-      ph.forEach(function (x) {
-        if (x.phase === 'accroche' || x.phase === 'recherche') x.contenu = 'Activité « Je découvre » du manuel (' + pg(n.pages[0]) + ') : ' + n.titre + '.';
-        else if (x.phase === 'cours') x.contenu = 'Institutionnalisation avec « Je retiens » (' + pg(n.pages[1]) + ') : ' + n.titre + '.';
-        else if (x.phase === 'exercices') x.contenu = ex.length ? 'Exercices du manuel : ' + ex.map(exoTxt).join(' ; ') + '.' : 'Exercices d’application du chapitre ' + ch.n + ' (choisir dans « Je m’entraîne »).';
-        else if (x.phase === 'automatismes') x.contenu = 'Questions flash en lien avec le chapitre ' + ch.n + '.';
-        else if (x.phase === 'bilan') x.contenu = 'Bilan : ce qu’il faut retenir (' + n.titre + ').';
-      });
+      d.prerequis = rang > 1 && ch.notions[rang - 2] ? 'Notion précédente du chapitre ' + ch.n + ' : « ' + ch.notions[rang - 2].titre + ' » (manuel ' + pg(ch.notions[rang - 2].pages) + ').' : (ch.n > 1 ? 'Chapitres précédents du manuel (calculs de base).' : '');
+      if (prog.length && (d.materiel || []).indexOf('ordi') < 0) d.materiel = (d.materiel || []).concat(['ordi']);
+      var pv = rang > 1 ? ch.notions[rang - 2] : null;
+      var ph = [
+        { phase: 'automatismes', duree: 5, orga: 'individuel', contenu: pv ? 'Rappel flash (3 questions) sur la notion précédente : « ' + pv.titre + ' » (manuel ' + pg(pv.pages) + ').' : 'Questions flash (3 questions) sur les calculs de base du chapitre ' + ch.n + '.' },
+        { phase: 'recherche', duree: 15, orga: 'binomes', contenu: 'Activité « Je découvre » du manuel (' + pg(n.pages[0]) + ') : ' + n.titre + '. Les binômes cherchent, puis un binôme présente sa démarche.' },
+        { phase: 'cours', duree: 10, orga: 'collectif', contenu: 'Mise en commun et institutionnalisation avec « Je retiens » (' + pg(n.pages[1]) + ') : ' + n.titre + '. Les élèves complètent leur trace écrite.' }
+      ];
+      if (meca.length) ph.push({ phase: 'automatismes', duree: 10, orga: 'individuel', contenu: 'Calculs sans contexte (mécaniques) : ' + txtEx(meca) + '. Correction rapide au tableau.' });
+      if (main.length) ph.push({ phase: 'exercices', duree: meca.length ? 15 : 25, orga: 'individuel', contenu: 'Exercices du manuel : ' + txtEx(main) + '.' + (guid.length ? ' Les exercices guidés (' + guid.map(function (e) { return 'n° ' + e.n; }).join(', ') + ') servent d’appui aux élèves en difficulté.' : '') + (prog.length ? ' Programmation : ' + txtEx(prog) + ' (salle informatique ou poste élève).' : '') });
+      else ph.push({ phase: 'exercices', duree: meca.length ? 15 : 25, orga: 'individuel', contenu: 'Exercices d’application du chapitre ' + ch.n + ' (choisir dans le manuel).' });
+      ph.push({ phase: 'bilan', duree: 5, orga: 'collectif', contenu: 'Bilan : ce qu’il faut retenir (« ' + n.titre + ' ») et points de vigilance.' + (vars.length ? ' Travail à la maison : refaire ' + (vars.length > 1 ? 'les variantes' : 'la variante') + ' (' + vars.map(function (e) { return 'n° ' + e.n; }).join(', ') + ', autres nombres).' : ' Travail à la maison : revoir « Je retiens » (' + pg(n.pages[1]) + ').') });
       d.phases = ph;
-      d.trace = 'Titre : ' + n.titre + '\n\nÀ retenir (manuel ' + pg(n.pages[1]) + ') : …\nExemple : …';
+      d.trace = 'Titre : ' + n.titre + '\n\nJe retiens (manuel ' + pg(n.pages[1]) + ') : recopier ou coller l’encadré, puis surligner les mots clés.\n\nExemple : reprendre l’exemple résolu de la notion (' + pg(n.pages) + ') et le refaire avec d’autres nombres.\n\nMéthode : écrire en une phrase ce qu’on fait, étape par étape.';
+      d.diff = {
+        upe2a: 'Afficher les mots clés de la notion (« ' + n.titre + ' ») avec un exemple ou un schéma' + (man.glossaire ? ' ; glossaire visuel du manuel (' + pg(man.glossaire) + ')' : '') + (man.id === 'pm' ? ' ; cahier différencié 3e, version « facile à lire »' : '') + '.',
+        difficulte: (guid.length ? 'Exercices guidés (pas à pas) : ' + guid.map(function (e) { return 'n° ' + e.n; }).join(', ') + '. ' : '') + (meca.length ? 'Commencer par les calculs sans contexte (' + meca.map(function (e) { return 'n° ' + e.n; }).join(', ') + ') et décomposer chaque tâche en étapes.' : 'Étayer avec un exemple résolu et décomposer la tâche en étapes.') + (man.id === 'pm' ? ' Cahier différencié 3e, version « pas à pas ».' : ''),
+        rapides: (defisCh.length ? 'Défi du chapitre : ' + defisCh.slice(0, 2).map(function (e) { return 'n° ' + e.n + ' « ' + e.titre + ' » (' + pg(e.page) + ')'; }).join(' ; ') + '.' : 'Prolonger avec un problème plus ouvert.') + (man.id === 'pm' ? ' Cahier différencié 3e, version « plus loin ».' : ''),
+        amenagements: ''
+      };
       b.spec.sub = pg(n.pages) + (ex.length ? ' · ' + plural(ex.length, 'exercice') : '');
       b.spec.preview = ['Notion ' + n.n + ' : ' + n.titre + ' (' + pg(n.pages) + ')'].concat(ex.map(function (e) { return 'Exercice ' + exoTxt(e) + ' — ' + lbl(e).toLowerCase(); }));
       b.spec.head = n.titre; out.push(b.spec);

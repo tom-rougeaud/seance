@@ -32,8 +32,9 @@ var Compte = (function () {
   /* Met un pseudo en forme : sans espaces autour, en minuscules. */
   function normaliserPseudo(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
 
-  /* Un pseudo valide : 3 à 20 caractères parmi a-z, 0-9, tiret et tiret bas. */
-  function pseudoValide(s) { return /^[a-z0-9_-]{3,20}$/.test(s); }
+  /* Un pseudo valide : 6 à 20 caractères parmi a-z, 0-9, tiret et tiret bas (exception unique : « tom »).
+     Le texte est d’abord mis en minuscules par normaliserPseudo : majuscule et minuscule sont équivalentes. */
+  function pseudoValide(s) { return /^([a-z0-9_-]{6,20}|tom)$/.test(s); }
 
   /* Vrai si l’identifiant saisi est une adresse e-mail (présence d’un @). */
   function estEmail(s) { return String(s == null ? '' : s).indexOf('@') >= 0; }
@@ -126,7 +127,7 @@ var Compte = (function () {
     var ident = h('input', { class: 'inp', type: 'text', id: 'compte-id', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', placeholder: 'Pseudo ou adresse e-mail', required: true });
     var mdp = champMdp('compte-mdp', 'current-password');
     var regles = listeRegles();
-    var aidePseudo = h('p', { class: 'small muted' }, 'Pseudo : 3 à 20 caractères — lettres minuscules, chiffres, tiret (-) et tiret bas (_), sans accent ni espace. Vous pouvez aussi utiliser une adresse e-mail.');
+    var aidePseudo = h('p', { class: 'small muted' }, 'Pseudo : 6 à 20 caractères — lettres, chiffres, tiret (-) et tiret bas (_), sans accent ni espace ; majuscules et minuscules sont équivalentes. Vous pouvez aussi utiliser une adresse e-mail.');
     var etatPseudo = h('div', { class: 'pseudo-etat small', 'aria-live': 'polite' });
     var msg = h('div', { class: 'auth-msg', role: 'alert' });
     var btn = h('button', { class: 'btn primary wide', type: 'submit' }, 'Se connecter');
@@ -153,7 +154,7 @@ var Compte = (function () {
       var v = normaliserPseudo(valeur);
       if (!v) { etatPseudo.textContent = ''; return Promise.resolve(null); }
       if (estEmail(v)) { etatPseudo.textContent = 'Compte avec adresse e-mail.'; return Promise.resolve(null); }
-      if (!pseudoValide(v)) { etatPseudo.textContent = '✗ Format non valide : 3 à 20 caractères (a-z, 0-9, - et _).'; return Promise.resolve(false); }
+      if (!pseudoValide(v)) { etatPseudo.textContent = '✗ Format non valide : 6 à 20 caractères (lettres, chiffres, - et _).'; return Promise.resolve(false); }
       etatPseudo.textContent = 'Vérification…';
       var n = ++dernier;   /* ignore les réponses devenues périmées si la personne a continué à taper */
       return Api.rest.rpc('pseudo_disponible', { p: v }).then(function (ok) {
@@ -182,7 +183,7 @@ var Compte = (function () {
       if (!evaluerMdp(pw).ok) return Promise.reject({ silent: true, texte: 'Le mot de passe ne respecte pas toutes les règles de la liste.' });
       if (estEmail(id)) return Api.auth.signUp(id, pw).then(function (r) { return { connecte: r.connected, email: true }; });
       var v = normaliserPseudo(id);
-      if (!pseudoValide(v)) return Promise.reject({ silent: true, texte: 'Pseudo non valide : 3 à 20 caractères (a-z, 0-9, - et _).' });
+      if (!pseudoValide(v)) return Promise.reject({ silent: true, texte: 'Pseudo non valide : 6 à 20 caractères (lettres, chiffres, - et _).' });
       /* Un pseudo n’a pas d’e-mail à confirmer : on vérifie que le serveur l’accepte AVANT de créer le compte,
          pour ne pas laisser un compte inutilisable qui bloquerait le pseudo. */
       return Api.auth.reglages().then(function (s) {

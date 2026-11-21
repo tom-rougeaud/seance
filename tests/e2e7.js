@@ -91,7 +91,7 @@ const txt = (page, sel) => page.evaluate((s) => { const e = document.querySelect
   const nbS = await page.evaluate(() => DB.list('fs_seances').length);
   await page.click('.guide .btn.primary'); await page.waitForFunction((n) => DB.list('fs_seances').length === n + 1, nbS);
   ok(true, '« séance suivante » crée la séance à la suite et l’ouvre');
-  await page.waitForSelector('.guide');
+  await page.waitForFunction(() => { const g = document.querySelector('.guide'); return g && /Saisir le titre/.test(g.textContent); }, null, { timeout: 4000 }).catch(() => {}); /* attend le rendu de la nouvelle séance (évite de lire l’ancienne) */
   ok(/Saisir le titre/.test(await txt(page, '.guide')), 'la nouvelle séance repart à l’étape ①');
   await page.goto(BASE + '#/planning'); await page.waitForSelector('.guide');
   ok(/Ouvrir « Mon année »/.test(await txt(page, '.guide')), 'emploi du temps : le guide renvoie vers « Mon année »');

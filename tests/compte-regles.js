@@ -28,9 +28,11 @@ t(R.evaluerMdp('A1!' + 'a'.repeat(69)).tropLong === false, '72 octets pile accep
 t(R.evaluerMdp('é'.repeat(40) + 'A1!').tropLong === true, 'accents comptés en octets');
 t(R.evaluerMdp(null).ok === false && R.evaluerMdp(undefined).ok === false, 'valeur vide sans plantage');
 
-/* --- pseudos --- */
-['eleve_42', 'abc', 'a-b_c', 'x'.repeat(20)].forEach(function (p) { t(R.pseudoValide(p), 'pseudo valide : ' + p); });
-['ab', 'x'.repeat(21), 'Éva', 'a b', 'a.b', 'a@b', '', 'élève'].forEach(function (p) { t(!R.pseudoValide(p), 'pseudo refusé : ' + p); });
+/* --- pseudos (6 à 20 caractères, exception « tom », insensible à la casse) --- */
+t(R.pseudoValide(R.normaliserPseudo('TOM')) && R.pseudoValide(R.normaliserPseudo('  Eleve_42 ')), 'majuscules ignorées après normalisation');
+t(R.normaliserPseudo('ÉLÈVE1') !== 'eleve1' || !R.pseudoValide(R.normaliserPseudo('ÉLÈVE1')), 'accents toujours refusés');
+['eleve_42', 'abc-12', 'a-b_c9', 'x'.repeat(20), 'tom'].forEach(function (p) { t(R.pseudoValide(p), 'pseudo valide : ' + p); });
+['ab', 'abcde', 'tomm', 'to', 'x'.repeat(21), 'Éva', 'a b', 'a.b', 'a@b', '', 'élève'].forEach(function (p) { t(!R.pseudoValide(p), 'pseudo refusé : ' + p); });
 t(R.normaliserPseudo('  Eleve_42 ') === 'eleve_42', 'normalisation (espaces, majuscules)');
 t(R.normaliserPseudo(null) === '', 'normalisation de null');
 

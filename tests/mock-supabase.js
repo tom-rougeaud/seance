@@ -46,7 +46,7 @@ async function install(context, st) {
       const name = p.split('/').pop(), b = JSON.parse(req.postData() || '{}');
       if (name === 'fs_set_items') { st.rows.fs_items = st.rows.fs_items.filter((r) => r.parent_id !== b.p_parent_id); (b.p_items || []).forEach((it) => st.rows.fs_items.push(Object.assign({ parent_id: b.p_parent_id, class_id: b.p_class_id }, it))); return route.fulfill(json(200, (b.p_items || []).length)); }
       /* fonctions ajoutées pour le bloc Compte : disponibilité du pseudo, compte propriétaire, suppression de compte */
-      if (name === 'pseudo_disponible') { const v = JSON.parse(req.postData() || '{}').p; st.log.push('PSEUDO?' + v); return route.fulfill(json(200, !(st.pseudosPris || ['pris']).includes(v))); }
+      if (name === 'pseudo_disponible') { const v = JSON.parse(req.postData() || '{}').p; st.log.push('PSEUDO?' + v); return route.fulfill(json(200, !(st.pseudosPris || ['pris-12']).includes(v))); }
       if (name === 'est_proprietaire') return route.fulfill(json(200, !!st.proprietaire));
       if (name === 'delete_user') { st.log.push('DELETE_USER'); return route.fulfill(json(200, null)); }
       if (name === 'fs_effacer_mes_donnees') { const paths = st.rows.fs_ressources.filter((r) => r.storage_path).map((r) => r.storage_path); TABLES.forEach((t) => { st.rows[t] = []; }); st.settings = null; return route.fulfill(json(200, paths)); }

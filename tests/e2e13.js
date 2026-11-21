@@ -54,11 +54,12 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
   await page.fill('#compte-mdp', BON); await sleep(50);
   ok((await page.locator('.regles li.ok').count()) === 5 && /^✓/.test(await page.locator('.regles li').first().innerText()), 'cinq règles cochées avec ✓ (pas seulement la couleur)');
   /* disponibilité du pseudo en temps réel */
-  await page.fill('#compte-id', 'pris'); await page.waitForFunction(() => /déjà pris/.test(document.querySelector('.pseudo-etat').textContent), null, { timeout: 4000 });
+  await page.fill('#compte-id', 'PRIS-12'); await page.waitForFunction(() => /déjà pris/.test(document.querySelector('.pseudo-etat').textContent), null, { timeout: 4000 });
+  ok(st.log.includes('PSEUDO?pris-12'), 'pseudo en majuscules compris comme le pseudo en minuscules');
   ok(true, 'pseudo pris : « déjà pris » affiché');
-  await page.fill('#compte-id', 'Ab'); await page.waitForFunction(() => /Format non valide/.test(document.querySelector('.pseudo-etat').textContent), null, { timeout: 4000 });
+  await page.fill('#compte-id', 'Abcde'); await page.waitForFunction(() => /Format non valide/.test(document.querySelector('.pseudo-etat').textContent), null, { timeout: 4000 });
   ok(true, 'pseudo trop court : format refusé sans appel à la base');
-  ok(!st.log.includes('PSEUDO?ab'), 'aucun appel à la base pour un pseudo invalide');
+  ok(!st.log.includes('PSEUDO?abcde'), 'aucun appel à la base pour un pseudo invalide');
   await page.fill('#compte-id', 'Nouveau_Eleve'); await page.waitForFunction(() => /disponible/.test(document.querySelector('.pseudo-etat').textContent), null, { timeout: 4000 });
   ok(st.log.includes('PSEUDO?nouveau_eleve'), 'pseudo normalisé en minuscules avant la question à la base');
   /* mot de passe trop faible : refus sans création */

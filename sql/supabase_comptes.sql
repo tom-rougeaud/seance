@@ -12,7 +12,7 @@
 alter table public.profiles add column if not exists pseudo text;
 alter table public.profiles drop constraint if exists profiles_pseudo_format;
 alter table public.profiles add constraint profiles_pseudo_format
-  check (pseudo is null or pseudo ~ '^[a-z0-9_-]{3,20}$');        -- 3 à 20 caractères : a-z, 0-9, - et _
+  check (pseudo is null or pseudo ~ '^([a-z0-9_-]{6,20}|tom)$');   -- 6 à 20 caractères : a-z, 0-9, - et _ (exception : « tom »)
 create unique index if not exists profiles_pseudo_unique
   on public.profiles (lower(pseudo)) where pseudo is not null;   -- un pseudo = un seul compte
 
@@ -26,8 +26,8 @@ set search_path = public, auth, pg_temp       -- fixe les schémas utilisés (pr
 as $$
 declare v text := lower(btrim(coalesce(p, '')));   -- pseudo nettoyé : minuscules, sans espaces autour
 begin
-  if v !~ '^[a-z0-9_-]{3,20}$' then return false; end if;                          -- format imposé
-  if v in ('admin','administrateur','prof','professeur','tom','moderateur','support','root','claude') then return false; end if; -- noms réservés
+  if v !~ '^([a-z0-9_-]{6,20}|tom)$' then return false; end if;                          -- format imposé
+  if v in ('admin','administrateur','prof','professeur','moderateur','support','root','claude') then return false; end if; -- noms réservés
   if exists (select 1 from public.profiles where lower(pseudo) = v) then return false; end if;                                   -- déjà pris
   if exists (select 1 from auth.users where lower(email) = v || '@pseudo.invalid') then return false; end if;                    -- e-mail technique déjà utilisé
   return true;
@@ -60,7 +60,7 @@ begin
     raise exception 'Le pseudo ne peut pas être modifié.';
   end if;
   if new.pseudo is not null and new.pseudo in
-     ('admin','administrateur','prof','professeur','tom','moderateur','support','root','claude')
+     ('admin','administrateur','prof','professeur','moderateur','support','root','claude')
      and (tg_op = 'INSERT' or new.pseudo is distinct from old.pseudo) then
     raise exception 'Ce pseudo est réservé.';
   end if;

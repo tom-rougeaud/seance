@@ -13,7 +13,7 @@ function ok(c, msg) { if (c) { pass++; console.log('  ✓ ' + msg); } else { fai
   const page = await ctx.newPage(); const errors = [];
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/status of (400|404)/.test(m.text())) errors.push('console: ' + m.text()); });
-  await page.goto(BASE); await page.waitForSelector('.auth-card'); await page.fill('input[type=email]', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('.auth-card button[type=submit]');
+  await page.goto(BASE); await page.waitForSelector('.auth-card'); await page.fill('#compte-id', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('.auth-card button[type=submit]');
   await page.waitForSelector('.top');
   const cid = await page.evaluate(() => DB.create('fs_classes', { nom: '3PM1', niveau_id: 'pm', groupement: 'A', avec_pc: false, poursuite: false, metier: '', annee_scolaire: '2026-2027', couleur: '#2B4C7E', creneaux: [{ jour: 1, debut: '08:00', fin: '09:00' }], notes: '' }).id);
   await page.goto(BASE + '#/classe/' + cid); await page.waitForSelector('button:has-text("Séance depuis")');

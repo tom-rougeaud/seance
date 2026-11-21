@@ -20,7 +20,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   page.on('dialog', (d) => { errors.push('DIALOG: ' + d.message()); d.dismiss(); });
 
   await page.goto(BASE); await page.waitForSelector('.auth-card');
-  await page.fill('input[type=email]', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('button[type=submit]');
+  await page.fill('#compte-id', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('button[type=submit]');
   await page.waitForSelector('.top');
 
   console.log('# Données de départ');
@@ -175,7 +175,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   console.log('# Téléphone');
   const m = await browser.newContext({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true, locale: 'fr-FR' }); await install(m, st);
   const mp = await m.newPage(); await mp.goto(BASE); await mp.waitForSelector('.auth-card');
-  await mp.fill('input[type=email]', 'prof@test.fr'); await mp.fill('input[type=password]', 'secret12'); await mp.click('button[type=submit]'); await mp.waitForSelector('.top');
+  await mp.fill('#compte-id', 'prof@test.fr'); await mp.fill('input[type=password]', 'secret12'); await mp.click('button[type=submit]'); await mp.waitForSelector('.top');
   await mp.goto(BASE + '#/planning'); await mp.waitForSelector('.tt-col'); await sleep(400);
   await mp.screenshot({ path: SHOTS + '/14-planning-mobile.png' });
   await mp.locator('.tt-col[data-j="5"]').scrollIntoViewIfNeeded(); await mp.evaluate(() => window.scrollTo(0, 120)); await sleep(200);

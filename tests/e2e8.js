@@ -7,7 +7,7 @@ require('fs').mkdirSync(SHOTS, { recursive: true });
 const BASE = 'http://127.0.0.1:8765/dist/maseance/index.html', BASE1 = 'http://127.0.0.1:8765/index.html';
 let pass = 0, fail = 0;
 function ok(c, msg) { if (c) { pass++; console.log('  ✓ ' + msg); } else { fail++; console.log('  ✗ ' + msg); } }
-async function login(page, base) { await page.goto(base); await page.waitForSelector('.auth-card'); await page.fill('input[type=email]', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#view', { timeout: 8000 }); }
+async function login(page, base) { await page.goto(base); await page.waitForSelector('.auth-card'); await page.fill('#compte-id', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#view', { timeout: 8000 }); }
 
 (async () => {
   const browser = await chromium.launch();
@@ -115,8 +115,9 @@ async function login(page, base) { await page.goto(base); await page.waitForSele
   ok((await p2.locator('text=📘 Manuel').count()) === 0 && (await p2.locator('text=Mémo perso').count()) > 0, '« Fiches » : pas de bloc Manuel, mémo perso conservé');
   await p2.goto(BASE1 + '#/reglages'); await p2.waitForSelector('text=Version et mises à jour');
   ok((await p2.locator('text=Mes deux versions').count()) === 0, '« Fiches » : lien vers « Ma séance » masqué pour un autre compte');
-  await p2.evaluate(() => { FICHES_CONFIG.OWNER_EMAILS = ['prof@test.fr']; });
-  await p2.goto(BASE1 + '#/'); await p2.goto(BASE1 + '#/reglages'); await p2.waitForSelector('text=Version et mises à jour');
+  /* le compte propriétaire est maintenant reconnu par la base (fonction est_proprietaire), plus par une liste d’e-mails */
+  st.proprietaire = true;
+  await p2.reload(); await p2.waitForSelector('#view'); await p2.goto(BASE1 + '#/reglages'); await p2.waitForSelector('text=Version et mises à jour'); await p2.waitForSelector('text=Mes deux versions', { timeout: 5000 }).catch(() => {});
   ok((await p2.locator('text=Mes deux versions').count()) === 1, '« Fiches » : lien visible pour le compte propriétaire');
   await page.goto(BASE + '#/reglages'); await page.waitForSelector('text=Mes deux versions');
   ok(true, '« Ma séance » : lien vers la version BO dans Réglages');

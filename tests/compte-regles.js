@@ -11,9 +11,9 @@ function t(c, m) { if (c) { ok++; } else { ko++; console.log('  ✗ ' + m); } }
 
 /* --- mots de passe --- */
 t(R.evaluerMdp('Abcdefgh1234!').ok === true, 'mot de passe valide accepté');
-t(R.evaluerMdp('Abcdefg1!').ok === false, 'trop court refusé (9 car.)');
-t(R.evaluerMdp('Abcdefghij!1').ok === true, 'exactement 12 caractères accepté');
-t(R.evaluerMdp('Abcdefghi!1').ok === false, '11 caractères refusé');
+t(R.evaluerMdp('Abcde1!').ok === false, 'trop court refusé (7 car.)');
+t(R.evaluerMdp('Abcdef1!').ok === true, 'exactement 8 caractères accepté');
+t(R.evaluerMdp('Abcde1!').ok === false, '7 caractères refusé');
 t(R.evaluerMdp('abcdefghij1!').ok === false, 'sans majuscule refusé');
 t(R.evaluerMdp('ABCDEFGHIJ1!').ok === false, 'sans minuscule refusé');
 t(R.evaluerMdp('Abcdefghijk!').ok === false, 'sans chiffre refusé');

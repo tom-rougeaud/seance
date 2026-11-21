@@ -22,7 +22,7 @@ var Compte = (function () {
 
   /* ===== SECTION : Constantes ===== */
   var DOMAINE_PSEUDO = 'pseudo.invalid';  /* faux domaine réservé (.invalid) : un pseudo n’a jamais de vraie adresse e-mail */
-  var LONGUEUR_MIN = 12;                  /* longueur minimale du mot de passe */
+  var LONGUEUR_MIN = 8;                   /* longueur minimale du mot de passe */
   var OCTETS_MAX = 72;                    /* limite technique de bcrypt (hachage des mots de passe) */
   var SYMBOLES = "!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~"; /* liste exacte des caractères spéciaux comptés par Supabase */
   var DELAI_PSEUDO = 400;                 /* ms d’attente après la dernière frappe avant de vérifier le pseudo */
@@ -51,7 +51,7 @@ var Compte = (function () {
     return unescape(encodeURIComponent(s)).length;
   }
 
-  /* Évalue un mot de passe selon les règles : 12 caractères mini, minuscule, majuscule, chiffre, caractère spécial.
+  /* Évalue un mot de passe selon les règles : 8 caractères mini, minuscule, majuscule, chiffre, caractère spécial.
      Les lettres sont comptées comme côté serveur (a-z / A-Z sans accent). */
   function evaluerMdp(pw) {
     pw = String(pw == null ? '' : pw);

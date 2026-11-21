@@ -159,7 +159,7 @@ Views.reglages = function () {
     h('p', { class: 'small muted' }, DB.list('fs_classes').length + ' classes · ' + DB.list('fs_sequences').length + ' séquences · ' + DB.list('fs_seances').length + ' séances · ' + DB.list('fs_ressources').length + ' ressources')));
 
   /* compte */
-  root.appendChild(h('section', { class: 'card' }, h('h2', null, 'Compte'), h('p', null, Api.user() && Api.user().email ? Api.user().email : ''), h('button', { class: 'btn', type: 'button', onclick: function () { Main.logout(); } }, 'Se déconnecter')));
+  root.appendChild(Compte.carte());
   root.appendChild(h('p', { class: 'small center' }, h('a', { href: '#/apropos' }, 'À propos'), ' · ', h('a', { href: '#/confidentialite' }, 'Confidentialité'), ' · ' + Upd.label()));
   return root;
 };
@@ -180,7 +180,7 @@ Views.apropos = function () {
     h('p', null, 'Le calendrier zone A 2026-2027 est proposé comme point de départ (source : ', h('a', { href: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F1727', target: '_blank', rel: 'noopener noreferrer' }, 'service-public.gouv.fr'), '). Adaptez-le à votre établissement : PFMP, examens, journées banalisées.'),
     h('h3', null, 'Licence et auteur'),
     h('p', null, 'Créé par Tom Rougeaud, professeur de mathématiques-sciences. Licence ', h('a', { href: 'https://creativecommons.org/licenses/by-nc/4.0/deed.fr', target: '_blank', rel: 'noopener noreferrer' }, 'CC BY-NC 4.0'), ' : réutilisation libre avec mention de l’auteur, hors usage commercial.'),
-    h('p', null, h('a', { href: 'https://tom-rougeaud.github.io/casier/', target: '_blank', rel: 'noopener noreferrer' }, 'Le casier'), ' · ', h('a', { href: 'https://www.linkedin.com/in/tomrougeaud/', target: '_blank', rel: 'noopener noreferrer' }, 'LinkedIn'), ' · ', h('a', { href: 'mailto:tom.rougeaud.education@gmail.com' }, 'Contact')),
+    h('p', null, h('a', { href: 'https://tom-rougeaud.github.io/casier/', target: '_blank', rel: 'noopener noreferrer' }, 'Le casier'), ' · ', h('a', { href: 'https://www.linkedin.com/in/tomrougeaud/', target: '_blank', rel: 'noopener noreferrer' }, 'Contact (LinkedIn)')),
     h('p', { class: 'small muted' }, Upd.label() + ' · référentiels du ' + (Ref.raw().version || ''))));
   return root;
 };
@@ -190,14 +190,18 @@ Views.confidentialite = function () {
   var root = h('div', { class: 'page narrow' });
   root.appendChild(pageHead('Confidentialité', null, [], [Api.user() ? '#/reglages' : '#/', 'Retour']));
   root.appendChild(h('section', { class: 'card prose' },
+    h('h3', null, 'Qui est responsable'),
+    h('p', null, 'Tom Rougeaud, auteur de l’appli (contact : voir la page À propos).'),
     h('h3', null, 'Ce qui est enregistré'),
-    h('p', null, 'Votre adresse e-mail (pour la connexion), vos classes (nom, niveau, créneaux), vos séquences, séances, liens et fichiers que vous ajoutez. ', h('strong', null, 'Aucune donnée d’élève'), ' (nom, note, photo) n’est demandée : n’en saisissez pas dans les champs libres.'),
-    h('h3', null, 'Où'),
-    h('p', null, 'Dans votre base Supabase (hébergement sécurisé, accès protégé par des règles par utilisateur : seul votre compte lit et écrit vos lignes et vos fichiers). Une copie est gardée dans le stockage local de cet appareil pour le mode hors connexion.'),
-    h('h3', null, 'Ce qui n’est pas fait'),
-    h('p', null, 'Pas de traceur, pas de statistiques, pas de publicité, pas de police ou script chargé depuis un service tiers. Les vidéos YouTube sont enregistrées comme liens « sans cookies » et ne sont jamais intégrées automatiquement : rien n’est chargé tant que vous n’ouvrez pas le lien.'),
+    h('p', null, 'Votre identifiant (un pseudo ou une adresse e-mail), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même l’administrateur), puis vos classes (nom, niveau, créneaux), séquences, séances, liens et fichiers que vous ajoutez. ', h('strong', null, 'Aucune donnée d’élève'), ' (nom, note, photo) n’est demandée : n’en saisissez pas dans les champs libres.'),
+    h('h3', null, 'Où et qui peut y accéder'),
+    h('p', null, 'Dans la base Supabase de l’appli (serveurs situés en France). Chaque compte lit et écrit uniquement ses propres lignes et ses propres fichiers. L’administrateur de la base (Tom Rougeaud) a techniquement accès aux données enregistrées, sauf aux mots de passe. Une copie est gardée dans le stockage local de cet appareil pour le mode hors connexion.'),
+    h('h3', null, 'Services tiers'),
+    h('p', null, 'Supabase (hébergement de la base de données et des comptes) et GitHub Pages (hébergement des pages de l’appli : il reçoit votre adresse IP comme tout site web et peut tenir des journaux techniques). Aucun autre service : pas de traceur, pas de statistiques, pas de publicité, pas de police ou script chargé depuis un service tiers. Les vidéos YouTube sont enregistrées comme liens « sans cookies » et ne sont jamais intégrées automatiquement : rien n’est chargé tant que vous n’ouvrez pas le lien.'),
+    h('h3', null, 'Mot de passe oublié'),
+    h('p', null, 'Compte avec adresse e-mail : un lien de réinitialisation est envoyé à cette adresse. Compte avec pseudo : aucune adresse n’étant enregistrée, la réinitialisation est faite par l’administrateur de l’appli, à votre demande.'),
     h('h3', null, 'Vos droits'),
-    h('p', null, 'Export complet en JSON et effacement de toutes vos données (lignes et fichiers) depuis Réglages. Suppression du compte : sur demande par e-mail.'),
-    h('p', { class: 'small muted' }, 'Contact : tom.rougeaud.education@gmail.com')));
+    h('p', null, 'Depuis Réglages : export complet en JSON, effacement de toutes vos données (lignes et fichiers), et suppression de votre compte (tout est alors effacé définitivement, immédiatement).'),
+    h('p', { class: 'small muted' }, 'Dernière mise à jour : 21/11/2026.')));
   return root;
 };

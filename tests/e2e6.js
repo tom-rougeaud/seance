@@ -8,7 +8,7 @@ const BASE = 'http://127.0.0.1:8765/index.html';
 let pass = 0, fail = 0;
 function ok(c, msg) { if (c) { pass++; console.log('  ✓ ' + msg); } else { fail++; console.log('  ✗ ' + msg); } }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-async function login(page) { await page.goto(BASE); await page.waitForSelector('.auth-card'); await page.fill('input[type=email]', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('button[type=submit]'); await page.waitForSelector('.top'); }
+async function login(page) { await page.goto(BASE); await page.waitForSelector('.auth-card'); await page.fill('#compte-id', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('button[type=submit]'); await page.waitForSelector('.top'); }
 
 (async () => {
   const browser = await chromium.launch();

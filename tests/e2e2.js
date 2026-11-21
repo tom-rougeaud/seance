@@ -11,7 +11,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const st = makeState(); await install(ctx, st);
   const page = await ctx.newPage(); const errors = [];
   page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (m.type() === 'error' && !/status of (400|404)/.test(m.text())) errors.push(m.text()); });
-  const login = async () => { await page.fill('input[type=email]', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('button[type=submit]'); };
+  const login = async () => { await page.fill('#compte-id', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('button[type=submit]'); };
 
   console.log('# Base non initialisée');
   st.missingTables = true; await page.goto(BASE); await page.waitForSelector('.auth-card'); await login();

@@ -75,12 +75,18 @@ var Upd = (function () {
       h('p', { class: 'muted small' }, 'L’appli cherche seule les mises à jour à chaque ouverture ; un bandeau « Mettre à jour maintenant » apparaît quand une nouvelle version est publiée. Comparez la date ci-dessus avec celle annoncée après chaque modification.'),
       h('div', { class: 'row-gap' }, btn, h('button', { class: 'btn ghost', type: 'button', onclick: force }, '⚠ Forcer le rechargement complet')), st);
   }
-  /* lien vers l’autre version : toujours depuis « Ma séance » ; depuis « Fiches », seulement pour le compte propriétaire */
+  /* lien vers l’autre version : toujours depuis « Ma séance » ; depuis « Fiches », seulement pour le compte propriétaire.
+     La vérification se fait dans la base (fonction est_proprietaire) : aucune adresse e-mail n’est écrite dans le code public. */
+  var proprietaire = null, proprietaireUid = null;
   function siblingOk() {
     if (!APP.frere) return false;
     if (APP.manuels) return true;
-    var o = (typeof FICHES_CONFIG !== 'undefined' && FICHES_CONFIG.OWNER_EMAILS) || [], em = (Api.user() && Api.user().email || '').toLowerCase();
-    return o.map(function (x) { return String(x).toLowerCase(); }).indexOf(em) >= 0;
+    if (proprietaireUid !== Api.uid()) { proprietaireUid = Api.uid(); proprietaire = null; } /* autre personne connectée : on redemande */
+    if (proprietaire === null && proprietaireUid) {
+      proprietaire = false; /* réponse provisoire pendant la question posée à la base */
+      Api.rest.rpc('est_proprietaire', {}).then(function (r) { if (r === true) { proprietaire = true; if (Views.rerender) Views.rerender(); } }, function () { /* en cas d’échec, le lien reste masqué */ });
+    }
+    return proprietaire === true;
   }
   function siblingCard() {
     if (!siblingOk()) return null;

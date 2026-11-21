@@ -16,6 +16,7 @@ Application web (une seule page HTML, installable sur l’écran d’accueil) po
 - **Deux versions du même code** : *Fiches* (programme officiel, ce dépôt, <https://tom-rougeaud.github.io/seance/>) et *Ma séance* (séances construites sur mes manuels « Maths et MCV » et « 3ème Prépa-Métiers » : chapitres, notions, pages, exercices et liens intégrés ; dépôt `maseance`, <https://tom-rougeaud.github.io/maseance/>). Même compte et mêmes tables Supabase ; stockage local, cache et installation distincts.
 - **Apparence** : 8 palettes calmes (clair / sombre, dont un contraste élevé), 6 polices libres intégrées (OFL, aucun téléchargement), taille du texte ; le choix suit le compte.
 - Impression A4, export Word, texte détaillé pour le cahier de textes, sauvegarde / import JSON.
+- **Comptes** : connexion par pseudo ou e-mail, mot de passe de 12 caractères minimum (majuscule, minuscule, chiffre, caractère spécial), pseudo vérifié en direct, mot de passe visible à la demande, suppression du compte depuis Réglages. Le bloc est dans `src/js/12-compte.js` (identique dans toutes les applis) ; script SQL : `sql/supabase_comptes.sql`.
 - Données enregistrées dans **Supabase** (même projet et même compte que « Suivi Progression » / « Flash Maths »), lecture hors connexion.
 - Aucune donnée d’élève, aucun traceur, aucune ressource externe (pas de CDN, pas de police distante).
 

@@ -7,7 +7,7 @@ require('fs').mkdirSync(SHOTS, { recursive: true });
 const BASE = process.env.BASE || 'http://127.0.0.1:8765/index.html';
 let pass = 0, fail = 0;
 function ok(c, msg) { if (c) { pass++; console.log('  ✓ ' + msg); } else { fail++; console.log('  ✗ ' + msg); } }
-async function login(page) { await page.goto(BASE); await page.waitForSelector('.auth-card'); await page.fill('input[type=email]', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#view', { timeout: 8000 }); }
+async function login(page) { await page.goto(BASE); await page.waitForSelector('.auth-card'); await page.fill('#compte-id', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#view', { timeout: 8000 }); }
 const txt = (page, sel) => page.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent : null; }, sel);
 
 (async () => {

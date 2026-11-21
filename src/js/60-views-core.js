@@ -78,50 +78,9 @@ function pageHead(title, sub, actions, back) {
     h('div', { class: 'ph-row' }, h('div', null, h('h1', null, title), sub ? h('div', { class: 'muted' }, sub) : null), h('div', { class: 'ph-actions' }, actions || [])));
 }
 
-/* ═══ Connexion ═══ */
-Views.auth = function () {
-  var mode = 'in';
-  var email = h('input', { class: 'inp', type: 'email', autocomplete: 'email', placeholder: 'prenom.nom@ac-dijon.fr', required: true });
-  var pass = h('input', { class: 'inp', type: 'password', autocomplete: 'current-password', placeholder: 'Mot de passe', required: true });
-  var msg = h('div', { class: 'auth-msg', role: 'alert' });
-  var btn = h('button', { class: 'btn primary wide', type: 'submit' }, 'Se connecter');
-  var toggle = h('button', { class: 'linklike', type: 'button' }, 'Créer un compte');
-  var forgot = h('button', { class: 'linklike', type: 'button' }, 'Mot de passe oublié ?');
-  function setMode(m) { mode = m; btn.textContent = m === 'in' ? 'Se connecter' : 'Créer mon compte'; toggle.textContent = m === 'in' ? 'Créer un compte' : 'J’ai déjà un compte'; pass.autocomplete = m === 'in' ? 'current-password' : 'new-password'; msg.textContent = ''; }
-  toggle.onclick = function () { setMode(mode === 'in' ? 'up' : 'in'); };
-  forgot.onclick = function () {
-    if (!email.value.trim()) { msg.textContent = 'Saisissez d’abord votre adresse e-mail.'; return; }
-    Api.auth.recover(email.value.trim()).then(function () { msg.className = 'auth-msg ok'; msg.textContent = 'Un e-mail de réinitialisation vient d’être envoyé.'; }, function (e) { msg.className = 'auth-msg'; msg.textContent = e.message; });
-  };
-  var form = h('form', { class: 'auth-card', onsubmit: function (e) {
-    e.preventDefault(); msg.className = 'auth-msg'; msg.textContent = ''; btn.disabled = true;
-    if (!Api.configured()) { msg.textContent = 'La base n’est pas configurée (config.js).'; btn.disabled = false; return; }
-    var p = mode === 'in' ? Api.auth.signIn(email.value.trim(), pass.value) : Api.auth.signUp(email.value.trim(), pass.value).then(function (r) { if (!r.connected) { msg.className = 'auth-msg ok'; msg.textContent = 'Compte créé : confirmez votre adresse via l’e-mail reçu, puis connectez-vous.'; setMode('in'); throw { silent: true }; } });
-    p.then(function () { Main.afterLogin(); }, function (err) { if (err && err.silent) return; msg.textContent = err.network ? 'Réseau indisponible. Réessayez.' : (/Invalid login/i.test(err.message) ? 'E-mail ou mot de passe incorrect.' : err.message); }).then(function () { btn.disabled = false; });
-  } },
-    h('div', { class: 'auth-logo' }, APP.manuels ? '📘' : '📋'), h('h1', null, APP.nom), h('p', { class: 'muted' }, APP.manuels ? 'Séances de maths construites sur mes manuels : chapitres, pages, exercices et liens.' : 'Séances et séquences de maths, reliées aux programmes officiels et à votre progression.'),
-    UI.field('Adresse e-mail', email), UI.field('Mot de passe', pass), msg, btn,
-    h('div', { class: 'auth-links' }, toggle, forgot),
-    h('p', { class: 'muted small' }, 'Même compte que « Suivi Progression » si vous en avez déjà un. Aucune donnée d’élève n’est nécessaire.'),
-    h('p', { class: 'small' }, h('a', { href: '#/confidentialite' }, 'Confidentialité'), ' · ', h('a', { href: '#/apropos' }, 'À propos')));
-  return h('div', { class: 'auth-wrap' }, form);
-};
-
-/* ═══ Nouveau mot de passe (lien « mot de passe oublié ») ═══ */
-Views.newPassword = function () {
-  var p1 = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password', placeholder: 'Nouveau mot de passe (8 caractères minimum)', required: true });
-  var p2 = h('input', { class: 'inp', type: 'password', autocomplete: 'new-password', placeholder: 'Répétez le mot de passe', required: true });
-  var msg = h('div', { class: 'auth-msg', role: 'alert' });
-  var btn = h('button', { class: 'btn primary wide', type: 'submit' }, 'Enregistrer le mot de passe');
-  var form = h('form', { class: 'auth-card', onsubmit: function (e) {
-    e.preventDefault(); msg.textContent = '';
-    if (p1.value.length < 8) { msg.textContent = 'Au moins 8 caractères.'; return; }
-    if (p1.value !== p2.value) { msg.textContent = 'Les deux mots de passe sont différents.'; return; }
-    btn.disabled = true;
-    Api.auth.updatePassword(p1.value).then(function () { Main.afterLogin(); }, function (err) { msg.textContent = err.network ? 'Réseau indisponible. Réessayez.' : err.message; btn.disabled = false; });
-  } }, h('div', { class: 'auth-logo' }, '🔑'), h('h1', null, 'Nouveau mot de passe'), h('p', { class: 'muted' }, 'Choisissez un mot de passe pour votre compte.'), UI.field('Nouveau mot de passe', p1), UI.field('Confirmation', p2), msg, btn);
-  return h('div', { class: 'auth-wrap' }, form);
-};
+/* ═══ Connexion et nouveau mot de passe : écrans fournis par le bloc commun « Compte » (12-compte.js) ═══ */
+Views.auth = function () { return Compte.connexion(); };
+Views.newPassword = function () { return Compte.nouveauMdp(); };
 
 /* ═══ Tableau de bord ═══ */
 Views.dashboard = function () {

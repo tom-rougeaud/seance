@@ -2,7 +2,7 @@
 'use strict';
 var Api = (function () {
   var CFG = (typeof FICHES_CONFIG !== 'undefined') ? FICHES_CONFIG : { SUPABASE_URL: '', SUPABASE_ANON_KEY: '' };
-  var session = null, listeners = [], refreshing = null;
+  var session = null, listeners = [], refreshing = null, mdpFaible = false;
 
   function configured() { return !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && CFG.SUPABASE_URL.indexOf('http') === 0); }
   function onAuth(fn) { listeners.push(fn); }
@@ -77,10 +77,20 @@ var Api = (function () {
   var auth = {
     signIn: function (email, password) {
       return fetch(CFG.SUPABASE_URL + '/auth/v1/token?grant_type=password', { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email, password: password }) })
-        .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); setSession(fromToken(b)); return session; }); }, function (e) { throw netErr(e); });
+        .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); mdpFaible = !!(b && b.weak_password); setSession(fromToken(b)); return session; }); }, function (e) { throw netErr(e); });
     },
-    signUp: function (email, password) {
-      return fetch(CFG.SUPABASE_URL + '/auth/v1/signup' + redirectQs(), { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify({ email: email, password: password }) })
+    /* vrai si le serveur a signalé, à la dernière connexion, un mot de passe ne respectant plus la règle actuelle */
+    faible: function () { return mdpFaible; },
+    /* réglages publics du serveur d’authentification (ex. : comptes confirmés automatiquement ou non) ; null si indisponible */
+    reglages: function () {
+      return fetch(CFG.SUPABASE_URL + '/auth/v1/settings', { headers: headers(null, true) })
+        .then(function (r) { return r.ok ? readBody(r) : null; }).then(function (b) { return (b && typeof b === 'object') ? b : null; }, function () { return null; });
+    },
+    /* création de compte ; le pseudo éventuel est transmis en métadonnée et recopié dans le profil par la base */
+    signUp: function (email, password, pseudo) {
+      var corps = { email: email, password: password };
+      if (pseudo) corps.data = { pseudo: pseudo };
+      return fetch(CFG.SUPABASE_URL + '/auth/v1/signup' + redirectQs(), { method: 'POST', headers: headers({ 'Content-Type': 'application/json' }, true), body: JSON.stringify(corps) })
         .then(function (r) { return readBody(r).then(function (b) { if (!r.ok) throw httpErr(r, b); if (b && b.access_token) { setSession(fromToken(b)); return { connected: true }; } return { connected: false }; }); }, function (e) { throw netErr(e); });
     },
     recover: function (email) {

@@ -33,16 +33,22 @@ async function install(context, st) {
       if (u.searchParams.get('grant_type') === 'password') {
         const us = st.users[b.email];
         if (!us || us.pw !== b.password) return route.fulfill(json(400, { error_description: 'Invalid login credentials' }));
-        return route.fulfill(json(200, { access_token: 'tok', refresh_token: 'ref', expires_in: 3600, user: { id: us.id, email: b.email } }));
+        return route.fulfill(json(200, Object.assign({ access_token: 'tok', refresh_token: 'ref', expires_in: 3600, user: { id: us.id, email: b.email } }, st.mdpFaible ? { weak_password: { reasons: ['length'] } } : {})));
       }
       return route.fulfill(json(200, { access_token: 'tok2', refresh_token: 'ref2', expires_in: 3600, user: { id: st.users['prof@test.fr'].id, email: 'prof@test.fr' } }));
     }
+    if (p === '/auth/v1/settings') return route.fulfill(json(200, { mailer_autoconfirm: st.autoconfirm !== false }));
     if (p === '/auth/v1/user') { if (m === 'PUT') { const b = JSON.parse(req.postData() || '{}'); st.users['prof@test.fr'].pw = b.password; st.log.push('PW_CHANGED'); } return route.fulfill(json(200, { id: st.users['prof@test.fr'].id, email: 'prof@test.fr' })); }
-    if (p === '/auth/v1/recover' || p === '/auth/v1/signup') { st.lastRedirect = u.searchParams.get('redirect_to'); return route.fulfill(json(200, {})); }
+    if (p === '/auth/v1/signup') { st.lastSignup = JSON.parse(req.postData() || '{}'); st.log.push('SIGNUP'); return route.fulfill(json(200, st.signupConnecte ? { access_token: 'tok3', refresh_token: 'ref3', expires_in: 3600, user: { id: st.users['prof@test.fr'].id, email: st.lastSignup.email } } : {})); }
+    if (p === '/auth/v1/recover') { st.log.push('RECOVER'); st.lastRedirect = u.searchParams.get('redirect_to'); return route.fulfill(json(200, {})); }
     if (p === '/auth/v1/logout') return route.fulfill({ status: 204, body: '' });
     if (p.startsWith('/rest/v1/rpc/')) {
       const name = p.split('/').pop(), b = JSON.parse(req.postData() || '{}');
       if (name === 'fs_set_items') { st.rows.fs_items = st.rows.fs_items.filter((r) => r.parent_id !== b.p_parent_id); (b.p_items || []).forEach((it) => st.rows.fs_items.push(Object.assign({ parent_id: b.p_parent_id, class_id: b.p_class_id }, it))); return route.fulfill(json(200, (b.p_items || []).length)); }
+      /* fonctions ajoutées pour le bloc Compte : disponibilité du pseudo, compte propriétaire, suppression de compte */
+      if (name === 'pseudo_disponible') { const v = JSON.parse(req.postData() || '{}').p; st.log.push('PSEUDO?' + v); return route.fulfill(json(200, !(st.pseudosPris || ['pris']).includes(v))); }
+      if (name === 'est_proprietaire') return route.fulfill(json(200, !!st.proprietaire));
+      if (name === 'delete_user') { st.log.push('DELETE_USER'); return route.fulfill(json(200, null)); }
       if (name === 'fs_effacer_mes_donnees') { const paths = st.rows.fs_ressources.filter((r) => r.storage_path).map((r) => r.storage_path); TABLES.forEach((t) => { st.rows[t] = []; }); st.settings = null; return route.fulfill(json(200, paths)); }
       return route.fulfill(json(404, { message: 'no rpc' }));
     }

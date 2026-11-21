@@ -377,3 +377,10 @@ body.printing .guide-wrap{display:none!important}
 .mb-open{margin-left:auto;text-decoration:none;font-size:.9rem;padding:.1rem .45rem;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
 .mb-row .tag.ok{color:var(--ok);border-color:var(--ok)}
 .mb-top{margin:.5rem 0}.mb-top>.mb,.mb-top>.lib-pick{padding:0 .6rem .6rem}
+
+/* ===== Bloc Compte (connexion, règles du mot de passe, données) ===== */
+.mdp-wrap{display:flex;gap:.4rem;align-items:center}.mdp-wrap .inp{flex:1;min-width:0}.mdp-voir{min-height:44px;white-space:nowrap}
+.regles{list-style:none;margin:.3rem 0;padding:0;display:grid;gap:.15rem;font-size:.88rem}.regles li{color:var(--muted)}.regles li.ok{color:var(--ok);font-weight:600}
+.pseudo-etat{min-height:1.2rem;margin:.2rem 0}
+.compte-donnees{margin:.7rem 0;border:1px solid var(--line);border-radius:10px;padding:.5rem .8rem}.compte-donnees summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center}
+.zone-mdp,.zone-creation{margin:.6rem 0}

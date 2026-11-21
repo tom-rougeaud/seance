@@ -8,7 +8,7 @@ const BASE = 'http://127.0.0.1:8765/dist/maseance/index.html', BASE1 = 'http://1
 let pass = 0, fail = 0;
 function ok(c, msg) { if (c) { pass++; console.log('  ✓ ' + msg); } else { fail++; console.log('  ✗ ' + msg); } }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-async function login(page, base) { await page.goto(base); await page.waitForSelector('.auth-card'); await page.fill('input[type=email]', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#view', { timeout: 8000 }); }
+async function login(page, base) { await page.goto(base); await page.waitForSelector('.auth-card'); await page.fill('#compte-id', 'prof@test.fr'); await page.fill('input[type=password]', 'secret12'); await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#view', { timeout: 8000 }); }
 
 (async () => {
   const browser = await chromium.launch();

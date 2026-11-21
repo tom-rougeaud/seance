@@ -89,3 +89,12 @@ as $$
 $$;
 revoke execute on function public.est_proprietaire() from public, anon;
 grant execute on function public.est_proprietaire() to authenticated;
+
+
+-- ── 7) Comptes propres à chaque appli (même projet Supabase) ──
+-- Un pseudo se crée avec l'identifiant technique  <pseudo>@<appli>.pseudo.invalid  (ex. @fiches.pseudo.invalid).
+-- Le même pseudo peut exister dans deux applis : ce sont deux comptes distincts. Les comptes historiques (colonne app vide) ne changent pas.
+-- Le script complet de cette étape est la migration « comptes_par_application » appliquée au projet ;
+-- pour supprimer une appli et SES comptes uniquement (éditeur SQL, administrateur) :
+--     select public.supprimer_comptes_appli('fiches');
+-- (les fichiers du stockage de cette appli sont à supprimer à part dans Storage › fiches-ressources)

@@ -37,7 +37,7 @@ t(R.normaliserPseudo('  Eleve_42 ') === 'eleve_42', 'normalisation (espaces, maj
 t(R.normaliserPseudo(null) === '', 'normalisation de null');
 
 /* --- identifiant -> e-mail de connexion --- */
-t(R.identifiantVersEmail('Eleve_42') === 'eleve_42@pseudo.invalid', 'pseudo -> e-mail technique');
+t(R.identifiantVersEmail('Eleve_42') === 'eleve_42@fiches.pseudo.invalid', 'pseudo -> e-mail technique');
 t(R.identifiantVersEmail(' prof@exemple.fr ') === 'prof@exemple.fr', 'e-mail inchangé');
 t(R.estEmail('a@b') && !R.estEmail('abc'), 'détection e-mail');
 

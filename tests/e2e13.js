@@ -24,7 +24,7 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
 
   console.log('# Écran de connexion');
   await page.goto(BASE); await page.waitForSelector('.auth-card');
-  ok(await page.locator('#compte-id').count() === 1 && (await page.getAttribute('#compte-id', 'placeholder')) === 'Pseudo ou adresse e-mail', 'champ « Pseudo ou adresse e-mail »');
+  ok(await page.locator('#compte-id').count() === 1 && (await page.getAttribute('#compte-id', 'placeholder')) === 'Pseudo (ou e-mail d’un ancien compte)', 'champ identifiant : pseudo, ou e-mail d’un ancien compte');
   ok(!(await page.locator('.regles').isVisible()), 'règles du mot de passe masquées en mode connexion');
   ok(await page.locator('text=Mot de passe oublié ?').isVisible(), 'lien « Mot de passe oublié ? » visible');
   ok(await page.locator('.compte-donnees summary').isVisible(), 'bloc « Vos données » présent');
@@ -60,8 +60,13 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
   await page.fill('#compte-id', 'Abcde'); await page.waitForFunction(() => /Format non valide/.test(document.querySelector('.pseudo-etat').textContent), null, { timeout: 4000 });
   ok(true, 'pseudo trop court : format refusé sans appel à la base');
   ok(!st.log.includes('PSEUDO?abcde'), 'aucun appel à la base pour un pseudo invalide');
+  ok(st.lastApp === 'fiches', 'la disponibilité du pseudo est demandée pour l’appli fiches');
   await page.fill('#compte-id', 'Nouveau_Eleve'); await page.waitForFunction(() => /disponible/.test(document.querySelector('.pseudo-etat').textContent), null, { timeout: 4000 });
   ok(st.log.includes('PSEUDO?nouveau_eleve'), 'pseudo normalisé en minuscules avant la question à la base');
+  /* création par e-mail : refusée (les nouveaux comptes sont des pseudos propres à l’appli) */
+  await page.fill('#compte-id', 'quelquun@exemple.fr'); await sleep(600);
+  ok(/avec un pseudo/.test(await page.locator('.pseudo-etat').innerText()) && !st.log.includes('PSEUDO?quelquun@exemple.fr'), 'création par e-mail refusée dès la saisie, sans appel à la base');
+  await page.fill('#compte-id', 'Nouveau_Eleve'); await sleep(700);
   /* mot de passe trop faible : refus sans création */
   await page.fill('#compte-mdp', 'faible'); const avant = st.log.filter((x) => x === 'SIGNUP').length;
   await page.click('.auth-card button[type=submit]'); await sleep(200);
@@ -73,12 +78,12 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
   st.autoconfirm = true;
   /* création réussie avec pseudo */
   st.signupConnecte = true; await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#view', { timeout: 8000 });
-  ok(st.lastSignup && st.lastSignup.email === 'nouveau_eleve@pseudo.invalid' && st.lastSignup.data && st.lastSignup.data.pseudo === 'nouveau_eleve' && st.lastSignup.password === BON, 'inscription : e-mail technique + pseudo transmis, mot de passe envoyé tel quel');
+  ok(st.lastSignup && st.lastSignup.email === 'nouveau_eleve@fiches.pseudo.invalid' && st.lastSignup.data && st.lastSignup.data.pseudo === 'nouveau_eleve' && st.lastSignup.password === BON, 'inscription : e-mail technique + pseudo transmis, mot de passe envoyé tel quel');
   ok(JSON.stringify(st.lastSignup).indexOf('@gmail') < 0, 'aucune adresse personnelle dans la requête');
 
   console.log('# Carte « Compte » dans les Réglages');
   await page.goto(BASE + '#/reglages'); await page.waitForSelector('text=Changer mon mot de passe');
-  ok(/Adresse e-mail : nouveau_eleve@pseudo.invalid|Pseudo : nouveau_eleve/.test(await page.locator('#view').innerText()), 'identifiant affiché dans la carte Compte');
+  ok(/Pseudo : nouveau_eleve/.test(await page.locator('#view').innerText()), 'pseudo affiché dans la carte Compte (sans le suffixe technique)');
   await page.click('text=Changer mon mot de passe'); await page.waitForSelector('#compte-nouveau');
   await page.fill('#compte-nouveau', 'court'); await page.fill('#compte-confirmation', 'court'); await page.click('.form-mdp button[type=submit]'); await sleep(150);
   ok(/ne respecte pas/.test(await page.locator('.form-mdp .auth-msg').innerText()) && !st.log.includes('PW_CHANGED'), 'changement refusé si la règle n’est pas respectée');

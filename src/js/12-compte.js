@@ -12,6 +12,9 @@ var Compte = (function () {
 
   /* ===== SECTION : ADAPTATEUR (à adapter pour chaque appli) ===== */
   var ADAPTATEUR = {
+    /* identifiant court de l’appli (a-z, 0-9, tiret) : chaque appli a ses propres comptes à pseudo.
+       Il sert de suffixe à l’identifiant technique : pseudo@<appId>.pseudo.invalid */
+    appId: 'fiches',
     /* ce que l’appli enregistre pour la personne (phrase affichée dans « Vos données ») */
     contenu: 'vos classes, séquences, séances, liens et fichiers ajoutés',
     /* fonction SQL qui efface les données de la personne et renvoie les chemins de fichiers à supprimer */
@@ -21,7 +24,8 @@ var Compte = (function () {
   };
 
   /* ===== SECTION : Constantes ===== */
-  var DOMAINE_PSEUDO = 'pseudo.invalid';  /* faux domaine réservé (.invalid) : un pseudo n’a jamais de vraie adresse e-mail */
+  var DOMAINE_PSEUDO = ADAPTATEUR.appId + '.pseudo.invalid';  /* faux domaine réservé (.invalid), propre à l’appli : un pseudo n’a jamais de vraie adresse e-mail */
+  var SUFFIXE_ANCIEN = 'pseudo.invalid';  /* anciens comptes à pseudo (sans appli) : reconnus à l’affichage */
   var LONGUEUR_MIN = 8;                   /* longueur minimale du mot de passe */
   var OCTETS_MAX = 72;                    /* limite technique de bcrypt (hachage des mots de passe) */
   var SYMBOLES = "!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~"; /* liste exacte des caractères spéciaux comptés par Supabase */
@@ -40,7 +44,7 @@ var Compte = (function () {
   function estEmail(s) { return String(s == null ? '' : s).indexOf('@') >= 0; }
 
   /* Convertit l’identifiant saisi en « e-mail » de connexion :
-     une adresse reste telle quelle, un pseudo devient pseudo@pseudo.invalid. */
+     une adresse (ancien compte) reste telle quelle, un pseudo devient pseudo@<appli>.pseudo.invalid. */
   function identifiantVersEmail(id) {
     id = String(id == null ? '' : id).trim();
     return estEmail(id) ? id : normaliserPseudo(id) + '@' + DOMAINE_PSEUDO;
@@ -98,8 +102,9 @@ var Compte = (function () {
     return h('details', { class: 'compte-donnees' },
       h('summary', null, 'Vos données : qui y a accès ?'),
       h('ul', { class: 'small' },
-        h('li', null, h('strong', null, 'Enregistré : '), 'votre identifiant (pseudo ou adresse e-mail), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même l’administrateur), et ' + ADAPTATEUR.contenu + '.'),
+        h('li', null, h('strong', null, 'Enregistré : '), 'votre identifiant (pseudo ou adresse e-mail d’un ancien compte), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même l’administrateur), et ' + ADAPTATEUR.contenu + '.'),
         h('li', null, h('strong', null, 'Qui y accède : '), 'vous, avec votre compte. L’administrateur de la base (Tom Rougeaud) a techniquement accès aux données enregistrées, sauf aux mots de passe.'),
+        h('li', null, h('strong', null, 'Compte propre à cette appli : '), 'votre pseudo n’existe que dans cette appli. Un même pseudo dans une autre appli est un autre compte, avec un autre mot de passe. Supprimer cette appli ou votre compte ici ne touche pas vos comptes ailleurs. Seuls les anciens comptes avec adresse e-mail sont partagés entre plusieurs applis.'),
         h('li', null, h('strong', null, 'Services tiers : '), 'Supabase (hébergement de la base de données et des comptes, serveurs situés en France) et GitHub Pages (hébergement des pages de l’appli, qui reçoit votre adresse IP comme tout site web). Aucun traceur, aucune publicité, aucun autre service.'),
         h('li', null, h('strong', null, 'Vos droits : '), 'exporter vos données, les effacer, ou supprimer votre compte à tout moment (Réglages › Compte).')),
       h('p', { class: 'small' }, h('a', { href: ADAPTATEUR.lienConfidentialite }, 'Lire la page Confidentialité')));
@@ -124,10 +129,10 @@ var Compte = (function () {
     var mode = 'in';        /* 'in' = se connecter, 'up' = créer un compte */
     var minuteur = null, dernier = 0;
 
-    var ident = h('input', { class: 'inp', type: 'text', id: 'compte-id', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', placeholder: 'Pseudo ou adresse e-mail', required: true });
+    var ident = h('input', { class: 'inp', type: 'text', id: 'compte-id', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', placeholder: 'Pseudo (ou e-mail d’un ancien compte)', required: true });
     var mdp = champMdp('compte-mdp', 'current-password');
     var regles = listeRegles();
-    var aidePseudo = h('p', { class: 'small muted' }, 'Pseudo : 6 à 20 caractères — lettres, chiffres, tiret (-) et tiret bas (_), sans accent ni espace ; majuscules et minuscules sont équivalentes. Vous pouvez aussi utiliser une adresse e-mail.');
+    var aidePseudo = h('p', { class: 'small muted' }, 'Pseudo : 6 à 20 caractères — lettres, chiffres, tiret (-) et tiret bas (_), sans accent ni espace ; majuscules et minuscules sont équivalentes. Ce pseudo est propre à cette appli. Un ancien compte avec adresse e-mail reste utilisable pour se connecter.');
     var etatPseudo = h('div', { class: 'pseudo-etat small', 'aria-live': 'polite' });
     var msg = h('div', { class: 'auth-msg', role: 'alert' });
     var btn = h('button', { class: 'btn primary wide', type: 'submit' }, 'Se connecter');
@@ -153,11 +158,11 @@ var Compte = (function () {
     function verifierPseudo(valeur) {
       var v = normaliserPseudo(valeur);
       if (!v) { etatPseudo.textContent = ''; return Promise.resolve(null); }
-      if (estEmail(v)) { etatPseudo.textContent = 'Compte avec adresse e-mail.'; return Promise.resolve(null); }
+      if (estEmail(v)) { etatPseudo.textContent = '✗ La création se fait avec un pseudo (pas d’adresse e-mail).'; return Promise.resolve(false); }
       if (!pseudoValide(v)) { etatPseudo.textContent = '✗ Format non valide : 6 à 20 caractères (lettres, chiffres, - et _).'; return Promise.resolve(false); }
       etatPseudo.textContent = 'Vérification…';
       var n = ++dernier;   /* ignore les réponses devenues périmées si la personne a continué à taper */
-      return Api.rest.rpc('pseudo_disponible', { p: v }).then(function (ok) {
+      return Api.rest.rpc('pseudo_disponible', { p: v, p_app: ADAPTATEUR.appId }).then(function (ok) {
         if (n !== dernier) return null;
         etatPseudo.textContent = ok === true ? '✓ Pseudo disponible' : '✗ Pseudo déjà pris ou non autorisé';
         return ok === true;
@@ -178,16 +183,16 @@ var Compte = (function () {
       Api.auth.recover(id).then(function () { msg.className = 'auth-msg ok'; msg.textContent = 'Si ce compte existe, un e-mail de réinitialisation vient d’être envoyé.'; }, function (e) { msg.textContent = messageErreur(e, 'in'); });
     };
 
-    /* Inscription : vérifie les règles, puis crée le compte (pseudo ou e-mail). */
+    /* Inscription : vérifie les règles, puis crée le compte (pseudo propre à l’appli ; l’e-mail est réservé aux anciens comptes). */
     function inscrire(id, pw) {
       if (!evaluerMdp(pw).ok) return Promise.reject({ silent: true, texte: 'Le mot de passe ne respecte pas toutes les règles de la liste.' });
-      if (estEmail(id)) return Api.auth.signUp(id, pw).then(function (r) { return { connecte: r.connected, email: true }; });
+      if (estEmail(id)) return Promise.reject({ silent: true, texte: 'Pour créer un compte, choisissez un pseudo. L’adresse e-mail ne sert qu’à se connecter à un ancien compte.' });
       var v = normaliserPseudo(id);
       if (!pseudoValide(v)) return Promise.reject({ silent: true, texte: 'Pseudo non valide : 6 à 20 caractères (lettres, chiffres, - et _).' });
       /* Un pseudo n’a pas d’e-mail à confirmer : on vérifie que le serveur l’accepte AVANT de créer le compte,
          pour ne pas laisser un compte inutilisable qui bloquerait le pseudo. */
       return Api.auth.reglages().then(function (s) {
-        if (s && s.mailer_autoconfirm === false) throw { silent: true, texte: 'Les comptes à pseudo ne sont pas encore activés sur cette appli. Utilisez une adresse e-mail ou contactez l’administrateur.' };
+        if (s && s.mailer_autoconfirm === false) throw { silent: true, texte: 'Les comptes à pseudo ne sont pas encore activés sur cette appli. Contactez l’administrateur.' };
         return verifierPseudo(v);
       }).then(function (libre) {
         if (libre !== true) throw { silent: true, texte: 'Ce pseudo n’est pas disponible : choisissez-en un autre.' };
@@ -247,8 +252,14 @@ var Compte = (function () {
   /* ===== SECTION : Carte « Compte » dans les Réglages ===== */
 
   /* Supprime les fichiers de la personne (par lots de 50), puis son compte : tout est effacé en cascade côté base. */
+  /* Vrai si le compte connecté est un ancien compte (sans appli), valable dans plusieurs applis. */
+  function compteAncienPartage() {
+    var e = String((Api.user() || {}).email || '');
+    return e.slice(-(DOMAINE_PSEUDO.length + 1)) !== '@' + DOMAINE_PSEUDO;
+  }
+
   function supprimerCompte() {
-    UI.promptText('Supprimer mon compte', { help: 'Supprime définitivement votre compte et toutes vos données (classes, fiches, ressources et fichiers). Cette action est irréversible. Tapez SUPPRIMER pour confirmer. Pensez à exporter une sauvegarde avant.', placeholder: 'SUPPRIMER', ok: 'Supprimer définitivement' }).then(function (v) {
+    UI.promptText('Supprimer mon compte', { help: 'Supprime définitivement votre compte et toutes vos données (classes, fiches, ressources et fichiers). Cette action est irréversible. Tapez SUPPRIMER pour confirmer. Pensez à exporter une sauvegarde avant.' + (compteAncienPartage() ? ' Attention : cet ancien compte est partagé avec d’autres applis, il sera supprimé pour toutes.' : ''), placeholder: 'SUPPRIMER', ok: 'Supprimer définitivement' }).then(function (v) {
       if (v === null) return;
       if (v.trim() !== 'SUPPRIMER') { UI.toast('Confirmation incorrecte : rien n’a été supprimé.'); return; }
       Api.rest.rpc(ADAPTATEUR.rpcEffacerDonnees, {}).then(function (paths) {
@@ -265,6 +276,8 @@ var Compte = (function () {
   function carte() {
     var u = Api.user() || {}, email = String(u.email || ''), suffixe = '@' + DOMAINE_PSEUDO;
     var estPseudo = email.slice(-suffixe.length) === suffixe;
+    var ancienPseudo = !estPseudo && email.slice(-(SUFFIXE_ANCIEN.length + 1)) === '@' + SUFFIXE_ANCIEN;   /* ancien compte à pseudo (sans appli) */
+    if (ancienPseudo) { suffixe = '@' + SUFFIXE_ANCIEN; estPseudo = true; }
     var zone = h('div', { class: 'zone-mdp', hidden: true }, formulaireNouveauMdp(function () { zone.hidden = true; UI.toast('Mot de passe modifié.'); }));
     return h('section', { class: 'card' }, h('h2', null, 'Compte'),
       h('p', null, (estPseudo ? 'Pseudo : ' : 'Adresse e-mail : ') + (estPseudo ? email.slice(0, -suffixe.length) : email)),

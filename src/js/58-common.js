@@ -130,10 +130,13 @@ var Res = (function () {
       if (!OK_EXT.test(file.name)) return ko(new Error('Type de fichier non accepté : ' + file.name));
       if (file.size > 50 * 1048576) return ko(new Error(file.name + ' dépasse 50 Mo'));
       if (usedBytes() + file.size > QUOTA) return ko(new Error('Espace de stockage plein (1 Go)'));
-      var path = Api.uid() + '/' + uid().slice(0, 8) + '-' + safeName(file.name);
-      Api.storage.upload(path, file).then(function () {
+      /* fichier chiffré dans le navigateur : nom de stockage aléatoire (le vrai nom reste dans le bloc chiffré) */
+      var chiffre = Chiffre.actif();
+      var path = Api.uid() + '/' + (chiffre ? uid() : uid().slice(0, 8) + '-' + safeName(file.name));
+      var pret = chiffre ? file.arrayBuffer().then(Chiffre.chiffrerOctets).then(function (u) { return new Blob([u], { type: 'application/octet-stream' }); }) : Promise.resolve(file);
+      pret.then(function (envoi) { return Api.storage.upload(path, envoi); }).then(function () {
         var type = /\.pdf$/i.test(file.name) ? 'pdf' : /\.(png|jpe?g|gif|webp)$/i.test(file.name) ? 'image' : 'fichier';
-        ok(DB.create('fs_ressources', { type: type, titre: file.name.replace(/\.[a-z0-9]+$/i, ''), url: null, storage_path: path, mime: file.type || null, taille: file.size, tags: [], note: '' }));
+        ok(DB.create('fs_ressources', { type: type, titre: file.name.replace(/\.[a-z0-9]+$/i, ''), url: null, storage_path: path, mime: file.type || null, taille: file.size, tags: [], note: '', fenc: chiffre ? true : undefined }));
       }, function (e) { ko(e.network ? new Error('Envoi impossible hors connexion : ' + file.name) : e); });
     });
   }
@@ -141,7 +144,25 @@ var Res = (function () {
     if (r.url) { var u = safeUrl(r.url); if (u) window.open(u, '_blank', 'noopener,noreferrer'); return; }
     if (!r.storage_path) return;
     var w = window.open('', '_blank');
+    if (r.fenc) {
+      /* fichier chiffré : on le télécharge, on le déchiffre ici, puis on l’ouvre depuis la mémoire de l’appareil */
+      Api.storage.telecharger(r.storage_path).then(Chiffre.dechiffrerOctets).then(function (octets) {
+        var mime = r.mime || (r.type === 'pdf' ? 'application/pdf' : 'application/octet-stream');
+        var u = URL.createObjectURL(new Blob([octets], { type: mime }));
+        if (w) { w.opener = null; w.location = u; } else window.location = u;
+        setTimeout(function () { URL.revokeObjectURL(u); }, 300000);
+      }, function (e) { if (w) w.close(); UI.toast('Fichier indisponible : ' + (e && e.message || e), 'err'); });
+      return;
+    }
     Api.storage.signedUrl(r.storage_path, 3600).then(function (u) { if (w) { w.opener = null; w.location = u; } else window.location = u; }, function (e) { if (w) w.close(); UI.toast('Fichier indisponible : ' + e.message, 'err'); });
+  }
+  /* Ancien fichier envoyé en clair : on le chiffre, on le renvoie sous un nom aléatoire, puis on supprime l’ancien. */
+  function migrerFichier(r) {
+    var ancien = r.storage_path, neuf = Api.uid() + '/' + uid();
+    return Api.storage.telecharger(ancien).then(Chiffre.chiffrerOctets).then(function (u) { return Api.storage.upload(neuf, new Blob([u], { type: 'application/octet-stream' })); }).then(function () {
+      r.storage_path = neuf; r.fenc = true;
+      return Api.storage.remove([ancien]).catch(function () { /* l’ancien fichier sera supprimé plus tard */ });
+    });
   }
   function attach(parentType, parentId, ressourceId, usage) {
     var ex = DB.list('fs_attachments').filter(function (a) { return a.parent_id === parentId && a.ressource_id === ressourceId; })[0];
@@ -233,5 +254,5 @@ var Res = (function () {
       done();
     } }] });
   }
-  return { detectType: detectType, icon: icon, usedBytes: usedBytes, QUOTA: QUOTA, addLinks: addLinks, upload: upload, open: open, attach: attach, of: of, usageCount: usageCount, destroy: destroy, block: block, pickFromLibrary: pickFromLibrary };
+  return { detectType: detectType, icon: icon, usedBytes: usedBytes, QUOTA: QUOTA, addLinks: addLinks, upload: upload, migrerFichier: migrerFichier, open: open, attach: attach, of: of, usageCount: usageCount, destroy: destroy, block: block, pickFromLibrary: pickFromLibrary };
 })();

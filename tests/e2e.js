@@ -64,7 +64,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const seq = st.rows.fs_sequences[0];
   ok(seq && seq.titre === 'Statistique à une variable' && seq.data.items.length === 4, 'séquence enregistrée avec 4 éléments');
   ok(st.rows.fs_ref_perso.length === 1 && st.rows.fs_ref_perso[0].action === 'add', 'ajout perso enregistré dans fs_ref_perso');
-  ok(st.rows.fs_items.length === 4, 'éléments synchronisés via fs_set_items');
+  ok(st.rows.fs_items.length === 0, 'index des éléments en clair vidé (le contenu est dans le bloc chiffré)');
   await page.screenshot({ path: SHOTS + '/03-sequence.png', fullPage: true });
 
   console.log('# Plan type + séance');

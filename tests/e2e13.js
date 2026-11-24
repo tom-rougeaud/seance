@@ -30,7 +30,7 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
   ok(await page.locator('.compte-donnees summary').isVisible(), 'bloc « Vos données » présent');
   await page.click('.compte-donnees summary');
   const donnees = await page.locator('.compte-donnees').innerText();
-  ok(/Supabase/.test(donnees) && /GitHub Pages/.test(donnees) && /administrateur/.test(donnees) && /supprimer votre compte/.test(donnees), 'données : tiers, administrateur et droits annoncés');
+  ok(/Supabase/.test(donnees) && /GitHub Pages/.test(donnees) && /Ce qui n’est pas visible/.test(donnees) && /Code de récupération/.test(donnees) && /supprimer votre compte/.test(donnees), 'données : tiers, ce qui n’est pas visible, code de récupération et droits annoncés');
   await page.click('.compte-donnees summary');
   /* mot de passe visible à la demande */
   await page.fill('#compte-mdp', 'secret'); ok((await page.getAttribute('#compte-mdp', 'type')) === 'password', 'mot de passe masqué par défaut');
@@ -40,7 +40,7 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
   await page.fill('#compte-id', ''); await page.click('text=Mot de passe oublié ?');
   ok(/Saisissez d’abord/.test(await page.locator('.auth-msg').innerText()), 'oubli sans identifiant : consigne');
   await page.fill('#compte-id', 'eleve_01'); await page.click('text=Mot de passe oublié ?');
-  ok(/administrateur/.test(await page.locator('.auth-msg').innerText()) && !st.log.includes('RECOVER'), 'oubli avec pseudo : explication honnête, aucun e-mail envoyé');
+  ok(/responsable/.test(await page.locator('.auth-msg').innerText()) && !st.log.includes('RECOVER'), 'oubli avec pseudo : explication honnête, aucun e-mail envoyé');
   await page.fill('#compte-id', 'prof@test.fr'); await page.click('text=Mot de passe oublié ?'); await sleep(300);
   ok(st.log.includes('RECOVER'), 'oubli avec e-mail : demande de réinitialisation envoyée');
 

@@ -429,7 +429,7 @@ null
 /* ── 00-util.js ── */
 /* ═══ FICHES · utilitaires ═══ */
 'use strict';
-var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202611212053","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
+var APP = {"id":"seance","nom":"Fiches","version":"v1","build":"202611242030","prefix":"fiches_v1_","cache":"fiches-","manuels":false,"url":"https://tom-rougeaud.github.io/seance/","frere":{"nom":"Ma séance (mes manuels)","url":"https://tom-rougeaud.github.io/maseance/"},"palette":"marine"};
 
 /* ── stockage local sécurisé (try/catch + repli en mémoire) ── */
 var Mem = {};
@@ -642,7 +642,7 @@ var Api = (function () {
       }
       return page(0);
     },
-    upsert: function (table, rows) { return call('/rest/v1/' + table + '?on_conflict=' + (table === 'fs_settings' ? 'user_id' : 'id'), { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(rows) }); },
+    upsert: function (table, rows) { return call('/rest/v1/' + table + '?on_conflict=' + (table === 'fs_settings' || table === 'fs_cles' ? 'user_id' : 'id'), { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(rows) }); },
     remove: function (table, id) { return call('/rest/v1/' + table + '?id=eq.' + encodeURIComponent(id), { method: 'DELETE', headers: { Prefer: 'return=minimal' } }); },
     rpc: function (name, args) { return call('/rest/v1/rpc/' + name, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(args || {}) }); }
   };
@@ -650,12 +650,15 @@ var Api = (function () {
   /* Stockage */
   var BUCKET = 'fiches-ressources';
   var storage = {
-    upload: function (path, file) {
-      return call('/storage/v1/object/' + BUCKET + '/' + path.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false', 'cache-control': '3600' }, body: file });
+    upload: function (path, file, ecraser) {
+      return call('/storage/v1/object/' + BUCKET + '/' + path.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': ecraser ? 'true' : 'false', 'cache-control': '3600' }, body: file });
     },
     signedUrl: function (path, secs) {
       return call('/storage/v1/object/sign/' + BUCKET + '/' + path.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expiresIn: secs || 3600 }) })
         .then(function (b) { var u = b && (b.signedURL || b.signedUrl); if (!u) throw new Error('Lien indisponible'); return CFG.SUPABASE_URL + '/storage/v1' + (u.charAt(0) === '/' ? '' : '/') + u; });
+    },
+    telecharger: function (path) {
+      return storage.signedUrl(path, 600).then(function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('Fichier indisponible'); return r.arrayBuffer(); }); });
     },
     remove: function (paths) {
       if (!paths || !paths.length) return Promise.resolve();
@@ -771,8 +774,11 @@ var Compte = (function () {
     return h('details', { class: 'compte-donnees' },
       h('summary', null, 'Vos données : qui y a accès ?'),
       h('ul', { class: 'small' },
-        h('li', null, h('strong', null, 'Enregistré : '), 'votre identifiant (pseudo ou adresse e-mail d’un ancien compte), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même l’administrateur), et ' + ADAPTATEUR.contenu + '.'),
-        h('li', null, h('strong', null, 'Qui y accède : '), 'vous, avec votre compte. L’administrateur de la base (Tom Rougeaud) a techniquement accès aux données enregistrées, sauf aux mots de passe.'),
+        h('li', null, h('strong', null, 'Enregistré : '), 'votre identifiant (pseudo ou adresse e-mail d’un ancien compte), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même le responsable du projet), et ' + ADAPTATEUR.contenu + ' (chiffrés).'),
+        h('li', null, h('strong', null, 'Qui y accède : '), 'vous seul(e). Votre contenu est chiffré dans votre navigateur avant l’envoi : le responsable du projet et l’hébergeur ne voient que du texte illisible. Les autres utilisateurs(trices) ne voient rien non plus.'),
+        h('li', null, h('strong', null, 'Ce qui n’est pas visible : '), 'noms de classes, métiers, notes, titres et contenu des séquences et séances, objectifs personnalisés, noms et adresses des liens et fichiers, contenu des fichiers, réglages. Votre mot de passe n’est jamais lisible.'),
+        h('li', null, h('strong', null, 'Ce qui reste visible (technique) : '), 'votre identifiant, les dates de création et de connexion, le nombre d’éléments enregistrés, leurs niveaux, statuts et dates, les cases cochées du programme officiel, la taille des fichiers.'),
+        h('li', null, h('strong', null, 'Code de récupération : '), 'si vous oubliez votre mot de passe, seul votre code de récupération rouvre vos données. Sans mot de passe ni code, personne ne peut les récupérer, pas même le responsable.'),
         h('li', null, h('strong', null, 'Compte propre à cette appli : '), 'votre pseudo n’existe que dans cette appli. Un même pseudo dans une autre appli est un autre compte, avec un autre mot de passe. Supprimer cette appli ou votre compte ici ne touche pas vos comptes ailleurs. Seuls les anciens comptes avec adresse e-mail sont partagés entre plusieurs applis.'),
         h('li', null, h('strong', null, 'Services tiers : '), 'Supabase (hébergement de la base de données et des comptes, serveurs situés en France) et GitHub Pages (hébergement des pages de l’appli, qui reçoit votre adresse IP comme tout site web). Aucun traceur, aucune publicité, aucun autre service.'),
         h('li', null, h('strong', null, 'Vos droits : '), 'exporter vos données, les effacer, ou supprimer votre compte à tout moment (Réglages › Compte).')),
@@ -848,7 +854,7 @@ var Compte = (function () {
       var id = ident.value.trim();
       msg.className = 'auth-msg';
       if (!id) { msg.textContent = 'Saisissez d’abord votre pseudo ou votre adresse e-mail.'; return; }
-      if (!estEmail(id)) { msg.textContent = 'Compte à pseudo : aucune adresse e-mail n’est enregistrée, la réinitialisation automatique est impossible. Demandez à l’administrateur de l’appli de réinitialiser votre mot de passe.'; return; }
+      if (!estEmail(id)) { msg.textContent = 'Compte à pseudo : aucune adresse e-mail n’est enregistrée, la réinitialisation automatique est impossible. Demandez au responsable de l’appli de réinitialiser votre mot de passe.'; return; }
       Api.auth.recover(id).then(function () { msg.className = 'auth-msg ok'; msg.textContent = 'Si ce compte existe, un e-mail de réinitialisation vient d’être envoyé.'; }, function (e) { msg.textContent = messageErreur(e, 'in'); });
     };
 
@@ -861,7 +867,7 @@ var Compte = (function () {
       /* Un pseudo n’a pas d’e-mail à confirmer : on vérifie que le serveur l’accepte AVANT de créer le compte,
          pour ne pas laisser un compte inutilisable qui bloquerait le pseudo. */
       return Api.auth.reglages().then(function (s) {
-        if (s && s.mailer_autoconfirm === false) throw { silent: true, texte: 'Les comptes à pseudo ne sont pas encore activés sur cette appli. Contactez l’administrateur.' };
+        if (s && s.mailer_autoconfirm === false) throw { silent: true, texte: 'Les comptes à pseudo ne sont pas encore activés sur cette appli. Contactez le responsable de l’appli.' };
         return verifierPseudo(v);
       }).then(function (libre) {
         if (libre !== true) throw { silent: true, texte: 'Ce pseudo n’est pas disponible : choisissez-en un autre.' };
@@ -875,12 +881,14 @@ var Compte = (function () {
       var id = ident.value.trim(), pw = mdp.input.value;
       var p = mode === 'in'
         ? Api.auth.signIn(identifiantVersEmail(id), pw).then(function () {
+            Chiffre.memo(pw);   /* sert uniquement à ouvrir la clé de chiffrement, jamais enregistré */
             /* ancien mot de passe qui ne respecte plus la règle actuelle : on prévient sans bloquer l’accès */
             if (Api.auth.faible()) UI.toast('Votre mot de passe ne respecte plus la règle actuelle : changez-le dans Réglages › Compte.');
             Main.afterLogin();
           })
         : inscrire(id, pw).then(function (r) {
             if (!r.connecte) { msg.className = 'auth-msg ok'; msg.textContent = 'Compte créé : confirmez votre adresse via l’e-mail reçu, puis connectez-vous.'; changerMode('in'); return; }
+            Chiffre.memo(pw);
             Main.afterLogin();
           });
       p.then(null, function (err) { msg.textContent = messageErreur(err, mode); }).then(function () { btn.disabled = false; });
@@ -896,7 +904,8 @@ var Compte = (function () {
   }
 
   /* ===== SECTION : Formulaire « nouveau mot de passe » (réutilisé deux fois) ===== */
-  function formulaireNouveauMdp(auSucces) {
+  function formulaireNouveauMdp(auSucces, avecAncien) {
+    var p0 = avecAncien ? champMdp('compte-actuel', 'current-password') : null;
     var p1 = champMdp('compte-nouveau', 'new-password'), p2 = champMdp('compte-confirmation', 'new-password');
     var regles = listeRegles();
     var msg = h('div', { class: 'auth-msg', role: 'alert' });
@@ -907,8 +916,14 @@ var Compte = (function () {
       if (!evaluerMdp(p1.input.value).ok) { msg.textContent = 'Le mot de passe ne respecte pas toutes les règles de la liste.'; return; }
       if (p1.input.value !== p2.input.value) { msg.textContent = 'Les deux mots de passe sont différents.'; return; }
       btn.disabled = true;
-      Api.auth.updatePassword(p1.input.value).then(function () { auSucces(); }, function (err) { msg.textContent = messageErreur(err, 'up'); btn.disabled = false; });
-    } }, UI.field('Nouveau mot de passe', p1.wrap), regles.el, UI.field('Confirmation', p2.wrap), msg, btn);
+      var nouveau = p1.input.value;
+      /* avec le chiffrement, on ouvre d’abord la clé avec l’ancien mot de passe, puis on la ré-enferme avec le nouveau */
+      var ouvrir = p0 && Chiffre.actif() ? Chiffre.deverrouillerMdp(p0.input.value).then(null, function () { throw { silent: true, texte: 'Le mot de passe actuel est incorrect.' }; }) : Promise.resolve();
+      ouvrir.then(function () { return Api.auth.updatePassword(nouveau); }).then(function () {
+        Chiffre.memo(nouveau);
+        return Chiffre.brutConnu() ? Chiffre.reenfermer(nouveau) : null;
+      }).then(function () { auSucces(); }, function (err) { msg.textContent = messageErreur(err, 'up'); btn.disabled = false; });
+    } }, p0 ? UI.field('Mot de passe actuel', p0.wrap) : null, UI.field('Nouveau mot de passe', p1.wrap), regles.el, UI.field('Confirmation', p2.wrap), msg, btn);
   }
 
   /* Écran affiché après le lien « mot de passe oublié » reçu par e-mail. */
@@ -947,14 +962,14 @@ var Compte = (function () {
     var estPseudo = email.slice(-suffixe.length) === suffixe;
     var ancienPseudo = !estPseudo && email.slice(-(SUFFIXE_ANCIEN.length + 1)) === '@' + SUFFIXE_ANCIEN;   /* ancien compte à pseudo (sans appli) */
     if (ancienPseudo) { suffixe = '@' + SUFFIXE_ANCIEN; estPseudo = true; }
-    var zone = h('div', { class: 'zone-mdp', hidden: true }, formulaireNouveauMdp(function () { zone.hidden = true; UI.toast('Mot de passe modifié.'); }));
+    var zone = h('div', { class: 'zone-mdp', hidden: true }, formulaireNouveauMdp(function () { zone.hidden = true; UI.toast('Mot de passe modifié.'); }, true));
     return h('section', { class: 'card' }, h('h2', null, 'Compte'),
       h('p', null, (estPseudo ? 'Pseudo : ' : 'Adresse e-mail : ') + (estPseudo ? email.slice(0, -suffixe.length) : email)),
       h('div', { class: 'row-gap' },
         h('button', { class: 'btn', type: 'button', onclick: function () { zone.hidden = !zone.hidden; } }, '🔑 Changer mon mot de passe'),
         h('button', { class: 'btn', type: 'button', onclick: function () { Main.logout(); } }, 'Se déconnecter'),
         h('button', { class: 'btn danger', type: 'button', onclick: supprimerCompte }, '🗑 Supprimer mon compte')),
-      zone, blocDonnees());
+      zone, Chiffre.actif() ? Chiffre.carteSecurite() : null, blocDonnees());
   }
 
   /* ===== SECTION : Interface publique du bloc ===== */
@@ -967,6 +982,307 @@ var Compte = (function () {
 /* Export pour les tests Node (sans effet dans le navigateur, où « module » n’existe pas). */
 if (typeof module !== 'undefined' && module.exports) module.exports = Compte.regles;
 
+/* ── 13-chiffre.js ── */
+/* =====================================================================
+   Projet : Fiches — chiffrement de bout en bout  ·  Version : 1.0.0  ·  Date : 21/11/2026
+   Auteur : Tom Rougeaud  ·  Licence : CC BY-NC 4.0
+   Réalisé avec l’aide de l’IA : Claude Sonnet 5.5 (Anthropic)
+   Rôle : le contenu de la personne (noms de classes, titres, notes, séances, liens,
+          fichiers) est chiffré DANS LE NAVIGATEUR avant d’être envoyé à la base.
+          Le serveur ne reçoit que du texte illisible : ni le responsable du projet
+          ni l’hébergeur ne peuvent le lire.
+   Principe :
+     - une clé de données aléatoire (AES-GCM 256 bits) chiffre les données ;
+     - cette clé est elle-même enfermée deux fois : par le mot de passe
+       (PBKDF2 + SHA-256) et par un code de récupération à noter ;
+     - sans le mot de passe ni le code, personne ne peut rouvrir les données.
+   ===================================================================== */
+'use strict';
+var Chiffre = (function () {
+
+  /* ===== SECTION : Outils de base (WebCrypto, aussi testable sous Node) ===== */
+  var C = (typeof crypto !== 'undefined' && crypto.subtle) ? crypto : (typeof require === 'function' ? require('node:crypto').webcrypto : null);
+  var ITERATIONS = 310000;                         /* PBKDF2 : coût d’une tentative de mot de passe */
+  var ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; /* 32 signes, sans 0/O/1/I : 5 bits chacun */
+  var PREFIXE = 'enc1:';                           /* version du format chiffré */
+  var enc = new TextEncoder(), dec = new TextDecoder();
+
+  /* octets <-> texte base64 */
+  function b64e(u) { var s = '', i; for (i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return btoa(s); }
+  function b64d(t) { var s = atob(t), u = new Uint8Array(s.length), i; for (i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+  function alea(n) { var u = new Uint8Array(n); C.getRandomValues(u); return u; }
+  function colle(a, b) { var u = new Uint8Array(a.length + b.length); u.set(a, 0); u.set(b, a.length); return u; }
+
+  /* clé dérivée du mot de passe (lente exprès) */
+  function cleMdp(mdp, selB64) {
+    return C.subtle.importKey('raw', enc.encode(String(mdp).normalize('NFKC')), 'PBKDF2', false, ['deriveKey']).then(function (k) {
+      return C.subtle.deriveKey({ name: 'PBKDF2', salt: b64d(selB64), iterations: ITERATIONS, hash: 'SHA-256' }, k, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    });
+  }
+  /* mise en forme d’un code de récupération saisi (majuscules, sans tirets ni espaces) */
+  function normCode(code) { return String(code || '').toUpperCase().split('').filter(function (c) { return ALPHABET.indexOf(c) >= 0; }).join(''); }
+  /* clé dérivée du code de récupération (le code a 120 bits : pas besoin d’une dérivation lente) */
+  function cleCode(code) {
+    return C.subtle.digest('SHA-256', enc.encode('fiches-recup:' + normCode(code))).then(function (d) { return C.subtle.importKey('raw', d, 'AES-GCM', false, ['encrypt', 'decrypt']); });
+  }
+  /* génère un code de récupération : 24 signes en 6 groupes de 4 */
+  function nouveauCode() {
+    var u = alea(24), s = '', i;
+    for (i = 0; i < 24; i++) { s += ALPHABET.charAt(u[i] & 31); if (i % 4 === 3 && i < 23) s += '-'; }
+    return s;
+  }
+  /* chiffre des octets : iv (12 octets) + texte chiffré, le tout en base64 */
+  function scelle(cle, octets) {
+    var iv = alea(12);
+    return C.subtle.encrypt({ name: 'AES-GCM', iv: iv }, cle, octets).then(function (ct) { return b64e(colle(iv, new Uint8Array(ct))); });
+  }
+  function ouvre(cle, b64) {
+    var u = b64d(b64);
+    return C.subtle.decrypt({ name: 'AES-GCM', iv: u.subarray(0, 12) }, cle, u.subarray(12)).then(function (b) { return new Uint8Array(b); });
+  }
+  function cleDonnees(brut) { return C.subtle.importKey('raw', brut, 'AES-GCM', false, ['encrypt', 'decrypt']); }
+
+  /* ===== SECTION : Cycle de vie des clés ===== */
+  var etat = { brut: null, cle: null, rec: null, memo: null };   /* brut : clé de données en mémoire (si connue) ; memo : mot de passe saisi à l’instant */
+
+  /* petite base locale (IndexedDB) : garde la clé NON EXPORTABLE pour rouvrir l’appli sans retaper le mot de passe */
+  var IDB_NOM = 'fiches_chiffre';
+  function idb(fn) {
+    return new Promise(function (ok) {
+      try {
+        var rq = indexedDB.open(IDB_NOM, 1);
+        rq.onupgradeneeded = function () { rq.result.createObjectStore('k'); };
+        rq.onerror = function () { ok(null); };
+        rq.onsuccess = function () {
+          try { var tx = rq.result.transaction('k', 'readwrite'); var r = fn(tx.objectStore('k')); tx.oncomplete = function () { ok(r && r.result !== undefined ? r.result : null); }; tx.onerror = function () { ok(null); }; } catch (e) { ok(null); }
+        };
+      } catch (e) { ok(null); }
+    });
+  }
+  function cacheLire(uid) { return idb(function (s) { return s.get(uid); }); }
+  function cacheEcrire(uid, cle, empreinte) { return idb(function (s) { return s.put({ cle: cle, fp: empreinte }, uid); }); }
+  function cacheEffacer(uid) { return idb(function (s) { return s.delete(uid); }); }
+  function empreinte(rec) { return String(rec && rec.wrap_rec || '').slice(0, 24); }
+
+  function retenir(brut) {
+    etat.brut = brut;
+    return cleDonnees(brut).then(function (k) {
+      etat.cle = k;
+      if (typeof Api !== 'undefined' && Api.uid()) return cacheEcrire(Api.uid(), k, empreinte(etat.rec));
+    });
+  }
+  function enregistrerCles(rec) {
+    return Api.rest.upsert('fs_cles', [{ user_id: Api.uid(), salt: rec.salt, wrap_mdp: rec.wrap_mdp, wrap_rec: rec.wrap_rec, version: 1 }]).then(function () { etat.rec = rec; });
+  }
+  /* enferme la clé de données avec un mot de passe (nouveau sel) */
+  function enfermerMdp(brut, mdp) {
+    var sel = b64e(alea(16));
+    return cleMdp(mdp, sel).then(function (k) { return scelle(k, brut); }).then(function (w) { return { salt: sel, wrap_mdp: w }; });
+  }
+
+  /* Prépare une première installation : renvoie les données à envoyer + le code à montrer. */
+  function creer(mdp) {
+    var brut = alea(32), code = nouveauCode();
+    return Promise.all([enfermerMdp(brut, mdp), cleCode(code).then(function (k) { return scelle(k, brut); })]).then(function (r) {
+      return { brut: brut, code: code, rec: { salt: r[0].salt, wrap_mdp: r[0].wrap_mdp, wrap_rec: r[1] } };
+    });
+  }
+  function installer(mdp) {
+    return creer(mdp).then(function (c) { return enregistrerCles(c.rec).then(function () { return retenir(c.brut); }).then(function () { return c.code; }); });
+  }
+  function deverrouillerMdp(mdp) {
+    if (!etat.rec) return Promise.reject(new Error('Aucune clé enregistrée.'));
+    return cleMdp(mdp, etat.rec.salt).then(function (k) { return ouvre(k, etat.rec.wrap_mdp); }).then(retenir);
+  }
+  /* ré-enferme avec un (nouveau) mot de passe, sans changer la clé de données ni le code */
+  function reenfermer(mdp) {
+    return enfermerMdp(etat.brut, mdp).then(function (e) { return enregistrerCles({ salt: e.salt, wrap_mdp: e.wrap_mdp, wrap_rec: etat.rec.wrap_rec }); });
+  }
+  function deverrouillerCode(code, mdp) {
+    return cleCode(code).then(function (k) { return ouvre(k, etat.rec.wrap_rec); }).then(retenir).then(function () { return mdp ? reenfermer(mdp) : null; });
+  }
+  /* nouveau code de récupération : l’ancien cesse de fonctionner */
+  function nouveauCodeRecup() {
+    var code = nouveauCode();
+    return cleCode(code).then(function (k) { return scelle(k, etat.brut); }).then(function (w) { return enregistrerCles({ salt: etat.rec.salt, wrap_mdp: etat.rec.wrap_mdp, wrap_rec: w }); }).then(function () { return retenir(etat.brut); }).then(function () { return code; });
+  }
+
+  /* Au démarrage : 'ok' (clé disponible), 'verrouille' (il faut le mot de passe ou le code), 'aucune' (première installation). */
+  function init() {
+    etat.brut = null; etat.cle = null; etat.rec = null;
+    return Api.rest.select('fs_cles', {}).then(function (rows) {
+      etat.rec = (rows && rows[0]) || null;
+      if (!etat.rec) { cacheEffacer(Api.uid()); return 'aucune'; }
+      return cacheLire(Api.uid()).then(function (c) {
+        if (c && c.cle && c.fp === empreinte(etat.rec)) { etat.cle = c.cle; return 'ok'; }
+        if (etat.memo) return deverrouillerMdp(etat.memo).then(function () { return 'ok'; }, function () { return 'verrouille'; });
+        return 'verrouille';
+      });
+    }, function (e) {
+      /* hors connexion : si la clé est déjà sur cet appareil, on continue avec la copie locale */
+      if (e && e.network) return cacheLire(Api.uid()).then(function (c) { if (c && c.cle) { etat.cle = c.cle; return 'ok'; } throw e; });
+      throw e;
+    });
+  }
+  function memo(mdp) { etat.memo = mdp; }
+  function oublier() { var u = Api.uid(); etat.brut = null; etat.cle = null; etat.rec = null; etat.memo = null; return u ? cacheEffacer(u) : Promise.resolve(); }
+  /* la clé de cet appareil ne convient plus (clé changée ailleurs) : on l’oublie mais on garde les clés du compte */
+  function invalider() { var u = Api.uid(); etat.brut = null; etat.cle = null; return u ? cacheEffacer(u) : Promise.resolve(); }
+  function actif() { return !!etat.cle; }
+  function brutConnu() { return !!etat.brut; }
+  function aMemo() { return !!etat.memo; }
+
+  /* ===== SECTION : Chiffrement des lignes de la base ===== */
+  /* Colonnes chiffrées par table, avec la valeur neutre laissée en clair dans la colonne d’origine.
+     Restent en clair (sans texte libre) : identifiants, liens entre lignes, ordre, statut, type, niveau, dates, taille, couleur. */
+  var ENC = {
+    fs_classes: { nom: '•', annee_scolaire: '', metier: '', creneaux: [], notes: '' },
+    fs_sequences: { titre: '', data: {} },
+    fs_seances: { titre: '', data: {} },
+    fs_ref_perso: { txt: '' },
+    fs_ressources: { titre: '', url: null, mime: null, tags: [], note: '' },
+    fs_attachments: { note: '' },
+    fs_calendrier: { label: '' },
+    fs_progress_override: { note: '' },
+    fs_modeles: { titre: '', data: {} },
+    fs_settings: { data: {} }
+  };
+  var VIRTUELLES = { fs_ressources: ['fenc'] };   /* champs qui n’existent pas en base : ils voyagent dans le bloc chiffré */
+
+  /* Prépare une ligne à envoyer : bloc chiffré + valeurs neutres. Sans clé : on retire seulement les champs virtuels. */
+  function versBase(table, ligne) {
+    var sortie = {}, k, virt = VIRTUELLES[table] || [];
+    for (k in ligne) if (Object.prototype.hasOwnProperty.call(ligne, k) && virt.indexOf(k) < 0 && k !== '_ancien' && k !== '_illisible') sortie[k] = ligne[k];
+    var spec = ENC[table];
+    if (!etat.cle || !spec) return Promise.resolve(sortie);
+    var bloc = {};
+    Object.keys(spec).concat(virt).forEach(function (c) { if (ligne[c] !== undefined) bloc[c] = ligne[c]; });
+    Object.keys(spec).forEach(function (c) { sortie[c] = JSON.parse(JSON.stringify(spec[c])); });
+    return scelle(etat.cle, enc.encode(JSON.stringify(bloc))).then(function (t) { sortie.chiffre = PREFIXE + t; return sortie; });
+  }
+  /* Relit une ligne reçue de la base : déchiffre si besoin. Une ligne sans bloc chiffré est une ancienne ligne (à migrer). */
+  function depuisBase(table, ligne) {
+    if (!ligne || !ENC[table]) return Promise.resolve(ligne);
+    if (!ligne.chiffre) { ligne._ancien = true; return Promise.resolve(ligne); }
+    if (!etat.cle || String(ligne.chiffre).indexOf(PREFIXE) !== 0) { ligne._illisible = true; delete ligne.chiffre; return Promise.resolve(ligne); }
+    return ouvre(etat.cle, ligne.chiffre.slice(PREFIXE.length)).then(function (o) {
+      var obj = JSON.parse(dec.decode(o)); delete ligne.chiffre; Object.keys(obj).forEach(function (c) { ligne[c] = obj[c]; }); return ligne;
+    }, function () { ligne._illisible = true; delete ligne.chiffre; return ligne; });
+  }
+  /* fichiers : octets chiffrés avec la même clé (iv + texte chiffré, en binaire) */
+  function chiffrerOctets(buf) {
+    var iv = alea(12);
+    return C.subtle.encrypt({ name: 'AES-GCM', iv: iv }, etat.cle, buf).then(function (ct) { return colle(iv, new Uint8Array(ct)); });
+  }
+  function dechiffrerOctets(buf) {
+    var u = new Uint8Array(buf);
+    return C.subtle.decrypt({ name: 'AES-GCM', iv: u.subarray(0, 12) }, etat.cle, u.subarray(12)).then(function (b) { return new Uint8Array(b); });
+  }
+
+  /* ===== SECTION : Écrans ===== */
+  function ecran(carte) { var app = $('#app'); clear(app); app.appendChild(h('div', { class: 'auth-wrap' }, carte)); window.scrollTo(0, 0); }
+  function champ(id, label, auto) { var i = h('input', { class: 'inp', type: 'password', id: id, autocomplete: auto || 'off', autocapitalize: 'none', spellcheck: 'false', required: true }); return { input: i, el: UI.field(label, i) }; }
+
+  /* Affiche le code de récupération et exige qu’on l’ait noté avant de continuer. */
+  function ecranCode(code, suite, titre) {
+    var coche = h('input', { type: 'checkbox', id: 'chiffre-ok' });
+    var verif = h('input', { class: 'inp', type: 'text', id: 'chiffre-verif', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', maxlength: 9, placeholder: 'Ex. : AB12' });
+    var btn = h('button', { class: 'btn primary wide', type: 'button', disabled: true }, 'Continuer');
+    var fin = code.replace(/-/g, '').slice(-4);
+    function maj() { btn.disabled = !(coche.checked && normCode(verif.value) === fin); }
+    coche.addEventListener('change', maj); verif.addEventListener('input', maj);
+    btn.addEventListener('click', function () { suite(); });
+    ecran(h('div', { class: 'auth-card' }, h('div', { class: 'auth-logo' }, '🔐'), h('h1', null, titre || 'Votre code de récupération'),
+      h('p', null, 'Vos données sont chiffrées : seul(e) vous pouvez les lire. Si vous oubliez votre mot de passe, ce code est le seul moyen de les récupérer.'),
+      h('p', { class: 'code-recup', id: 'chiffre-code', style: 'font-size:1.4em;font-weight:700;letter-spacing:.06em;text-align:center;word-break:break-all' }, code),
+      h('div', { class: 'row-gap' },
+        h('button', { class: 'btn', type: 'button', onclick: function () { try { navigator.clipboard.writeText(code); UI.toast('Code copié.'); } catch (e) { UI.toast('Copie impossible : notez le code à la main.'); } } }, '📋 Copier'),
+        h('button', { class: 'btn', type: 'button', onclick: function () { downloadBlob(new Blob(['Code de récupération de ' + APP.nom + '\r\n\r\n' + code + '\r\n\r\nGardez ce fichier hors de l’appareil (papier, coffre de mots de passe). Il ouvre vos données.\r\n'], { type: 'text/plain;charset=utf-8' }), 'code-recuperation-' + APP.id + '.txt'); } }, '⬇ Télécharger')),
+      h('p', { class: 'small muted' }, 'Gardez-le dans un endroit sûr, à part de votre mot de passe. Personne, pas même le responsable du projet, ne peut le retrouver pour vous.'),
+      h('label', { class: 'check' }, coche, ' J’ai noté ce code dans un endroit sûr.'),
+      UI.field('Pour vérifier, recopiez les 4 derniers signes du code', verif), btn));
+  }
+
+  /* Première installation : choisir (retaper) le mot de passe, puis noter le code. */
+  function ecranInstallation(suite) {
+    function lancer(mdp, msg, btn) {
+      installer(mdp).then(function (code) { etat.memo = null; ecranCode(code, suite); }, function (e) { if (msg) msg.textContent = 'Échec : ' + (e && e.message || e); if (btn) btn.disabled = false; });
+    }
+    if (etat.memo) { var m = etat.memo; ecran(h('div', { class: 'auth-card' }, h('div', { class: 'auth-logo' }, '🔐'), h('h1', null, 'Chiffrement en cours…'), h('div', { class: 'spinner' }))); lancer(m); return; }
+    var mdp = champ('chiffre-mdp', 'Votre mot de passe actuel', 'current-password');
+    var msg = h('div', { class: 'auth-msg', role: 'alert' });
+    var btn = h('button', { class: 'btn primary wide', type: 'submit' }, 'Protéger mes données');
+    ecran(h('form', { class: 'auth-card', onsubmit: function (e) { e.preventDefault(); btn.disabled = true; lancer(mdp.input.value, msg, btn); } },
+      h('div', { class: 'auth-logo' }, '🔐'), h('h1', null, 'Protégez vos données'),
+      h('p', null, 'Vos données vont être chiffrées dans votre navigateur. Retapez votre mot de passe pour créer votre clé.'), mdp.el, msg, btn));
+  }
+
+  /* Anciennes données en clair : sauvegarde obligatoire, puis chiffrement. Renvoie une promesse résolue à la fin. */
+  function ecranMigration(n) {
+    return new Promise(function (ok) {
+      var fait = false;
+      var btn = h('button', { class: 'btn primary wide', type: 'button', disabled: true }, 'Chiffrer mes données');
+      var sauve = h('button', { class: 'btn wide', type: 'button', id: 'chiffre-sauvegarde', onclick: function () { Exp.json(); fait = true; btn.disabled = false; } }, '⬇ 1. Télécharger ma sauvegarde');
+      btn.addEventListener('click', function () {
+        if (!fait) return; btn.disabled = true; sauve.disabled = true; btn.textContent = 'Chiffrement en cours…';
+        DB.migrer().then(function () { ok(); }, function (e) { btn.textContent = 'Échec : ' + (e && e.message || e) + ' — réessayer'; btn.disabled = false; });
+      });
+      ecran(h('div', { class: 'auth-card' }, h('div', { class: 'auth-logo' }, '🔐'), h('h1', null, 'Chiffrer vos anciennes données'),
+        h('p', null, n + ' élément(s) enregistré(s) auparavant sont encore lisibles côté serveur. Ils vont être chiffrés dans votre navigateur.'),
+        h('p', { class: 'small' }, 'Par précaution, téléchargez d’abord une sauvegarde : le bouton suivant ne s’active qu’après.'), sauve, btn));
+    });
+  }
+
+  /* Clé absente de cet appareil : mot de passe, ou code de récupération. */
+  function ecranVerrou(suite) {
+    var msgA = h('div', { class: 'auth-msg', role: 'alert' }), msgB = h('div', { class: 'auth-msg', role: 'alert' });
+    var mdpA = champ('chiffre-mdp', 'Mot de passe', 'current-password');
+    var btnA = h('button', { class: 'btn primary wide', type: 'submit' }, 'Ouvrir mes données');
+    var code = h('input', { class: 'inp', type: 'text', id: 'chiffre-code-saisie', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', placeholder: 'XXXX-XXXX-XXXX-XXXX-XXXX-XXXX', required: true });
+    var mdpB = etat.memo ? null : champ('chiffre-mdp-b', 'Votre mot de passe actuel (pour le réenregistrer)', 'current-password');
+    var btnB = h('button', { class: 'btn wide', type: 'submit' }, 'Utiliser mon code de récupération');
+    var formA = h('form', { onsubmit: function (e) {
+      e.preventDefault(); btnA.disabled = true; msgA.textContent = '';
+      deverrouillerMdp(mdpA.input.value).then(suite, function () { msgA.textContent = 'Ce mot de passe n’ouvre pas vos données. S’il a été réinitialisé, utilisez votre code de récupération.'; btnA.disabled = false; });
+    } }, mdpA.el, msgA, btnA);
+    var formB = h('form', { onsubmit: function (e) {
+      e.preventDefault(); btnB.disabled = true; msgB.textContent = '';
+      deverrouillerCode(code.value, etat.memo || mdpB.input.value).then(suite, function () { msgB.textContent = 'Code incorrect. Vérifiez chaque signe (les tirets et espaces sont facultatifs).'; btnB.disabled = false; });
+    } }, UI.field('Code de récupération', code), mdpB ? mdpB.el : null, msgB, btnB);
+    ecran(h('div', { class: 'auth-card' }, h('div', { class: 'auth-logo' }, '🔐'), h('h1', null, 'Ouvrir vos données'),
+      h('p', null, 'Vos données sont chiffrées. Cet appareil n’a pas encore la clé pour les ouvrir.'),
+      etat.memo ? null : formA, h('h2', { class: 'small' }, etat.memo ? 'Utilisez votre code de récupération' : 'Mot de passe oublié ou réinitialisé ?'), formB,
+      h('button', { class: 'btn ghost wide', type: 'button', onclick: function () { Main.logout(true); } }, 'Se déconnecter')));
+  }
+
+  /* Bloc « Sécurité des données » de la carte Compte : nouveau code de récupération. */
+  function carteSecurite() {
+    var zone = h('div', { hidden: true });
+    var mdp = champ('chiffre-mdp-nc', 'Mot de passe actuel', 'current-password');
+    var msg = h('div', { class: 'auth-msg', role: 'alert' });
+    var btn = h('button', { class: 'btn primary', type: 'submit' }, 'Créer un nouveau code');
+    zone.appendChild(h('form', { onsubmit: function (e) {
+      e.preventDefault(); btn.disabled = true; msg.textContent = '';
+      deverrouillerMdp(mdp.input.value).then(nouveauCodeRecup).then(function (c) {
+        ecranCode(c, function () { location.hash = '#/reglages'; Main.afterLogin(); }, 'Votre nouveau code');
+      }, function () { msg.textContent = 'Mot de passe incorrect.'; btn.disabled = false; });
+    } }, h('p', { class: 'small' }, 'L’ancien code ne fonctionnera plus. Notez le nouveau.'), mdp.el, msg, btn));
+    return h('div', { class: 'secu-donnees' }, h('h3', null, '🔐 Sécurité des données'),
+      h('p', { class: 'small' }, 'Vos données sont chiffrées dans votre navigateur. Votre code de récupération est la seule autre clé : gardez-le en lieu sûr.'),
+      h('button', { class: 'btn', type: 'button', onclick: function () { zone.hidden = !zone.hidden; } }, '🔁 Créer un nouveau code de récupération'), zone);
+  }
+
+  return {
+    init: init, memo: memo, oublier: oublier, invalider: invalider, actif: actif, brutConnu: brutConnu, aMemo: aMemo,
+    installer: installer, deverrouillerMdp: deverrouillerMdp, deverrouillerCode: deverrouillerCode, reenfermer: reenfermer, nouveauCodeRecup: nouveauCodeRecup,
+    versBase: versBase, depuisBase: depuisBase, chiffrerOctets: chiffrerOctets, dechiffrerOctets: dechiffrerOctets,
+    ecranInstallation: ecranInstallation, ecranMigration: ecranMigration, ecranVerrou: ecranVerrou, ecranCode: ecranCode, carteSecurite: carteSecurite,
+    /* pour les tests */
+    _test: { creer: creer, cleMdp: cleMdp, cleCode: cleCode, scelle: scelle, ouvre: ouvre, normCode: normCode, nouveauCode: nouveauCode, ENC: ENC, etat: etat, b64e: b64e, b64d: b64d }
+  };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = Chiffre;
+
 /* ── 20-store.js ── */
 /* ═══ FICHES · données en mémoire, file d’attente d’enregistrement, hors connexion ═══ */
 'use strict';
@@ -976,7 +1292,7 @@ var DB = (function () {
     fs_sequences: ['id', 'user_id', 'class_id', 'ordre', 'titre', 'statut', 'date_debut', 'date_fin', 'data'],
     fs_seances: ['id', 'user_id', 'class_id', 'sequence_id', 'jumelle_id', 'ordre', 'titre', 'type', 'modalite', 'groupe', 'duree_min', 'date_prevue', 'date_realisee', 'statut', 'data'],
     fs_ref_perso: ['id', 'user_id', 'action', 'niveau_id', 'chapitre_id', 'kind', 'ref_id', 'domaine', 'txt', 'ordre'],
-    fs_ressources: ['id', 'user_id', 'type', 'titre', 'url', 'storage_path', 'mime', 'taille', 'tags', 'note'],
+    fs_ressources: ['id', 'user_id', 'type', 'titre', 'url', 'storage_path', 'mime', 'taille', 'tags', 'note', 'fenc'],
     fs_attachments: ['id', 'user_id', 'parent_type', 'parent_id', 'ressource_id', 'usage', 'ordre', 'note'],
     fs_calendrier: ['id', 'user_id', 'annee_scolaire', 'class_id', 'type', 'label', 'debut', 'fin'],
     fs_progress_override: ['id', 'user_id', 'class_id', 'ref_id', 'statut', 'date_realisation', 'note'],
@@ -985,7 +1301,7 @@ var DB = (function () {
   /* ordre de chargement / d’import (parents avant enfants) */
   var ORDER = ['fs_classes', 'fs_sequences', 'fs_seances', 'fs_ressources', 'fs_attachments', 'fs_ref_perso', 'fs_calendrier', 'fs_progress_override', 'fs_modeles'];
   var T = {}; ORDER.forEach(function (t) { T[t] = []; });
-  var settings = {};
+  var settings = {}, settingsAncien = false;
   var queue = Store.getJSON('queue', []);
   var failed = Store.getJSON('failed', []);
   var state = { online: navigator.onLine !== false, flushing: false, listeners: [], lastOk: null };
@@ -1011,9 +1327,10 @@ var DB = (function () {
   function schedule(ms) { clearTimeout(timer); timer = setTimeout(flush, ms); }
 
   function runOp(op) {
-    if (op.t === 'up') return Api.rest.upsert(op.table, [op.row]);
+    /* chiffrement de bout en bout : la ligne est chiffrée ici, juste avant l’envoi (la file locale reste lisible sur cet appareil) */
+    if (op.t === 'up') return Chiffre.versBase(op.table, op.row).then(function (r) { return Api.rest.upsert(op.table, [r]); });
     if (op.t === 'del') return Api.rest.remove(op.table, op.id);
-    if (op.t === 'items') return Api.rest.rpc('fs_set_items', { p_parent_type: op.parent_type, p_parent_id: op.parent_id, p_class_id: op.class_id, p_items: op.items });
+    if (op.t === 'items') return Api.rest.rpc('fs_set_items', { p_parent_type: op.parent_type, p_parent_id: op.parent_id, p_class_id: op.class_id, p_items: Chiffre.actif() ? [] : op.items });
     return Promise.resolve();
   }
   function flush() {
@@ -1097,6 +1414,9 @@ var DB = (function () {
     return flush().then(function () {
       return Promise.all(ORDER.map(function (t) { return Api.rest.selectAll(t, { order: (t === 'fs_progress_override' ? 'updated_at' : 'created_at') + '.asc' }); }).concat([Api.rest.select('fs_settings', {})]));
     }).then(function (res) {
+      /* déchiffre les lignes reçues (les anciennes lignes en clair sont marquées « _ancien » pour être migrées) */
+      return Promise.all(ORDER.map(function (t, i) { return Promise.all((res[i] || []).map(function (r) { return Chiffre.depuisBase(t, r); })); }).concat([Promise.all((res[ORDER.length] || []).map(function (r) { return Chiffre.depuisBase('fs_settings', r); }))]));
+    }).then(function (res) {
       ORDER.forEach(function (t, i) {
         var remote = res[i] || [];
         /* conserver les lignes locales encore en attente d’envoi */
@@ -1106,6 +1426,7 @@ var DB = (function () {
         });
         T[t] = remote;
       });
+      settingsAncien = !!(res[ORDER.length] && res[ORDER.length][0] && res[ORDER.length][0]._ancien);
       settings = (res[ORDER.length] && res[ORDER.length][0] && res[ORDER.length][0].data) || settings || {};
       cacheWrite(); state.online = true; notify(); return true;
     }).catch(function (e) {
@@ -1114,6 +1435,24 @@ var DB = (function () {
     });
   }
 
+  /* nombre de lignes encore en clair côté base (à chiffrer) */
+  function anciennes() {
+    var n = 0; ORDER.forEach(function (t) { T[t].forEach(function (r) { if (r._ancien) n++; }); });
+    if (settingsAncien) n++;
+    return n;
+  }
+  /* Chiffre toutes les anciennes lignes : on les réenregistre (le chiffrement se fait à l’envoi) et on vide l’ancien index fs_items.
+     Les fichiers déjà envoyés en clair sont chiffrés par Res.migrerFichier. */
+  function migrer() {
+    var suite = Promise.resolve();
+    ORDER.forEach(function (t) {
+      T[t].slice().forEach(function (r) {
+        if (!r._ancien) return;
+        suite = suite.then(function () { return t === 'fs_ressources' && r.storage_path && !r.fenc ? Res.migrerFichier(r) : null; }).then(function () { delete r._ancien; enqueue({ t: 'up', table: t, id: r.id, row: pick(t, r) }); if (t === 'fs_seances' || t === 'fs_sequences') enqueue({ t: 'items', table: 'fs_items', parent_type: t === 'fs_seances' ? 'seance' : 'sequence', parent_id: r.id, class_id: r.class_id, items: [] }); });
+      });
+    });
+    return suite.then(function () { if (settingsAncien) { settingsAncien = false; saveSettings({}); } cacheWrite(); return flush(); });
+  }
   function reset() { ORDER.forEach(function (t) { T[t] = []; }); settings = {}; queue = []; failed = []; persistQueue(); Store.del('cache_' + Api.uid()); }
 
   /* import brut (déjà validé) : remplace / ajoute puis met en file */
@@ -1122,7 +1461,7 @@ var DB = (function () {
   return {
     TABLES: TABLES, ORDER: ORDER, T: T, list: list, byId: byId, save: save, create: create, remove: remove, loadAll: loadAll, flush: flush,
     onSync: onSync, syncInfo: syncInfo, settings: function () { return settings; }, saveSettings: saveSettings, reset: reset, bulkPut: bulkPut,
-    failed: function () { return failed; }, clearFailed: function () { failed = []; persistQueue(); notify(); }, pending: function () { return queue.length; }, pick: pick
+    illisibles: function () { var n = 0; ORDER.forEach(function (t) { T[t].forEach(function (r) { if (r._illisible) n++; }); }); return n; }, anciennes: anciennes, migrer: migrer, failed: function () { return failed; }, clearFailed: function () { failed = []; persistQueue(); notify(); }, pending: function () { return queue.length; }, pick: pick
   };
 })();
 
@@ -2007,10 +2346,13 @@ var Res = (function () {
       if (!OK_EXT.test(file.name)) return ko(new Error('Type de fichier non accepté : ' + file.name));
       if (file.size > 50 * 1048576) return ko(new Error(file.name + ' dépasse 50 Mo'));
       if (usedBytes() + file.size > QUOTA) return ko(new Error('Espace de stockage plein (1 Go)'));
-      var path = Api.uid() + '/' + uid().slice(0, 8) + '-' + safeName(file.name);
-      Api.storage.upload(path, file).then(function () {
+      /* fichier chiffré dans le navigateur : nom de stockage aléatoire (le vrai nom reste dans le bloc chiffré) */
+      var chiffre = Chiffre.actif();
+      var path = Api.uid() + '/' + (chiffre ? uid() : uid().slice(0, 8) + '-' + safeName(file.name));
+      var pret = chiffre ? file.arrayBuffer().then(Chiffre.chiffrerOctets).then(function (u) { return new Blob([u], { type: 'application/octet-stream' }); }) : Promise.resolve(file);
+      pret.then(function (envoi) { return Api.storage.upload(path, envoi); }).then(function () {
         var type = /\.pdf$/i.test(file.name) ? 'pdf' : /\.(png|jpe?g|gif|webp)$/i.test(file.name) ? 'image' : 'fichier';
-        ok(DB.create('fs_ressources', { type: type, titre: file.name.replace(/\.[a-z0-9]+$/i, ''), url: null, storage_path: path, mime: file.type || null, taille: file.size, tags: [], note: '' }));
+        ok(DB.create('fs_ressources', { type: type, titre: file.name.replace(/\.[a-z0-9]+$/i, ''), url: null, storage_path: path, mime: file.type || null, taille: file.size, tags: [], note: '', fenc: chiffre ? true : undefined }));
       }, function (e) { ko(e.network ? new Error('Envoi impossible hors connexion : ' + file.name) : e); });
     });
   }
@@ -2018,7 +2360,25 @@ var Res = (function () {
     if (r.url) { var u = safeUrl(r.url); if (u) window.open(u, '_blank', 'noopener,noreferrer'); return; }
     if (!r.storage_path) return;
     var w = window.open('', '_blank');
+    if (r.fenc) {
+      /* fichier chiffré : on le télécharge, on le déchiffre ici, puis on l’ouvre depuis la mémoire de l’appareil */
+      Api.storage.telecharger(r.storage_path).then(Chiffre.dechiffrerOctets).then(function (octets) {
+        var mime = r.mime || (r.type === 'pdf' ? 'application/pdf' : 'application/octet-stream');
+        var u = URL.createObjectURL(new Blob([octets], { type: mime }));
+        if (w) { w.opener = null; w.location = u; } else window.location = u;
+        setTimeout(function () { URL.revokeObjectURL(u); }, 300000);
+      }, function (e) { if (w) w.close(); UI.toast('Fichier indisponible : ' + (e && e.message || e), 'err'); });
+      return;
+    }
     Api.storage.signedUrl(r.storage_path, 3600).then(function (u) { if (w) { w.opener = null; w.location = u; } else window.location = u; }, function (e) { if (w) w.close(); UI.toast('Fichier indisponible : ' + e.message, 'err'); });
+  }
+  /* Ancien fichier envoyé en clair : on le chiffre, on le renvoie sous un nom aléatoire, puis on supprime l’ancien. */
+  function migrerFichier(r) {
+    var ancien = r.storage_path, neuf = Api.uid() + '/' + uid();
+    return Api.storage.telecharger(ancien).then(Chiffre.chiffrerOctets).then(function (u) { return Api.storage.upload(neuf, new Blob([u], { type: 'application/octet-stream' })); }).then(function () {
+      r.storage_path = neuf; r.fenc = true;
+      return Api.storage.remove([ancien]).catch(function () { /* l’ancien fichier sera supprimé plus tard */ });
+    });
   }
   function attach(parentType, parentId, ressourceId, usage) {
     var ex = DB.list('fs_attachments').filter(function (a) { return a.parent_id === parentId && a.ressource_id === ressourceId; })[0];
@@ -2110,7 +2470,7 @@ var Res = (function () {
       done();
     } }] });
   }
-  return { detectType: detectType, icon: icon, usedBytes: usedBytes, QUOTA: QUOTA, addLinks: addLinks, upload: upload, open: open, attach: attach, of: of, usageCount: usageCount, destroy: destroy, block: block, pickFromLibrary: pickFromLibrary };
+  return { detectType: detectType, icon: icon, usedBytes: usedBytes, QUOTA: QUOTA, addLinks: addLinks, upload: upload, migrerFichier: migrerFichier, open: open, attach: attach, of: of, usageCount: usageCount, destroy: destroy, block: block, pickFromLibrary: pickFromLibrary };
 })();
 
 /* ── 59-editor.js ── */
@@ -3342,13 +3702,18 @@ Views.confidentialite = function () {
     h('h3', null, 'Qui est responsable'),
     h('p', null, 'Tom Rougeaud, auteur de l’appli (contact : voir la page À propos).'),
     h('h3', null, 'Ce qui est enregistré'),
-    h('p', null, 'Votre identifiant (un pseudo ou une adresse e-mail), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même l’administrateur), puis vos classes (nom, niveau, créneaux), séquences, séances, liens et fichiers que vous ajoutez. ', h('strong', null, 'Aucune donnée d’élève'), ' (nom, note, photo) n’est demandée : n’en saisissez pas dans les champs libres.'),
+    h('p', null, 'Votre identifiant (un pseudo ou une adresse e-mail), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même le responsable du projet), puis vos classes (nom, niveau, créneaux), séquences, séances, liens et fichiers que vous ajoutez (chiffrés, voir plus bas). ', h('strong', null, 'Aucune donnée d’élève'), ' (nom, note, photo) n’est demandée : n’en saisissez pas dans les champs libres.'),
     h('h3', null, 'Où et qui peut y accéder'),
-    h('p', null, 'Dans la base Supabase de l’appli (serveurs situés en France). Chaque compte lit et écrit uniquement ses propres lignes et ses propres fichiers. Un compte à pseudo est propre à cette appli : il n’existe pas dans mes autres applis, même avec le même pseudo. L’administrateur de la base (Tom Rougeaud) a techniquement accès aux données enregistrées, sauf aux mots de passe. Une copie est gardée dans le stockage local de cet appareil pour le mode hors connexion.'),
+    h('p', null, 'Dans la base Supabase de l’appli (serveurs situés en France). Chaque compte lit et écrit uniquement ses propres lignes et ses propres fichiers. Un compte à pseudo est propre à cette appli : il n’existe pas dans mes autres applis, même avec le même pseudo. Les autres utilisateurs(trices) ne voient jamais vos données. Une copie lisible est gardée dans le stockage local de cet appareil pour le mode hors connexion.'),
+    h('h3', null, 'Chiffrement de bout en bout'),
+    h('p', null, 'Votre contenu est chiffré dans votre navigateur (AES-GCM 256 bits) avant d’être envoyé. La clé de chiffrement est protégée par votre mot de passe et par un code de récupération que vous notez à la première connexion. Le serveur ne connaît ni l’un ni l’autre : le responsable du projet et l’hébergeur ne peuvent pas lire votre contenu.'),
+    h('p', null, h('strong', null, 'Ce qui n’est pas visible : '), 'noms de classes, métiers, notes, titres et contenu des séquences et séances, objectifs personnalisés, noms et adresses des liens et fichiers, contenu des fichiers, réglages.'),
+    h('p', null, h('strong', null, 'Ce qui reste visible (informations techniques) : '), 'votre identifiant, les dates de création du compte et de connexion (journaux d’authentification), le nombre d’éléments enregistrés, leurs niveaux, statuts, types et dates, la durée des séances, les cases cochées du programme officiel et la taille des fichiers. Ces informations ne permettent pas de lire votre contenu.'),
+    h('p', null, h('strong', null, 'Limites : '), 'si vous perdez votre mot de passe et votre code de récupération, vos données ne peuvent plus être récupérées par personne. Le chiffrement protège contre la lecture à distance ; il ne protège pas un appareil déjà ouvert. Choisissez un mot de passe solide : c’est lui qui protège la clé.'),
     h('h3', null, 'Services tiers'),
     h('p', null, 'Supabase (hébergement de la base de données et des comptes) et GitHub Pages (hébergement des pages de l’appli : il reçoit votre adresse IP comme tout site web et peut tenir des journaux techniques). Aucun autre service : pas de traceur, pas de statistiques, pas de publicité, pas de police ou script chargé depuis un service tiers. Les vidéos YouTube sont enregistrées comme liens « sans cookies » et ne sont jamais intégrées automatiquement : rien n’est chargé tant que vous n’ouvrez pas le lien.'),
     h('h3', null, 'Mot de passe oublié'),
-    h('p', null, 'Compte avec adresse e-mail : un lien de réinitialisation est envoyé à cette adresse. Compte avec pseudo : aucune adresse n’étant enregistrée, la réinitialisation est faite par l’administrateur de l’appli, à votre demande.'),
+    h('p', null, 'Compte avec adresse e-mail : un lien de réinitialisation est envoyé à cette adresse. Compte avec pseudo : aucune adresse n’étant enregistrée, la réinitialisation est faite par le responsable de l’appli, à votre demande. Vos données étant chiffrées, vous devrez ensuite saisir votre code de récupération pour les rouvrir.'),
     h('h3', null, 'Vos droits'),
     h('p', null, 'Depuis Réglages : export complet en JSON, effacement de toutes vos données (lignes et fichiers), et suppression de votre compte (tout est alors effacé définitivement, immédiatement).'),
     h('p', { class: 'small muted' }, 'Dernière mise à jour : 21/11/2026.')));
@@ -5301,21 +5666,37 @@ var Main = (function () {
     if (lastUid && lastUid !== Api.uid()) DB.reset();
     Store.set('last_uid', Api.uid());
     loading('Chargement de vos fiches…');
-    DB.loadAll().then(function (res) {
+    Chiffre.init().then(function (st) {
+      if (st === 'aucune') { Chiffre.ecranInstallation(charger); return; }
+      if (st === 'verrouille') { Chiffre.ecranVerrou(charger); return; }
+      return charger();
+    }).catch(echecChargement);
+  }
+  function echecChargement(e) {
+    if (e && (e.status === 401 || e.status === 403) && !/permission denied/i.test(e.message || '')) { Api.auth.signOut().then(function () { showAuth('Session expirée : reconnectez-vous.'); }); return; }
+    if (e && e.network) { showAuth('Réseau indisponible et aucune donnée en cache. Réessayez en ligne.'); return; }
+    setupScreen(e);
+  }
+  /* charge les données (déchiffrées), migre les anciennes données en clair, puis affiche l’appli */
+  function charger() {
+    loading('Chargement de vos fiches…');
+    return DB.loadAll().then(function (res) {
+      if (DB.illisibles() > 0) { return Chiffre.invalider().then(function () { Chiffre.ecranVerrou(charger); return 'stop'; }); }
+      if (res !== 'cache' && Chiffre.actif() && DB.anciennes() > 0) return Chiffre.ecranMigration(DB.anciennes()).then(function () { loading('Chargement de vos fiches…'); return res; });
+      return res;
+    }).then(function (res) {
+      if (res === 'stop') return;
+      Chiffre.memo(null);   /* le mot de passe saisi n’est plus gardé en mémoire */
       adoptLook(); Ref.invalidate(); started = true; Shell.build();
       if (res === 'cache') UI.toast('Hors connexion : données de la dernière synchronisation.');
       if (!location.hash || location.hash === '#') location.hash = '#/';
       route();
       installBannerSoon();
-    }, function (e) {
-      if (e && (e.status === 401 || e.status === 403) && !/permission denied/i.test(e.message || '')) { Api.auth.signOut().then(function () { showAuth('Session expirée : reconnectez-vous.'); }); return; }
-      if (e && e.network) { showAuth('Réseau indisponible et aucune donnée en cache. Réessayez en ligne.'); return; }
-      setupScreen(e);
-    });
+    }).catch(echecChargement);
   }
   function logout(force) {
-    function go() { started = false; DB.flush().catch(function () { /* ignoré */ }).then(function () { return Api.auth.signOut(); }).then(function () { DB.reset(); Store.del('last_uid'); location.hash = '#/'; showAuth(); }); }
-    if (!force && DB.pending() > 0) { UI.ask('Des modifications ne sont pas encore envoyées à la base. Se déconnecter les effacerait de cet appareil.', { ok: 'Se déconnecter quand même', danger: true }).then(function (ok) { if (ok) { started = false; Api.auth.signOut().then(function () { DB.reset(); Store.del('last_uid'); location.hash = '#/'; showAuth(); }); } }); return; }
+    function go() { started = false; DB.flush().catch(function () { /* ignoré */ }).then(function () { return Chiffre.oublier(); }).then(function () { return Api.auth.signOut(); }).then(function () { DB.reset(); Store.del('last_uid'); location.hash = '#/'; showAuth(); }); }
+    if (!force && DB.pending() > 0) { UI.ask('Des modifications ne sont pas encore envoyées à la base. Se déconnecter les effacerait de cet appareil.', { ok: 'Se déconnecter quand même', danger: true }).then(function (ok) { if (ok) { started = false; Chiffre.oublier().then(function () { return Api.auth.signOut(); }).then(function () { DB.reset(); Store.del('last_uid'); location.hash = '#/'; showAuth(); }); } }); return; }
     go();
   }
 

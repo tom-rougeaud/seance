@@ -8,7 +8,7 @@
             suppression de compte, bloc « Vos données », avertissement mot de passe faible.
    ===================================================================== */
 const { chromium } = require('playwright');
-const { install, makeState } = require('./mock-supabase');
+const { install, makeState, semerCles } = require('./mock-supabase');
 const BASE = process.env.BASE || 'http://127.0.0.1:8765/index.html';
 let pass = 0, fail = 0;
 function ok(c, msg) { if (c) { pass++; console.log('  ✓ ' + msg); } else { fail++; console.log('  ✗ ' + msg); } }
@@ -77,7 +77,11 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
   ok(/pas encore activés/.test(await page.locator('.auth-msg').innerText()) && st.log.filter((x) => x === 'SIGNUP').length === avant, 'confirmation e-mail active : compte à pseudo non créé, message clair');
   st.autoconfirm = true;
   /* création réussie avec pseudo */
-  st.signupConnecte = true; await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#view', { timeout: 8000 });
+  st.signupConnecte = true; st.cles = null;   /* un nouveau compte n’a encore aucune clé : il passe par l’écran du code de récupération */
+  await page.click('.auth-card button[type=submit]'); await page.waitForSelector('#chiffre-code', { timeout: 8000 });
+  const codeNeuf = (await page.locator('#chiffre-code').innerText()).trim();
+  await page.check('#chiffre-ok'); await page.fill('#chiffre-verif', codeNeuf.replace(/-/g, '').slice(-4)); await page.click('button:has-text("Continuer")');
+  await page.waitForSelector('#view', { timeout: 8000 });
   ok(st.lastSignup && st.lastSignup.email === 'nouveau_eleve@fiches.pseudo.invalid' && st.lastSignup.data && st.lastSignup.data.pseudo === 'nouveau_eleve' && st.lastSignup.password === BON, 'inscription : e-mail technique + pseudo transmis, mot de passe envoyé tel quel');
   ok(JSON.stringify(st.lastSignup).indexOf('@gmail') < 0, 'aucune adresse personnelle dans la requête');
 
@@ -85,11 +89,14 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
   await page.goto(BASE + '#/reglages'); await page.waitForSelector('text=Changer mon mot de passe');
   ok(/Pseudo : nouveau_eleve/.test(await page.locator('#view').innerText()), 'pseudo affiché dans la carte Compte (sans le suffixe technique)');
   await page.click('text=Changer mon mot de passe'); await page.waitForSelector('#compte-nouveau');
+  await page.fill('#compte-actuel', BON);   /* mot de passe actuel demandé : il sert à ré-enfermer la clé de chiffrement */
   await page.fill('#compte-nouveau', 'court'); await page.fill('#compte-confirmation', 'court'); await page.click('.form-mdp button[type=submit]'); await sleep(150);
   ok(/ne respecte pas/.test(await page.locator('.form-mdp .auth-msg').innerText()) && !st.log.includes('PW_CHANGED'), 'changement refusé si la règle n’est pas respectée');
   await page.fill('#compte-nouveau', BON); await page.fill('#compte-confirmation', BON + 'x'); await page.click('.form-mdp button[type=submit]'); await sleep(150);
   ok(/différents/.test(await page.locator('.form-mdp .auth-msg').innerText()) && !st.log.includes('PW_CHANGED'), 'changement refusé si les deux saisies diffèrent');
-  await page.fill('#compte-confirmation', BON); await page.click('.form-mdp button[type=submit]'); await sleep(300);
+  await page.fill('#compte-actuel', 'mauvais'); await page.fill('#compte-confirmation', BON); await page.click('.form-mdp button[type=submit]'); await sleep(500);
+  ok(/actuel est incorrect/.test(await page.locator('.form-mdp .auth-msg').innerText()) && !st.log.includes('PW_CHANGED'), 'mauvais mot de passe actuel : changement refusé');
+  await page.fill('#compte-actuel', BON); await page.click('.form-mdp button[type=submit]'); await sleep(2500);
   ok(st.log.includes('PW_CHANGED'), 'changement de mot de passe envoyé quand tout est bon');
   /* suppression de compte */
   await page.click('button:has-text("Supprimer mon compte")'); await page.waitForSelector('input[placeholder="SUPPRIMER"]');
@@ -101,6 +108,8 @@ const BON = 'Abcdefghij1!';   /* respecte toutes les règles */
   ok(st.log.includes('DELETE_USER'), 'suppression confirmée : fonction delete_user appelée, retour à l’écran de connexion');
 
   console.log('# Mot de passe faible à la connexion (ancien compte)');
+  st.clesSemees = false; st.sansCles = false; await semerCles(st, BON);   /* clés refaites avec le mot de passe actuel du compte */
+  await sleep(800);   /* laisse finir la déconnexion (effacement de la clé locale) */
   st.mdpFaible = true; await page.fill('#compte-id', 'prof@test.fr'); await page.fill('#compte-mdp', BON); /* le mot de passe a été changé plus haut dans ce test */ await page.click('.auth-card button[type=submit]');
   await page.waitForSelector('#view'); await page.waitForSelector('text=ne respecte plus la règle actuelle', { timeout: 5000 });
   ok(true, 'ancien mot de passe faible : accès conservé + invitation à le changer');

@@ -34,10 +34,10 @@ async function dechiffrerLigne(st, r) {
   const out = Object.assign({}, r, o); delete out.chiffre; return out;
 }
 /* clés de départ : compte de test (mot de passe « secret12 ») qui a déjà son code de récupération */
-async function semerCles(st) {
+async function semerCles(st, mdp) {
   if (st.clesSemees) return; st.clesSemees = true;
   if (st.sansCles) return;
-  const c = await TC.creer('secret12'); st.raw = c.brut; st.code = c.code; st.cles = Object.assign({ user_id: '11111111-1111-4111-8111-111111111111', version: 1 }, c.rec);
+  const c = await TC.creer(mdp || 'secret12'); st.raw = c.brut; st.code = c.code; st.cles = Object.assign({ user_id: '11111111-1111-4111-8111-111111111111', version: 1 }, c.rec);
 }
 const URL_BASE = 'https://zfqzvwpjxmrlctxsmxch.supabase.co';
 const TABLES = ['fs_classes', 'fs_sequences', 'fs_seances', 'fs_ref_perso', 'fs_ressources', 'fs_attachments', 'fs_calendrier', 'fs_progress_override', 'fs_modeles', 'fs_items'];
@@ -125,4 +125,4 @@ async function install(context, st) {
     return route.fulfill(json(404, { message: 'mock: route inconnue ' + m + ' ' + p }));
   });
 }
-module.exports = { install, makeState, URL_BASE, chiffrerLigne, dechiffrerLigne };
+module.exports = { install, makeState, URL_BASE, chiffrerLigne, dechiffrerLigne, semerCles };

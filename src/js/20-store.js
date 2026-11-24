@@ -6,7 +6,7 @@ var DB = (function () {
     fs_sequences: ['id', 'user_id', 'class_id', 'ordre', 'titre', 'statut', 'date_debut', 'date_fin', 'data'],
     fs_seances: ['id', 'user_id', 'class_id', 'sequence_id', 'jumelle_id', 'ordre', 'titre', 'type', 'modalite', 'groupe', 'duree_min', 'date_prevue', 'date_realisee', 'statut', 'data'],
     fs_ref_perso: ['id', 'user_id', 'action', 'niveau_id', 'chapitre_id', 'kind', 'ref_id', 'domaine', 'txt', 'ordre'],
-    fs_ressources: ['id', 'user_id', 'type', 'titre', 'url', 'storage_path', 'mime', 'taille', 'tags', 'note'],
+    fs_ressources: ['id', 'user_id', 'type', 'titre', 'url', 'storage_path', 'mime', 'taille', 'tags', 'note', 'fenc'],
     fs_attachments: ['id', 'user_id', 'parent_type', 'parent_id', 'ressource_id', 'usage', 'ordre', 'note'],
     fs_calendrier: ['id', 'user_id', 'annee_scolaire', 'class_id', 'type', 'label', 'debut', 'fin'],
     fs_progress_override: ['id', 'user_id', 'class_id', 'ref_id', 'statut', 'date_realisation', 'note'],
@@ -15,7 +15,7 @@ var DB = (function () {
   /* ordre de chargement / d’import (parents avant enfants) */
   var ORDER = ['fs_classes', 'fs_sequences', 'fs_seances', 'fs_ressources', 'fs_attachments', 'fs_ref_perso', 'fs_calendrier', 'fs_progress_override', 'fs_modeles'];
   var T = {}; ORDER.forEach(function (t) { T[t] = []; });
-  var settings = {};
+  var settings = {}, settingsAncien = false;
   var queue = Store.getJSON('queue', []);
   var failed = Store.getJSON('failed', []);
   var state = { online: navigator.onLine !== false, flushing: false, listeners: [], lastOk: null };
@@ -41,9 +41,10 @@ var DB = (function () {
   function schedule(ms) { clearTimeout(timer); timer = setTimeout(flush, ms); }
 
   function runOp(op) {
-    if (op.t === 'up') return Api.rest.upsert(op.table, [op.row]);
+    /* chiffrement de bout en bout : la ligne est chiffrée ici, juste avant l’envoi (la file locale reste lisible sur cet appareil) */
+    if (op.t === 'up') return Chiffre.versBase(op.table, op.row).then(function (r) { return Api.rest.upsert(op.table, [r]); });
     if (op.t === 'del') return Api.rest.remove(op.table, op.id);
-    if (op.t === 'items') return Api.rest.rpc('fs_set_items', { p_parent_type: op.parent_type, p_parent_id: op.parent_id, p_class_id: op.class_id, p_items: op.items });
+    if (op.t === 'items') return Api.rest.rpc('fs_set_items', { p_parent_type: op.parent_type, p_parent_id: op.parent_id, p_class_id: op.class_id, p_items: Chiffre.actif() ? [] : op.items });
     return Promise.resolve();
   }
   function flush() {
@@ -127,6 +128,9 @@ var DB = (function () {
     return flush().then(function () {
       return Promise.all(ORDER.map(function (t) { return Api.rest.selectAll(t, { order: (t === 'fs_progress_override' ? 'updated_at' : 'created_at') + '.asc' }); }).concat([Api.rest.select('fs_settings', {})]));
     }).then(function (res) {
+      /* déchiffre les lignes reçues (les anciennes lignes en clair sont marquées « _ancien » pour être migrées) */
+      return Promise.all(ORDER.map(function (t, i) { return Promise.all((res[i] || []).map(function (r) { return Chiffre.depuisBase(t, r); })); }).concat([Promise.all((res[ORDER.length] || []).map(function (r) { return Chiffre.depuisBase('fs_settings', r); }))]));
+    }).then(function (res) {
       ORDER.forEach(function (t, i) {
         var remote = res[i] || [];
         /* conserver les lignes locales encore en attente d’envoi */
@@ -136,6 +140,7 @@ var DB = (function () {
         });
         T[t] = remote;
       });
+      settingsAncien = !!(res[ORDER.length] && res[ORDER.length][0] && res[ORDER.length][0]._ancien);
       settings = (res[ORDER.length] && res[ORDER.length][0] && res[ORDER.length][0].data) || settings || {};
       cacheWrite(); state.online = true; notify(); return true;
     }).catch(function (e) {
@@ -144,6 +149,24 @@ var DB = (function () {
     });
   }
 
+  /* nombre de lignes encore en clair côté base (à chiffrer) */
+  function anciennes() {
+    var n = 0; ORDER.forEach(function (t) { T[t].forEach(function (r) { if (r._ancien) n++; }); });
+    if (settingsAncien) n++;
+    return n;
+  }
+  /* Chiffre toutes les anciennes lignes : on les réenregistre (le chiffrement se fait à l’envoi) et on vide l’ancien index fs_items.
+     Les fichiers déjà envoyés en clair sont chiffrés par Res.migrerFichier. */
+  function migrer() {
+    var suite = Promise.resolve();
+    ORDER.forEach(function (t) {
+      T[t].slice().forEach(function (r) {
+        if (!r._ancien) return;
+        suite = suite.then(function () { return t === 'fs_ressources' && r.storage_path && !r.fenc ? Res.migrerFichier(r) : null; }).then(function () { delete r._ancien; enqueue({ t: 'up', table: t, id: r.id, row: pick(t, r) }); if (t === 'fs_seances' || t === 'fs_sequences') enqueue({ t: 'items', table: 'fs_items', parent_type: t === 'fs_seances' ? 'seance' : 'sequence', parent_id: r.id, class_id: r.class_id, items: [] }); });
+      });
+    });
+    return suite.then(function () { if (settingsAncien) { settingsAncien = false; saveSettings({}); } cacheWrite(); return flush(); });
+  }
   function reset() { ORDER.forEach(function (t) { T[t] = []; }); settings = {}; queue = []; failed = []; persistQueue(); Store.del('cache_' + Api.uid()); }
 
   /* import brut (déjà validé) : remplace / ajoute puis met en file */
@@ -152,6 +175,6 @@ var DB = (function () {
   return {
     TABLES: TABLES, ORDER: ORDER, T: T, list: list, byId: byId, save: save, create: create, remove: remove, loadAll: loadAll, flush: flush,
     onSync: onSync, syncInfo: syncInfo, settings: function () { return settings; }, saveSettings: saveSettings, reset: reset, bulkPut: bulkPut,
-    failed: function () { return failed; }, clearFailed: function () { failed = []; persistQueue(); notify(); }, pending: function () { return queue.length; }, pick: pick
+    illisibles: function () { var n = 0; ORDER.forEach(function (t) { T[t].forEach(function (r) { if (r._illisible) n++; }); }); return n; }, anciennes: anciennes, migrer: migrer, failed: function () { return failed; }, clearFailed: function () { failed = []; persistQueue(); notify(); }, pending: function () { return queue.length; }, pick: pick
   };
 })();

@@ -102,8 +102,11 @@ var Compte = (function () {
     return h('details', { class: 'compte-donnees' },
       h('summary', null, 'Vos données : qui y a accès ?'),
       h('ul', { class: 'small' },
-        h('li', null, h('strong', null, 'Enregistré : '), 'votre identifiant (pseudo ou adresse e-mail d’un ancien compte), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même l’administrateur), et ' + ADAPTATEUR.contenu + '.'),
-        h('li', null, h('strong', null, 'Qui y accède : '), 'vous, avec votre compte. L’administrateur de la base (Tom Rougeaud) a techniquement accès aux données enregistrées, sauf aux mots de passe.'),
+        h('li', null, h('strong', null, 'Enregistré : '), 'votre identifiant (pseudo ou adresse e-mail d’un ancien compte), votre mot de passe sous forme d’empreinte irréversible (nul ne peut le relire, pas même le responsable du projet), et ' + ADAPTATEUR.contenu + ' (chiffrés).'),
+        h('li', null, h('strong', null, 'Qui y accède : '), 'vous seul(e). Votre contenu est chiffré dans votre navigateur avant l’envoi : le responsable du projet et l’hébergeur ne voient que du texte illisible. Les autres utilisateurs(trices) ne voient rien non plus.'),
+        h('li', null, h('strong', null, 'Ce qui n’est pas visible : '), 'noms de classes, métiers, notes, titres et contenu des séquences et séances, objectifs personnalisés, noms et adresses des liens et fichiers, contenu des fichiers, réglages. Votre mot de passe n’est jamais lisible.'),
+        h('li', null, h('strong', null, 'Ce qui reste visible (technique) : '), 'votre identifiant, les dates de création et de connexion, le nombre d’éléments enregistrés, leurs niveaux, statuts et dates, les cases cochées du programme officiel, la taille des fichiers.'),
+        h('li', null, h('strong', null, 'Code de récupération : '), 'si vous oubliez votre mot de passe, seul votre code de récupération rouvre vos données. Sans mot de passe ni code, personne ne peut les récupérer, pas même le responsable.'),
         h('li', null, h('strong', null, 'Compte propre à cette appli : '), 'votre pseudo n’existe que dans cette appli. Un même pseudo dans une autre appli est un autre compte, avec un autre mot de passe. Supprimer cette appli ou votre compte ici ne touche pas vos comptes ailleurs. Seuls les anciens comptes avec adresse e-mail sont partagés entre plusieurs applis.'),
         h('li', null, h('strong', null, 'Services tiers : '), 'Supabase (hébergement de la base de données et des comptes, serveurs situés en France) et GitHub Pages (hébergement des pages de l’appli, qui reçoit votre adresse IP comme tout site web). Aucun traceur, aucune publicité, aucun autre service.'),
         h('li', null, h('strong', null, 'Vos droits : '), 'exporter vos données, les effacer, ou supprimer votre compte à tout moment (Réglages › Compte).')),
@@ -179,7 +182,7 @@ var Compte = (function () {
       var id = ident.value.trim();
       msg.className = 'auth-msg';
       if (!id) { msg.textContent = 'Saisissez d’abord votre pseudo ou votre adresse e-mail.'; return; }
-      if (!estEmail(id)) { msg.textContent = 'Compte à pseudo : aucune adresse e-mail n’est enregistrée, la réinitialisation automatique est impossible. Demandez à l’administrateur de l’appli de réinitialiser votre mot de passe.'; return; }
+      if (!estEmail(id)) { msg.textContent = 'Compte à pseudo : aucune adresse e-mail n’est enregistrée, la réinitialisation automatique est impossible. Demandez au responsable de l’appli de réinitialiser votre mot de passe.'; return; }
       Api.auth.recover(id).then(function () { msg.className = 'auth-msg ok'; msg.textContent = 'Si ce compte existe, un e-mail de réinitialisation vient d’être envoyé.'; }, function (e) { msg.textContent = messageErreur(e, 'in'); });
     };
 
@@ -192,7 +195,7 @@ var Compte = (function () {
       /* Un pseudo n’a pas d’e-mail à confirmer : on vérifie que le serveur l’accepte AVANT de créer le compte,
          pour ne pas laisser un compte inutilisable qui bloquerait le pseudo. */
       return Api.auth.reglages().then(function (s) {
-        if (s && s.mailer_autoconfirm === false) throw { silent: true, texte: 'Les comptes à pseudo ne sont pas encore activés sur cette appli. Contactez l’administrateur.' };
+        if (s && s.mailer_autoconfirm === false) throw { silent: true, texte: 'Les comptes à pseudo ne sont pas encore activés sur cette appli. Contactez le responsable de l’appli.' };
         return verifierPseudo(v);
       }).then(function (libre) {
         if (libre !== true) throw { silent: true, texte: 'Ce pseudo n’est pas disponible : choisissez-en un autre.' };
@@ -206,12 +209,14 @@ var Compte = (function () {
       var id = ident.value.trim(), pw = mdp.input.value;
       var p = mode === 'in'
         ? Api.auth.signIn(identifiantVersEmail(id), pw).then(function () {
+            Chiffre.memo(pw);   /* sert uniquement à ouvrir la clé de chiffrement, jamais enregistré */
             /* ancien mot de passe qui ne respecte plus la règle actuelle : on prévient sans bloquer l’accès */
             if (Api.auth.faible()) UI.toast('Votre mot de passe ne respecte plus la règle actuelle : changez-le dans Réglages › Compte.');
             Main.afterLogin();
           })
         : inscrire(id, pw).then(function (r) {
             if (!r.connecte) { msg.className = 'auth-msg ok'; msg.textContent = 'Compte créé : confirmez votre adresse via l’e-mail reçu, puis connectez-vous.'; changerMode('in'); return; }
+            Chiffre.memo(pw);
             Main.afterLogin();
           });
       p.then(null, function (err) { msg.textContent = messageErreur(err, mode); }).then(function () { btn.disabled = false; });
@@ -227,7 +232,8 @@ var Compte = (function () {
   }
 
   /* ===== SECTION : Formulaire « nouveau mot de passe » (réutilisé deux fois) ===== */
-  function formulaireNouveauMdp(auSucces) {
+  function formulaireNouveauMdp(auSucces, avecAncien) {
+    var p0 = avecAncien ? champMdp('compte-actuel', 'current-password') : null;
     var p1 = champMdp('compte-nouveau', 'new-password'), p2 = champMdp('compte-confirmation', 'new-password');
     var regles = listeRegles();
     var msg = h('div', { class: 'auth-msg', role: 'alert' });
@@ -238,8 +244,14 @@ var Compte = (function () {
       if (!evaluerMdp(p1.input.value).ok) { msg.textContent = 'Le mot de passe ne respecte pas toutes les règles de la liste.'; return; }
       if (p1.input.value !== p2.input.value) { msg.textContent = 'Les deux mots de passe sont différents.'; return; }
       btn.disabled = true;
-      Api.auth.updatePassword(p1.input.value).then(function () { auSucces(); }, function (err) { msg.textContent = messageErreur(err, 'up'); btn.disabled = false; });
-    } }, UI.field('Nouveau mot de passe', p1.wrap), regles.el, UI.field('Confirmation', p2.wrap), msg, btn);
+      var nouveau = p1.input.value;
+      /* avec le chiffrement, on ouvre d’abord la clé avec l’ancien mot de passe, puis on la ré-enferme avec le nouveau */
+      var ouvrir = p0 && Chiffre.actif() ? Chiffre.deverrouillerMdp(p0.input.value).then(null, function () { throw { silent: true, texte: 'Le mot de passe actuel est incorrect.' }; }) : Promise.resolve();
+      ouvrir.then(function () { return Api.auth.updatePassword(nouveau); }).then(function () {
+        Chiffre.memo(nouveau);
+        return Chiffre.brutConnu() ? Chiffre.reenfermer(nouveau) : null;
+      }).then(function () { auSucces(); }, function (err) { msg.textContent = messageErreur(err, 'up'); btn.disabled = false; });
+    } }, p0 ? UI.field('Mot de passe actuel', p0.wrap) : null, UI.field('Nouveau mot de passe', p1.wrap), regles.el, UI.field('Confirmation', p2.wrap), msg, btn);
   }
 
   /* Écran affiché après le lien « mot de passe oublié » reçu par e-mail. */
@@ -278,14 +290,14 @@ var Compte = (function () {
     var estPseudo = email.slice(-suffixe.length) === suffixe;
     var ancienPseudo = !estPseudo && email.slice(-(SUFFIXE_ANCIEN.length + 1)) === '@' + SUFFIXE_ANCIEN;   /* ancien compte à pseudo (sans appli) */
     if (ancienPseudo) { suffixe = '@' + SUFFIXE_ANCIEN; estPseudo = true; }
-    var zone = h('div', { class: 'zone-mdp', hidden: true }, formulaireNouveauMdp(function () { zone.hidden = true; UI.toast('Mot de passe modifié.'); }));
+    var zone = h('div', { class: 'zone-mdp', hidden: true }, formulaireNouveauMdp(function () { zone.hidden = true; UI.toast('Mot de passe modifié.'); }, true));
     return h('section', { class: 'card' }, h('h2', null, 'Compte'),
       h('p', null, (estPseudo ? 'Pseudo : ' : 'Adresse e-mail : ') + (estPseudo ? email.slice(0, -suffixe.length) : email)),
       h('div', { class: 'row-gap' },
         h('button', { class: 'btn', type: 'button', onclick: function () { zone.hidden = !zone.hidden; } }, '🔑 Changer mon mot de passe'),
         h('button', { class: 'btn', type: 'button', onclick: function () { Main.logout(); } }, 'Se déconnecter'),
         h('button', { class: 'btn danger', type: 'button', onclick: supprimerCompte }, '🗑 Supprimer mon compte')),
-      zone, blocDonnees());
+      zone, Chiffre.actif() ? Chiffre.carteSecurite() : null, blocDonnees());
   }
 
   /* ===== SECTION : Interface publique du bloc ===== */

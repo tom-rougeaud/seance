@@ -1,19 +1,44 @@
 /* Faux Supabase (auth + PostgREST + storage) pour les tests de bout en bout, via page.route */
 const REAL_COLS = {
-  fs_attachments: 'id,user_id,parent_type,parent_id,ressource_id,usage,ordre,note,created_at',
-  fs_calendrier: 'id,user_id,annee_scolaire,class_id,type,label,debut,fin,created_at',
-  fs_classes: 'id,user_id,nom,niveau_id,groupement,avec_pc,poursuite,metier,annee_scolaire,couleur,creneaux,notes,archive,ordre,created_at,updated_at',
+  fs_attachments: 'id,user_id,parent_type,parent_id,ressource_id,usage,ordre,note,chiffre,created_at',
+  fs_calendrier: 'id,user_id,annee_scolaire,class_id,type,label,debut,fin,chiffre,created_at',
+  fs_classes: 'id,user_id,nom,niveau_id,groupement,avec_pc,poursuite,metier,annee_scolaire,couleur,creneaux,notes,archive,ordre,chiffre,created_at,updated_at',
   fs_items: 'id,user_id,class_id,parent_type,parent_id,kind,ref_id,txt,niveau,created_at',
-  fs_modeles: 'id,user_id,kind,titre,niveau_id,data,created_at,updated_at',
-  fs_progress_override: 'id,user_id,class_id,ref_id,statut,date_realisation,note,updated_at',
-  fs_ref_perso: 'id,user_id,action,niveau_id,chapitre_id,kind,ref_id,domaine,txt,ordre,created_at,updated_at',
-  fs_ressources: 'id,user_id,type,titre,url,storage_path,mime,taille,tags,note,created_at,updated_at',
-  fs_seances: 'id,user_id,class_id,sequence_id,jumelle_id,ordre,titre,type,modalite,groupe,duree_min,date_prevue,date_realisee,statut,data,created_at,updated_at',
-  fs_sequences: 'id,user_id,class_id,ordre,titre,statut,date_debut,date_fin,data,created_at,updated_at',
-  fs_settings: 'user_id,data,updated_at'
+  fs_modeles: 'id,user_id,kind,titre,niveau_id,data,chiffre,created_at,updated_at',
+  fs_progress_override: 'id,user_id,class_id,ref_id,statut,date_realisation,note,chiffre,updated_at',
+  fs_ref_perso: 'id,user_id,action,niveau_id,chapitre_id,kind,ref_id,domaine,txt,ordre,chiffre,created_at,updated_at',
+  fs_ressources: 'id,user_id,type,titre,url,storage_path,mime,taille,tags,note,chiffre,created_at,updated_at',
+  fs_seances: 'id,user_id,class_id,sequence_id,jumelle_id,ordre,titre,type,modalite,groupe,duree_min,date_prevue,date_realisee,statut,data,chiffre,created_at,updated_at',
+  fs_sequences: 'id,user_id,class_id,ordre,titre,statut,date_debut,date_fin,data,chiffre,created_at,updated_at',
+  fs_cles: 'user_id,salt,wrap_mdp,wrap_rec,version,updated_at',
+  fs_settings: 'user_id,data,chiffre,updated_at'
 };
 Object.keys(REAL_COLS).forEach((k) => { REAL_COLS[k] = REAL_COLS[k].split(','); });
 'use strict';
+/* Le faux serveur joue le rôle d’un « oracle » : il déchiffre ce que le navigateur envoie (avec la vraie clé) pour que les tests lisent
+   les données en clair dans st.rows, et rechiffre à la lecture. Le navigateur, lui, ne voit que du chiffré (vérifié dans e2e14). */
+const Chiffre = require('../src/js/13-chiffre.js'), TC = Chiffre._test;
+const enc = new TextEncoder(), dec = new TextDecoder();
+async function cleDonnees(st) { return crypto.subtle.importKey('raw', st.raw, 'AES-GCM', false, ['encrypt', 'decrypt']); }
+async function chiffrerLigne(st, t, r) {
+  const spec = TC.ENC[t]; if (!spec || !st.raw || st.legacy) return r;
+  const bloc = {}; Object.keys(spec).concat(t === 'fs_ressources' ? ['fenc'] : []).forEach((c) => { if (r[c] !== undefined) bloc[c] = r[c]; });
+  const out = Object.assign({}, r); delete out.fenc;
+  Object.keys(spec).forEach((c) => { out[c] = JSON.parse(JSON.stringify(spec[c])); });
+  out.chiffre = 'enc1:' + await TC.scelle(await cleDonnees(st), enc.encode(JSON.stringify(bloc)));
+  return out;
+}
+async function dechiffrerLigne(st, r) {
+  if (!r.chiffre) return r;
+  const o = JSON.parse(dec.decode(await TC.ouvre(await cleDonnees(st), r.chiffre.slice(5))));
+  const out = Object.assign({}, r, o); delete out.chiffre; return out;
+}
+/* clés de départ : compte de test (mot de passe « secret12 ») qui a déjà son code de récupération */
+async function semerCles(st, mdp) {
+  if (st.clesSemees) return; st.clesSemees = true;
+  if (st.sansCles) return;
+  const c = await TC.creer(mdp || 'secret12'); st.raw = c.brut; st.code = c.code; st.cles = Object.assign({ user_id: '11111111-1111-4111-8111-111111111111', version: 1 }, c.rec);
+}
 const URL_BASE = 'https://zfqzvwpjxmrlctxsmxch.supabase.co';
 const TABLES = ['fs_classes', 'fs_sequences', 'fs_seances', 'fs_ref_perso', 'fs_ressources', 'fs_attachments', 'fs_calendrier', 'fs_progress_override', 'fs_modeles', 'fs_items'];
 function makeState() {
@@ -23,6 +48,7 @@ function makeState() {
 }
 const json = (status, body, extra) => ({ status, contentType: 'application/json', headers: Object.assign({ 'access-control-allow-origin': '*' }, extra || {}), body: JSON.stringify(body) });
 async function install(context, st) {
+  await semerCles(st);
   await context.route(URL_BASE + '/**', async (route) => {
     const req = route.request(), u = new URL(req.url()), p = u.pathname, m = req.method();
     if (m === 'OPTIONS') return route.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' } });
@@ -49,24 +75,35 @@ async function install(context, st) {
       if (name === 'pseudo_disponible') { const v = JSON.parse(req.postData() || '{}').p; st.log.push('PSEUDO?' + v); st.lastApp = JSON.parse(req.postData() || '{}').p_app; return route.fulfill(json(200, !(st.pseudosPris || ['pris-12']).includes(v))); }
       if (name === 'est_proprietaire') return route.fulfill(json(200, !!st.proprietaire));
       if (name === 'delete_user') { st.log.push('DELETE_USER'); return route.fulfill(json(200, null)); }
-      if (name === 'fs_effacer_mes_donnees') { const paths = st.rows.fs_ressources.filter((r) => r.storage_path).map((r) => r.storage_path); TABLES.forEach((t) => { st.rows[t] = []; }); st.settings = null; return route.fulfill(json(200, paths)); }
+      if (name === 'fs_effacer_mes_donnees') { const paths = st.rows.fs_ressources.filter((r) => r.storage_path).map((r) => r.storage_path); TABLES.forEach((t) => { st.rows[t] = []; }); st.settings = null; st.cles = null; return route.fulfill(json(200, paths)); }
       return route.fulfill(json(404, { message: 'no rpc' }));
     }
     if (p.startsWith('/rest/v1/')) {
       const t = p.split('/')[3];
       if (st.missingTables) return route.fulfill(json(404, { code: 'PGRST205', message: "Could not find the table 'public." + t + "' in the schema cache" }));
       if (t === 'fs_settings') {
-        if (m === 'GET') return route.fulfill(json(200, st.settings ? [st.settings] : []));
-        if (m === 'POST') { const rows = JSON.parse(req.postData()); st.settings = Object.assign({}, st.settings, rows[0]); return route.fulfill({ status: 201, headers: { 'access-control-allow-origin': '*' }, body: '' }); }
+        if (m === 'GET') return route.fulfill(json(200, st.settings ? [await chiffrerLigne(st, 'fs_settings', st.settings)] : []));
+        if (m === 'POST') { const rows = JSON.parse(req.postData()); st.wire = (st.wire || []).concat([req.postData()]); st.settings = Object.assign({}, st.settings, await dechiffrerLigne(st, rows[0])); return route.fulfill({ status: 201, headers: { 'access-control-allow-origin': '*' }, body: '' }); }
+      }
+      if (t === 'fs_cles') {
+        if (m === 'GET') return route.fulfill(json(200, st.cles ? [st.cles] : []));
+        if (m === 'POST') {
+          st.cles = Object.assign({}, st.cles, JSON.parse(req.postData())[0]); st.log.push('CLES_POST');
+          /* retrouve la clé de données (le test connaît les mots de passe) pour pouvoir lire les envois suivants */
+          for (const pw of Object.values(st.users).map((x) => x.pw).concat(['secret12', st.mdpNouveau || ''])) { try { st.raw = await TC.ouvre(await TC.cleMdp(pw, st.cles.salt), st.cles.wrap_mdp); break; } catch (e) { /* mauvais mot de passe */ } }
+          return route.fulfill({ status: 201, headers: { 'access-control-allow-origin': '*' }, body: '' });
+        }
       }
       if (!st.rows[t]) return route.fulfill(json(404, { message: 'unknown table ' + t }));
       /* contrôle strict des colonnes, comme PostgREST */
       const ord = u.searchParams.get('order');
       if (ord && REAL_COLS[t] && REAL_COLS[t].indexOf(ord.split('.')[0]) < 0) return route.fulfill(json(400, { code: '42703', message: 'column ' + t + '.' + ord.split('.')[0] + ' does not exist' }));
       if (m === 'POST' && REAL_COLS[t]) { const bad = JSON.parse(req.postData() || '[]').reduce((a, r) => a.concat(Object.keys(r).filter((c) => REAL_COLS[t].indexOf(c) < 0)), []); if (bad.length) return route.fulfill(json(400, { code: 'PGRST204', message: "Could not find the '" + bad[0] + "' column of '" + t + "' in the schema cache" })); }
-      if (m === 'GET') return route.fulfill(json(200, st.rows[t].slice()));
+      if (m === 'GET') return route.fulfill(json(200, await Promise.all(st.rows[t].map((r) => chiffrerLigne(st, t, r)))));
       if (m === 'POST') {
-        const rows = JSON.parse(req.postData());
+        st.wire = (st.wire || []).concat([req.postData()]);
+        const rows = [];
+        for (const r0 of JSON.parse(req.postData())) rows.push(await dechiffrerLigne(st, r0));
         for (const r of rows) {
           if (!r.id) return route.fulfill(json(400, { message: 'id manquant' }));
           const i = st.rows[t].findIndex((x) => x.id === r.id);
@@ -81,10 +118,11 @@ async function install(context, st) {
         return route.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*' }, body: '' });
       }
     }
-    if (p.startsWith('/storage/v1/object/sign/')) return route.fulfill(json(200, { signedURL: '/object/sign/x?token=abc' }));
-    if (p.startsWith('/storage/v1/object/fiches-ressources/') && m === 'POST') { st.files[decodeURIComponent(p)] = req.postDataBuffer() ? req.postDataBuffer().length : 0; return route.fulfill(json(200, { Key: 'ok' })); }
+    if (p.startsWith('/storage/v1/object/sign/') && m === 'GET' && st.fichiers && st.fichiers[decodeURIComponent(p.replace('/storage/v1/object/sign/', '/storage/v1/object/'))]) return route.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*' }, body: st.fichiers[decodeURIComponent(p.replace('/storage/v1/object/sign/', '/storage/v1/object/'))] });
+    if (p.startsWith('/storage/v1/object/sign/')) return route.fulfill(json(200, { signedURL: '/object/sign/fiches-ressources/' + p.slice('/storage/v1/object/sign/fiches-ressources/'.length) + '?token=abc' }));
+    if (p.startsWith('/storage/v1/object/fiches-ressources/') && m === 'POST') { st.files[decodeURIComponent(p)] = req.postDataBuffer() ? req.postDataBuffer().length : 0; (st.fichiers = st.fichiers || {})[decodeURIComponent(p)] = req.postDataBuffer(); return route.fulfill(json(200, { Key: 'ok' })); }
     if (p.startsWith('/storage/v1/object/fiches-ressources') && m === 'DELETE') return route.fulfill(json(200, []));
     return route.fulfill(json(404, { message: 'mock: route inconnue ' + m + ' ' + p }));
   });
 }
-module.exports = { install, makeState, URL_BASE };
+module.exports = { install, makeState, URL_BASE, chiffrerLigne, dechiffrerLigne, semerCles };

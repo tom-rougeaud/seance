@@ -122,7 +122,7 @@ var Api = (function () {
       }
       return page(0);
     },
-    upsert: function (table, rows) { return call('/rest/v1/' + table + '?on_conflict=' + (table === 'fs_settings' ? 'user_id' : 'id'), { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(rows) }); },
+    upsert: function (table, rows) { return call('/rest/v1/' + table + '?on_conflict=' + (table === 'fs_settings' || table === 'fs_cles' ? 'user_id' : 'id'), { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(rows) }); },
     remove: function (table, id) { return call('/rest/v1/' + table + '?id=eq.' + encodeURIComponent(id), { method: 'DELETE', headers: { Prefer: 'return=minimal' } }); },
     rpc: function (name, args) { return call('/rest/v1/rpc/' + name, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(args || {}) }); }
   };
@@ -130,12 +130,15 @@ var Api = (function () {
   /* Stockage */
   var BUCKET = 'fiches-ressources';
   var storage = {
-    upload: function (path, file) {
-      return call('/storage/v1/object/' + BUCKET + '/' + path.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false', 'cache-control': '3600' }, body: file });
+    upload: function (path, file, ecraser) {
+      return call('/storage/v1/object/' + BUCKET + '/' + path.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': ecraser ? 'true' : 'false', 'cache-control': '3600' }, body: file });
     },
     signedUrl: function (path, secs) {
       return call('/storage/v1/object/sign/' + BUCKET + '/' + path.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expiresIn: secs || 3600 }) })
         .then(function (b) { var u = b && (b.signedURL || b.signedUrl); if (!u) throw new Error('Lien indisponible'); return CFG.SUPABASE_URL + '/storage/v1' + (u.charAt(0) === '/' ? '' : '/') + u; });
+    },
+    telecharger: function (path) {
+      return storage.signedUrl(path, 600).then(function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('Fichier indisponible'); return r.arrayBuffer(); }); });
     },
     remove: function (paths) {
       if (!paths || !paths.length) return Promise.resolve();

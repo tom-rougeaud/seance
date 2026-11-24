@@ -115,21 +115,37 @@ var Main = (function () {
     if (lastUid && lastUid !== Api.uid()) DB.reset();
     Store.set('last_uid', Api.uid());
     loading('Chargement de vos fiches…');
-    DB.loadAll().then(function (res) {
+    Chiffre.init().then(function (st) {
+      if (st === 'aucune') { Chiffre.ecranInstallation(charger); return; }
+      if (st === 'verrouille') { Chiffre.ecranVerrou(charger); return; }
+      return charger();
+    }).catch(echecChargement);
+  }
+  function echecChargement(e) {
+    if (e && (e.status === 401 || e.status === 403) && !/permission denied/i.test(e.message || '')) { Api.auth.signOut().then(function () { showAuth('Session expirée : reconnectez-vous.'); }); return; }
+    if (e && e.network) { showAuth('Réseau indisponible et aucune donnée en cache. Réessayez en ligne.'); return; }
+    setupScreen(e);
+  }
+  /* charge les données (déchiffrées), migre les anciennes données en clair, puis affiche l’appli */
+  function charger() {
+    loading('Chargement de vos fiches…');
+    return DB.loadAll().then(function (res) {
+      if (DB.illisibles() > 0) { return Chiffre.invalider().then(function () { Chiffre.ecranVerrou(charger); return 'stop'; }); }
+      if (res !== 'cache' && Chiffre.actif() && DB.anciennes() > 0) return Chiffre.ecranMigration(DB.anciennes()).then(function () { loading('Chargement de vos fiches…'); return res; });
+      return res;
+    }).then(function (res) {
+      if (res === 'stop') return;
+      Chiffre.memo(null);   /* le mot de passe saisi n’est plus gardé en mémoire */
       adoptLook(); Ref.invalidate(); started = true; Shell.build();
       if (res === 'cache') UI.toast('Hors connexion : données de la dernière synchronisation.');
       if (!location.hash || location.hash === '#') location.hash = '#/';
       route();
       installBannerSoon();
-    }, function (e) {
-      if (e && (e.status === 401 || e.status === 403) && !/permission denied/i.test(e.message || '')) { Api.auth.signOut().then(function () { showAuth('Session expirée : reconnectez-vous.'); }); return; }
-      if (e && e.network) { showAuth('Réseau indisponible et aucune donnée en cache. Réessayez en ligne.'); return; }
-      setupScreen(e);
-    });
+    }).catch(echecChargement);
   }
   function logout(force) {
-    function go() { started = false; DB.flush().catch(function () { /* ignoré */ }).then(function () { return Api.auth.signOut(); }).then(function () { DB.reset(); Store.del('last_uid'); location.hash = '#/'; showAuth(); }); }
-    if (!force && DB.pending() > 0) { UI.ask('Des modifications ne sont pas encore envoyées à la base. Se déconnecter les effacerait de cet appareil.', { ok: 'Se déconnecter quand même', danger: true }).then(function (ok) { if (ok) { started = false; Api.auth.signOut().then(function () { DB.reset(); Store.del('last_uid'); location.hash = '#/'; showAuth(); }); } }); return; }
+    function go() { started = false; DB.flush().catch(function () { /* ignoré */ }).then(function () { return Chiffre.oublier(); }).then(function () { return Api.auth.signOut(); }).then(function () { DB.reset(); Store.del('last_uid'); location.hash = '#/'; showAuth(); }); }
+    if (!force && DB.pending() > 0) { UI.ask('Des modifications ne sont pas encore envoyées à la base. Se déconnecter les effacerait de cet appareil.', { ok: 'Se déconnecter quand même', danger: true }).then(function (ok) { if (ok) { started = false; Chiffre.oublier().then(function () { return Api.auth.signOut(); }).then(function () { DB.reset(); Store.del('last_uid'); location.hash = '#/'; showAuth(); }); } }); return; }
     go();
   }
 

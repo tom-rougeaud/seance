@@ -98,3 +98,30 @@ grant execute on function public.est_proprietaire() to authenticated;
 -- pour supprimer une appli et SES comptes uniquement (éditeur SQL, administrateur) :
 --     select public.supprimer_comptes_appli('fiches');
 -- (les fichiers du stockage de cette appli sont à supprimer à part dans Storage › fiches-ressources)
+
+-- ============================================================================
+-- 8. Chiffrement de bout en bout (Fiches) — appliqué le 24/11/2026
+--    Colonne « chiffre » = contenu chiffré dans le navigateur ; table fs_cles = clé de données
+--    enfermée par le mot de passe et par le code de récupération (le serveur ne peut pas l’ouvrir).
+-- ============================================================================
+alter table public.fs_classes            add column if not exists chiffre text;
+alter table public.fs_sequences          add column if not exists chiffre text;
+alter table public.fs_seances            add column if not exists chiffre text;
+alter table public.fs_ref_perso          add column if not exists chiffre text;
+alter table public.fs_ressources         add column if not exists chiffre text;
+alter table public.fs_attachments        add column if not exists chiffre text;
+alter table public.fs_calendrier         add column if not exists chiffre text;
+alter table public.fs_progress_override  add column if not exists chiffre text;
+alter table public.fs_modeles            add column if not exists chiffre text;
+alter table public.fs_settings           add column if not exists chiffre text;
+alter table public.fs_ressources drop constraint if exists fs_ressources_source;
+alter table public.fs_ressources add constraint fs_ressources_source
+  check (url is not null or storage_path is not null or chiffre is not null);
+create table if not exists public.fs_cles (
+  user_id uuid primary key default auth.uid() references auth.users(id) on delete cascade,
+  salt text not null, wrap_mdp text not null, wrap_rec text not null,
+  version smallint not null default 1, updated_at timestamptz not null default now());
+alter table public.fs_cles enable row level security;
+create policy fs_cles_own on public.fs_cles for all using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+create policy fs_cles_appli on public.fs_cles as restrictive for all using (app_autorisee('fiches')) with check (app_autorisee('fiches'));
+-- (la fonction fs_effacer_mes_donnees efface aussi fs_cles : voir la migration « chiffrement_bout_en_bout_fiches »)
